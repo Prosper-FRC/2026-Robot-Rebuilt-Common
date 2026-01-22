@@ -14,14 +14,12 @@ public class RobotConstants {
 
     // Declare and Assign general constants here.
     public final int kTeamNumber;
-    public final int kTeamNumberOverride = 5411;
     public final mode kMode;
 
     // Declare team specific constants here.
 
     private RobotConstants() {
-        // When in sim I don't think the team number can be retrieved since its based off of the RIO team number, not of the json pereferences.
-        kTeamNumber = RobotController.getTeamNumber() != 0 ? RobotController.getTeamNumber() : kTeamNumberOverride;
+        kTeamNumber = RobotController.getTeamNumber();
         if(RobotBase.isReal()) {
             kMode = mode.REAL;
         } else if(RobotBase.isSimulation()) {
@@ -39,6 +37,9 @@ public class RobotConstants {
                 break;
             case 9492:
                 // Assign team specific constants.
+                break;
+            case 0:
+                // Assign sim constants
                 break;
             default:
                 break;

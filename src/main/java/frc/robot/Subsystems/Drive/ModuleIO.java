@@ -1,8 +1,9 @@
-package frc.robot.Subsystems;
+package frc.robot.Subsystems.Drive;
 
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ModuleIO {
+    // TODO check unit conversion accuracy for ALL AK classes
     @AutoLog
     static class moduleInputs {
         public boolean driveOk = false;
@@ -44,8 +45,10 @@ public interface ModuleIO {
 
     default public void stopAzimuth() {}
 
-    default public void resetAzimuth() {}
+    default public void resetAzimuth(double position) {}
 
     // Misc
-    default public void updatePIDValues(double kP, double kI, double kD) {}
+    default public void updateDrivePIDValues(double kP, double kI, double kD) {}
+
+    default public void updateAzimuthPIDValues(double kP, double kI, double kD) {}
 }
