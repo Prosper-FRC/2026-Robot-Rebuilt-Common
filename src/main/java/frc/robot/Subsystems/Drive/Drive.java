@@ -7,6 +7,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drive extends SubsystemBase {
@@ -15,6 +16,7 @@ public class Drive extends SubsystemBase {
 
     private DoubleSupplier joystickX = () -> 0.0d;
     private DoubleSupplier joystickY = () -> 0.0d;
+    private DoubleSupplier joystickTheta = () -> 0.0d;
 
     private final SwerveDriveKinematics kKinematicsProcessor;
     private final SwerveDriveOdometry kOdometry;
@@ -47,13 +49,29 @@ public class Drive extends SubsystemBase {
         kGoalSpeeds = new ChassisSpeeds();
     }
 
-    public void assignJoysticks(DoubleSupplier stickX, DoubleSupplier stickY) {
+    public void assignJoysticks(DoubleSupplier stickX, DoubleSupplier stickY, DoubleSupplier stickTheta) {
         joystickX = stickX;
         joystickY = stickY;
+        joystickTheta = stickTheta;
     }
 
     @Override
     public void periodic() {
+        ChassisSpeeds.fromFieldRelativeSpeeds(joystickX.getAsDouble(), joystickY.getAsDouble(), joystickTheta.getAsDouble() * (2 * Math.PI), new Rotation2d(kGyro.getRotations().getMeasureZ()));
+        SwerveModuleState[] states = kKinematicsProcessor.toSwerveModuleStates(kGoalSpeeds);
         
+        for (int i = 0; i < 4; ++i) {
+            kModules[i].setAzimuthRotations(states[i].angle.getRotations());
+            kModules[i].setDriveMPS(states[i].speedMetersPerSecond * DriveConstants.getInstance().kSoftLimits.maximumLinearVelocityMPS());
+        }
+
+        kOdometry.update(new Rotation2d(kGyro.getRotations().getZ()),
+            new SwerveModulePosition[]
+            {
+                kModules[0].getAsSwerveModulePosition(), 
+                kModules[1].getAsSwerveModulePosition(),
+                kModules[2].getAsSwerveModulePosition(),
+                kModules[3].getAsSwerveModulePosition()
+            });
     }
 }
