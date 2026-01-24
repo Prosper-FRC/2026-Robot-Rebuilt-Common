@@ -3,6 +3,7 @@ package frc.robot.Subsystems.Drive;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -12,6 +13,7 @@ public class ModuleSim implements ModuleIO {
     private final DCMotorSim kAzimuthMotor;
     private final PIDController kDriveController;
     private final PIDController kAzimuthController;
+    private final SimpleMotorFeedforward kDrivFeedforward;
     @AutoLogOutput(key = "Drive/TargetDrive")
     private double driveTargetValue = 0.0d;
     @AutoLogOutput(key = "Drive/VoltageDrive")
@@ -22,12 +24,13 @@ public class ModuleSim implements ModuleIO {
     private double appliedAzimtuhVoltage = 0.0d;
 
     public ModuleSim() {
-        kDriveMotor = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.025d, DriveConstants.getInstance().kDriveGearing), DCMotor.getKrakenX60Foc(1), 0.0d, 0.0d);
-        kAzimuthMotor = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.025d, DriveConstants.getInstance().kAzimuthGearing), DCMotor.getKrakenX60Foc(1), 0.0d, 0.0d);
+        kDriveMotor = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.0005d, DriveConstants.getInstance().kDriveGearing), DCMotor.getKrakenX60Foc(1), 0.0d, 0.0d);
+        kAzimuthMotor = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.0005d, DriveConstants.getInstance().kAzimuthGearing), DCMotor.getKrakenX60Foc(1), 0.0d, 0.0d);
 
         kDriveController = DriveConstants.getInstance().kDrivePIDController;
         kAzimuthController = DriveConstants.getInstance().kAzimuthPIDController;
-        kAzimuthController.enableContinuousInput(-0.5d, 0.5d);
+        kDrivFeedforward = DriveConstants.getInstance().kSimDriveFeedforward;
+        kAzimuthController.enableContinuousInput(0.0d, 1.0d);
     }
 
     @Override
@@ -49,7 +52,8 @@ public class ModuleSim implements ModuleIO {
         toUpdate.driveSupplyVoltage = kDriveMotor.getInputVoltage();
         toUpdate.driveTemperatureCelcius = 20;
 
-        appliedDriveVoltage = kDriveController.calculate(toUpdate.driveVelocityRPS, driveTargetValue);
+        appliedDriveVoltage = kDriveController.calculate(toUpdate.driveVelocityRPS, driveTargetValue) + kDrivFeedforward.calculate(toUpdate.driveVelocityRPS);
+        System.out.println(toUpdate.driveVelocityRPS + ", " + driveTargetValue);
         appliedAzimtuhVoltage = kAzimuthController.calculate(toUpdate.azimuthPositionRotations, azimuthTargetValue);
         kDriveMotor.setInputVoltage(appliedDriveVoltage);
         kAzimuthMotor.setInputVoltage(appliedAzimtuhVoltage);

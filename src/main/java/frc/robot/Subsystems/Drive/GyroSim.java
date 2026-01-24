@@ -1,11 +1,5 @@
 package frc.robot.Subsystems.Drive;
 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.configs.Pigeon2Configuration;
-import com.ctre.phoenix6.hardware.Pigeon2;
-
-import frc.robot.Subsystems.Drive.GyroIO.gyroInputs;
-
 public class GyroSim implements GyroIO {
     private static double yaw = 0.0d;
     private static double deltaYaw = 0.0d;
@@ -14,6 +8,7 @@ public class GyroSim implements GyroIO {
 
     @Override
     public void updateInputs(gyroInputs toUpdate) {
+        toUpdate.isOK = true;
         toUpdate.rotationsYaw = yaw;
         toUpdate.rotationsRoll = 0.0d;
         toUpdate.rotationsPitch = 0.0d;
@@ -33,8 +28,8 @@ public class GyroSim implements GyroIO {
     }
 
     @Override
-    public void updateYaw(double omegaSecond, double dt) {
-        deltaYaw = omegaSecond;
-        yaw += omegaSecond * dt;
+    public void updateYaw(double omegaRotationsPerSecond, double dt) {
+        deltaYaw = omegaRotationsPerSecond;
+        yaw += omegaRotationsPerSecond * dt;
     }
 }

@@ -1,6 +1,7 @@
 package frc.robot.Subsystems.Drive;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.RobotConstants;
 
@@ -12,10 +13,11 @@ public class DriveConstants {
     public static record softLimits(double maximumAngularVelocityRotations, double maximumLinearVelocityMPS) {}
 
     // Declare and Assign general constants here.
-    public final double kDriveGearing = 1.0d;
-    public final double kAzimuthGearing = 150/7d;
+    public final double kDriveGearing = 4.0d;
+    public final double kAzimuthGearing = 1.5;
     public final double kMaxVoltage = 12.0d;
     public final int kGyroID = 0;
+    public final SimpleMotorFeedforward kSimDriveFeedforward = new SimpleMotorFeedforward(0.0d, 0.5d);
 
     // Declare team specific constants here.
     public final hardwareSpecifications kHardwareSpecifictions;
@@ -41,7 +43,7 @@ public class DriveConstants {
                 kModuleOffsets = new moduleOffsets(new Translation2d(-0.5d, 0.5d), 0.0d, new Translation2d(0.5d, 0.5d), 0.0d, new Translation2d(-0.5d, -0.5d), 0.0d, new Translation2d(0.5d, -0.5d), 0.0d);
                 kDrivePIDController = new PIDController(0.05d, 0.0d, 0.025);
                 kAzimuthPIDController = new PIDController(0.05d, 0.0d, 0.025d);
-                kSoftLimits = new softLimits(0.5d, 6.0d);
+                kSoftLimits = new softLimits(0.5d, 4.5d);
                 break;
             case 9105:
                 // Assign team specific constants.
@@ -49,7 +51,7 @@ public class DriveConstants {
                 kModuleOffsets = new moduleOffsets(new Translation2d(-0.5d, 0.5d), 0.0d, new Translation2d(0.5d, 0.5d), 0.0d, new Translation2d(-0.5d, -0.5d), 0.0d, new Translation2d(0.5d, -0.5d), 0.0d);
                 kDrivePIDController = new PIDController(0.05d, 0.0d, 0.025);
                 kAzimuthPIDController = new PIDController(0.05d, 0.0d, 0.025d);
-                kSoftLimits = new softLimits(0.5d, 6.0d);
+                kSoftLimits = new softLimits(0.5d, 4.5d);
                 break;
             case 9492:
                 // Assign team specific constants.
@@ -57,22 +59,22 @@ public class DriveConstants {
                 kModuleOffsets = new moduleOffsets(new Translation2d(-0.5d, 0.5d), 0.0d, new Translation2d(0.5d, 0.5d), 0.0d, new Translation2d(-0.5d, -0.5d), 0.0d, new Translation2d(0.5d, -0.5d), 0.0d);
                 kDrivePIDController = new PIDController(0.05d, 0.0d, 0.025);
                 kAzimuthPIDController = new PIDController(0.05d, 0.0d, 0.025d);
-                kSoftLimits = new softLimits(0.5d, 6.0d);
+                kSoftLimits = new softLimits(0.5d, 4.5d);
                 break;
             case 0:
                 // Assign sim constants
-                kHardwareSpecifictions = new hardwareSpecifications(0.5d);
+                kHardwareSpecifictions = new hardwareSpecifications(0.05d);
                 kModuleOffsets = new moduleOffsets(new Translation2d(-0.5d, 0.5d), 0.0d, new Translation2d(0.5d, 0.5d), 0.0d, new Translation2d(-0.5d, -0.5d), 0.0d, new Translation2d(0.5d, -0.5d), 0.0d);
-                kDrivePIDController = new PIDController(8d, 0.0d, 0.0d);
-                kAzimuthPIDController = new PIDController(20d, 0.0d, 0.15d);
-                kSoftLimits = new softLimits(1.0d, 9.0d);
+                kDrivePIDController = new PIDController(0.75d, 0.0d, 0.0005d);
+                kAzimuthPIDController = new PIDController(2.5d, 0.0d, 0.005d);
+                kSoftLimits = new softLimits(1.0d, 4.5d);
                 break;
             default:
                 kHardwareSpecifictions = new hardwareSpecifications(0.0d);
                 kModuleOffsets = new moduleOffsets(new Translation2d(-0.5d, 0.5d), 0.0d, new Translation2d(0.5d, 0.5d), 0.0d, new Translation2d(-0.5d, -0.5d), 0.0d, new Translation2d(0.5d, -0.5d), 0.0d);
-                kDrivePIDController = new PIDController(0.05d, 0.0d, 0.025);
+                kDrivePIDController = new PIDController(0.05d, 0.0d, 0.0);
                 kAzimuthPIDController = new PIDController(0.05d, 0.0d, 0.025d);
-                kSoftLimits = new softLimits(0.5d, 6.0d);
+                kSoftLimits = new softLimits(0.05d, 4.5d);
                 break;
         }
     }
