@@ -13,11 +13,12 @@ public class DriveConstants {
     public static record softLimits(double maximumAngularVelocityRotations, double maximumLinearVelocityMPS) {}
 
     // Declare and Assign general constants here.
-    public final double kDriveGearing = 4.0d;
-    public final double kAzimuthGearing = 1.5;
-    public final double kMaxVoltage = 12.0d;
+    public final double kDriveGearing = 7/1d;
+    public final double kAzimuthGearing = 1.5/1;
+    public final double kRobotMassKG = 68.0d;
+    public final double kMaxVoltage = 15.0d;
     public final int kGyroID = 0;
-    public final SimpleMotorFeedforward kSimDriveFeedforward = new SimpleMotorFeedforward(0.0d, 0.5d);
+    public final SimpleMotorFeedforward kSimDriveFeedforward = new SimpleMotorFeedforward(0.0d, 0.615d);
 
     // Declare team specific constants here.
     public final hardwareSpecifications kHardwareSpecifictions;
@@ -65,9 +66,9 @@ public class DriveConstants {
                 // Assign sim constants
                 kHardwareSpecifictions = new hardwareSpecifications(0.05d);
                 kModuleOffsets = new moduleOffsets(new Translation2d(-0.5d, 0.5d), 0.0d, new Translation2d(0.5d, 0.5d), 0.0d, new Translation2d(-0.5d, -0.5d), 0.0d, new Translation2d(0.5d, -0.5d), 0.0d);
-                kDrivePIDController = new PIDController(0.75d, 0.0d, 0.0005d);
-                kAzimuthPIDController = new PIDController(2.5d, 0.0d, 0.005d);
-                kSoftLimits = new softLimits(1.0d, 4.5d);
+                kDrivePIDController = new PIDController(0.35d, 0.0d, 0.0d);
+                kAzimuthPIDController = new PIDController(1.75d, 0.0d, 0.005d);
+                kSoftLimits = new softLimits(1.0d, 4.0d);
                 break;
             default:
                 kHardwareSpecifictions = new hardwareSpecifications(0.0d);
