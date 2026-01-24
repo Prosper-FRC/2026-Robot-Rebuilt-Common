@@ -35,7 +35,7 @@ public class ModuleSim implements ModuleIO {
         kAzimuthController = DriveConstants.getInstance().kAzimuthPIDController;
         kDriveFeedforward = DriveConstants.getInstance().kSimDriveFeedforward;
 
-        kAzimuthController.enableContinuousInput(0.0d, 1.0d);
+        kAzimuthController.enableContinuousInput(0.0d, 0.5d);
     }
 
     @Override
