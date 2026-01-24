@@ -4,20 +4,58 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Helpers.TalonFXMotor;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Subsystems.Drive.Drive;
+import frc.robot.Subsystems.Drive.DriveConstants;
+import frc.robot.Subsystems.Drive.GyroIO;
+import frc.robot.Subsystems.Drive.GyroPigeon2;
+import frc.robot.Subsystems.Drive.GyroSim;
+import frc.robot.Subsystems.Drive.ModuleIO;
+import frc.robot.Subsystems.Drive.ModuleSim;
+import frc.robot.Subsystems.Drive.ModuleTalonFX;
 
 public class RobotContainer {
-    private final TalonFXMotor kMotor = new TalonFXMotor(0, new TalonFXConfiguration());
+    public final Drive kDrive;
+    public final CommandXboxController kDriveController = new CommandXboxController(RobotConstants.getInstance().kDriveControllerPort);
 
     public RobotContainer() {
+        switch (RobotConstants.getInstance().kMode) {
+            case REAL:
+                kDrive = new Drive(
+                    new ModuleTalonFX[] {
+                        new ModuleTalonFX(DriveConstants.getInstance().kFLModuleIDs),
+                        new ModuleTalonFX(DriveConstants.getInstance().kFRModuleIDs),
+                        new ModuleTalonFX(DriveConstants.getInstance().kBLModuleIDs),
+                        new ModuleTalonFX(DriveConstants.getInstance().kBRModuleIDs)
+                    }, new GyroPigeon2());
+                break;
+            case REPLAY:
+                kDrive = new Drive(new ModuleIO[] {}, new GyroIO() {});
+                break;
+            case SIM:
+                kDrive = new Drive(new ModuleSim[] {
+                    new ModuleSim(),
+                    new ModuleSim(),
+                    new ModuleSim(),
+                    new ModuleSim()
+                }, new GyroSim());
+                break;
+            default:
+                kDrive = new Drive(new ModuleIO[] {}, new GyroIO() {});
+                break;
+        }
+
         configureBindings();
     }
 
-    private void configureBindings() {}
+    private void configureBindings() {
+        DriverStation.silenceJoystickConnectionWarning(true);;
+
+        kDrive.assignJoysticks(() -> kDriveController.getLeftX(), () -> kDriveController.getLeftY(), () -> kDriveController.getRightX());
+    }
 
     public Command getAutonomousCommand() {
         return Commands.print("No autonomous command configured");

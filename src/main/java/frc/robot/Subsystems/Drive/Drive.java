@@ -2,28 +2,50 @@ package frc.robot.Subsystems.Drive;
 
 import java.util.function.DoubleSupplier;
 
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drive extends SubsystemBase {
-    private final Module[] kModules = new Module[4];
-    private final Gyro kGyro;
+    public enum driveState {
+        Teleop    
+    }
+
+    private final ModuleIO[] kModules = new ModuleIO[4];
+    private final moduleInputsAutoLogged[] kModuleInputs = new moduleInputsAutoLogged[] {
+        new moduleInputsAutoLogged(), 
+        new moduleInputsAutoLogged(),
+        new moduleInputsAutoLogged(),
+        new moduleInputsAutoLogged()
+    };
+    private final GyroIO kGyro;
+    private final gyroInputsAutoLogged kGyroInputs = new gyroInputsAutoLogged();
 
     private DoubleSupplier joystickX = () -> 0.0d;
     private DoubleSupplier joystickY = () -> 0.0d;
     private DoubleSupplier joystickTheta = () -> 0.0d;
 
     private final SwerveDriveKinematics kKinematicsProcessor;
+
+    private driveState state = driveState.Teleop;
+    
+    @AutoLogOutput(key = "Drive/OdometryPose")
+    private Pose2d kOdometryPose = new Pose2d();
     private final SwerveDriveOdometry kOdometry;
-    private final ChassisSpeeds kGoalSpeeds;
+    private ChassisSpeeds kGoalSpeeds;
 
     // Modules should be inputted in this order: FL, FR, BL, BR.
-    public Drive(Module[] modules, Gyro gyro) {
+    public Drive(ModuleIO[] modules, GyroIO gyro) {
         for (int i = 0; i < 4; ++i) {
             kModules[i] = modules[i];
         }
@@ -37,14 +59,8 @@ public class Drive extends SubsystemBase {
         );
         kOdometry = new SwerveDriveOdometry(
             kKinematicsProcessor, 
-            new Rotation2d(kGyro.getRotations().getZ() * (2 * Math.PI)), 
-            new SwerveModulePosition[]
-            {
-                kModules[0].getAsSwerveModulePosition(), 
-                kModules[1].getAsSwerveModulePosition(),
-                kModules[2].getAsSwerveModulePosition(),
-                kModules[3].getAsSwerveModulePosition()
-            }
+            new Rotation2d(Units.rotationsToRadians(kGyro.getYawAngleRotations())),
+            new SwerveModulePosition[] {new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()}
         );
         kGoalSpeeds = new ChassisSpeeds();
     }
@@ -57,21 +73,67 @@ public class Drive extends SubsystemBase {
 
     @Override
     public void periodic() {
-        ChassisSpeeds.fromFieldRelativeSpeeds(joystickX.getAsDouble(), joystickY.getAsDouble(), joystickTheta.getAsDouble() * (2 * Math.PI), new Rotation2d(kGyro.getRotations().getMeasureZ()));
+        for(int i = 0; i < 4; ++i) {
+            kModules[i].updateInputs(kModuleInputs[i]);
+            Logger.processInputs("Drive/Module" + String.valueOf(i), kModuleInputs[i]);
+        }
+        kGyro.updateInputs(kGyroInputs);
+        Logger.processInputs("Drive/Gyro", kGyroInputs);
+
+
+        switch (state) {
+            case Teleop:
+                teleopState();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private double metersToRotations(double meters) {
+        return meters / (Math.PI * 2) / DriveConstants.getInstance().kHardwareSpecifictions.kWheelRadiusMeters();
+    }
+
+    private double[] processJoystickInputs(double x, double y, double omega) {
+        double processedX = Math.pow(x, 2);
+        double processedY = Math.pow(y, 2);
+        double processedOmega = Math.pow(omega, 2);
+
+        processedX *= Math.signum(x);
+        processedY *= Math.signum(y);
+        processedOmega *= Math.signum(omega);
+
+        processedX *= DriveConstants.getInstance().kSoftLimits.maximumLinearVelocityMPS();
+        processedY *= DriveConstants.getInstance().kSoftLimits.maximumLinearVelocityMPS();
+        processedOmega *= Units.rotationsToRadians(DriveConstants.getInstance().kSoftLimits.maximumAngularVelocityRotations());
+
+        return new double[]{processedX, processedY, processedOmega};
+    }
+
+    //////////// STATE UPDATES ////////////
+    private void teleopState() {
+        double[] processedInputs = processJoystickInputs(joystickX.getAsDouble(), joystickY.getAsDouble(), joystickTheta.getAsDouble());
+
+        kGoalSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(processedInputs[1], processedInputs[0], -processedInputs[2], new Rotation2d(Units.rotationsToRadians(kGyro.getYawAngleRotations())));
+        kGoalSpeeds = ChassisSpeeds.discretize(kGoalSpeeds, 0.02d);
         SwerveModuleState[] states = kKinematicsProcessor.toSwerveModuleStates(kGoalSpeeds);
-        
+        kGyro.updateYaw(Units.radiansToRotations(kGoalSpeeds.omegaRadiansPerSecond), 0.02d);
+            
         for (int i = 0; i < 4; ++i) {
+            states[i].optimize(new Rotation2d(Units.rotationsToRadians(kModuleInputs[i].azimuthPositionRotations)));
             kModules[i].setAzimuthRotations(states[i].angle.getRotations());
-            kModules[i].setDriveMPS(states[i].speedMetersPerSecond * DriveConstants.getInstance().kSoftLimits.maximumLinearVelocityMPS());
+            kModules[i].setDriveRPS(metersToRotations(states[i].speedMetersPerSecond));
         }
 
-        kOdometry.update(new Rotation2d(kGyro.getRotations().getZ()),
+        kOdometry.update(new Rotation2d(Units.rotationsToRadians(kGyro.getYawAngleRotations())),
             new SwerveModulePosition[]
             {
-                kModules[0].getAsSwerveModulePosition(), 
-                kModules[1].getAsSwerveModulePosition(),
-                kModules[2].getAsSwerveModulePosition(),
-                kModules[3].getAsSwerveModulePosition()
-            });
+                new SwerveModulePosition(kModuleInputs[0].drivePositionRotations, new Rotation2d(Units.rotationsToRadians(kModuleInputs[0].azimuthPositionRotations))),
+                new SwerveModulePosition(kModuleInputs[1].drivePositionRotations, new Rotation2d(Units.rotationsToRadians(kModuleInputs[1].azimuthPositionRotations))),
+                new SwerveModulePosition(kModuleInputs[2].drivePositionRotations, new Rotation2d(Units.rotationsToRadians(kModuleInputs[2].azimuthPositionRotations))),
+                new SwerveModulePosition(kModuleInputs[3].drivePositionRotations, new Rotation2d(Units.rotationsToRadians(kModuleInputs[3].azimuthPositionRotations)))
+            }
+        );
+        kOdometryPose = kOdometry.getPoseMeters();
     }
 }

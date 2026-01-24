@@ -15,6 +15,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.Subsystems.Drive.DriveConstants.moduleIDs;
 
 public class ModuleTalonFX implements ModuleIO {
     private final TalonFX kDriveMotor;
@@ -43,12 +44,16 @@ public class ModuleTalonFX implements ModuleIO {
     private final VoltageOut kVoltageControl = new VoltageOut(0.0d);
     private final NeutralOut kNeutralControl = new NeutralOut();
 
-    public ModuleTalonFX(int driveMotorID, int azimuthMotorID, int cancoderID, TalonFXConfiguration driveConfiguration, TalonFXConfiguration azimuthConfiguration) {
-        kDriveMotor = new TalonFX(driveMotorID);
-        kAzimuthMotor = new TalonFX(azimuthMotorID);
-        kDriveConfiguration = driveConfiguration.clone();
-        kAzimuthConfiguration = azimuthConfiguration.clone();
-        kCANcoder = new CANcoder(cancoderID);
+    public ModuleTalonFX(moduleIDs ids) {
+        kDriveConfiguration = new TalonFXConfiguration();
+        kAzimuthConfiguration = new TalonFXConfiguration();
+
+        kDriveMotor = new TalonFX(ids.driveID());
+        kAzimuthMotor = new TalonFX(ids.azimuthID());
+        kCANcoder = new CANcoder(ids.canCoderID());
+
+        kDriveMotor.getConfigurator().apply(kDriveConfiguration);
+        kAzimuthMotor.getConfigurator().apply(kAzimuthConfiguration);
 
         // Assigning status signals
         kDriveRotations = kDriveMotor.getPosition();

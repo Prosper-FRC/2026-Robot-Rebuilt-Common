@@ -15,4 +15,10 @@ public interface GyroIO {
     }
 
     default public void updateInputs(gyroInputs toUpdate) {}
+
+    default public double getYawAngleRotations() { return -1.0d; }
+
+    default public double getYawAngleRPS() { return -1.0d; }
+
+    default public void updateYaw(double omegaSecond, double dt) {}
 }

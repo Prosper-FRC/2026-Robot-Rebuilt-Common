@@ -19,9 +19,11 @@ public class GyroPigeon2 implements GyroIO {
     private final StatusSignal<AngularVelocity> kDeltaRoll;
     private final StatusSignal<AngularVelocity> kDeltaPitch;
 
-    public GyroPigeon2(int gyroID) {
-        kGyro = new Pigeon2(gyroID);
+    public GyroPigeon2() {
+        kGyro = new Pigeon2(DriveConstants.getInstance().kGyroID);
         kConfiguration = new Pigeon2Configuration();
+
+        kGyro.getConfigurator().apply(kConfiguration);
 
         kYaw = kGyro.getYaw();
         kRoll = kGyro.getRoll();
@@ -42,5 +44,15 @@ public class GyroPigeon2 implements GyroIO {
         toUpdate.rpsYaw = kDeltaYaw.getValueAsDouble() / 360;
         toUpdate.rpsRoll = kDeltaRoll.getValueAsDouble() / 360;
         toUpdate.rpsPitch = kDeltaPitch.getValueAsDouble() / 360;
+    }
+
+    @Override
+    public double getYawAngleRotations() {
+        return kYaw.getValueAsDouble();
+    }
+
+    @Override
+    public double getYawAngleRPS() {
+        return kDeltaYaw.getValueAsDouble();
     }
 }

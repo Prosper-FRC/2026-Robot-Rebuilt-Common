@@ -1,5 +1,7 @@
 package frc.robot.Subsystems.Drive;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -10,9 +12,13 @@ public class ModuleSim implements ModuleIO {
     private final DCMotorSim kAzimuthMotor;
     private final PIDController kDriveController;
     private final PIDController kAzimuthController;
+    @AutoLogOutput(key = "Drive/TargetDrive")
     private double driveTargetValue = 0.0d;
+    @AutoLogOutput(key = "Drive/VoltageDrive")
     private double appliedDriveVoltage = 0.0d;
+    @AutoLogOutput(key = "Drive/TargetAzimuth")
     private double azimuthTargetValue = 0.0d;
+    @AutoLogOutput(key = "Drive/VoltageAzimuth")
     private double appliedAzimtuhVoltage = 0.0d;
 
     public ModuleSim() {
@@ -21,6 +27,7 @@ public class ModuleSim implements ModuleIO {
 
         kDriveController = DriveConstants.getInstance().kDrivePIDController;
         kAzimuthController = DriveConstants.getInstance().kAzimuthPIDController;
+        kAzimuthController.enableContinuousInput(-0.5d, 0.5d);
     }
 
     @Override
@@ -35,12 +42,12 @@ public class ModuleSim implements ModuleIO {
         toUpdate.azimuthSupplyVoltage = kAzimuthMotor.getInputVoltage();
         toUpdate.azimuthTemperatureCelcius = 20;
 
-        toUpdate.azimuthPositionRotations = kDriveMotor.getAngularPositionRotations();
-        toUpdate.azimuthVelocityRPS = kDriveMotor.getAngularVelocityRPM() / 60;
-        toUpdate.azimuthSupplyCurrent = kDriveMotor.getCurrentDrawAmps();
-        toUpdate.azimuthStatorCurrent = kDriveMotor.getCurrentDrawAmps();
-        toUpdate.azimuthSupplyVoltage = kDriveMotor.getInputVoltage();
-        toUpdate.azimuthTemperatureCelcius = 20;
+        toUpdate.drivePositionRotations = kDriveMotor.getAngularPositionRotations();
+        toUpdate.driveVelocityRPS = kDriveMotor.getAngularVelocityRPM() / 60;
+        toUpdate.driveSupplyCurrent = kDriveMotor.getCurrentDrawAmps();
+        toUpdate.driveStatorCurrent = kDriveMotor.getCurrentDrawAmps();
+        toUpdate.driveSupplyVoltage = kDriveMotor.getInputVoltage();
+        toUpdate.driveTemperatureCelcius = 20;
 
         appliedDriveVoltage = kDriveController.calculate(toUpdate.driveVelocityRPS, driveTargetValue);
         appliedAzimtuhVoltage = kAzimuthController.calculate(toUpdate.azimuthPositionRotations, azimuthTargetValue);

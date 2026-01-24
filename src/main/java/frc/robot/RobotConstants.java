@@ -15,6 +15,7 @@ public class RobotConstants {
     // Declare and Assign general constants here.
     public final int kTeamNumber;
     public final mode kMode;
+    public final int kDriveControllerPort = 0;
 
     // Declare team specific constants here.
 
