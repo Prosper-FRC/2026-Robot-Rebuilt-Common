@@ -16,6 +16,7 @@ public class RobotConstants {
     public final int kTeamNumber;
     public final mode kMode;
     public final int kDriveControllerPort = 0;
+    public final double kTimestep = 0.02d;
 
     // Declare team specific constants here.
 

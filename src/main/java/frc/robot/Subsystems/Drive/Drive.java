@@ -1,12 +1,12 @@
 package frc.robot.Subsystems.Drive;
 
-import java.io.Console;
 import java.util.function.DoubleSupplier;
 
-import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -16,12 +16,15 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotConstants;
 
 public class Drive extends SubsystemBase {
+    // State enum
     public enum driveState {
-        Teleop    
+        Teleop
     }
 
+    // Initialization of modules
     private final ModuleIO[] kModules = new ModuleIO[4];
     private final moduleInputsAutoLogged[] kModuleInputs = new moduleInputsAutoLogged[] {
         new moduleInputsAutoLogged(), 
@@ -35,6 +38,8 @@ public class Drive extends SubsystemBase {
     private DoubleSupplier joystickX = () -> 0.0d;
     private DoubleSupplier joystickY = () -> 0.0d;
     private DoubleSupplier joystickTheta = () -> 0.0d;
+    private final SlewRateLimiter kXRateLimiter = new SlewRateLimiter(7.0d);
+    private final SlewRateLimiter kYRateLimiter = new SlewRateLimiter(7.0d);
 
     private final SwerveDriveKinematics kKinematicsProcessor;
 
@@ -66,12 +71,6 @@ public class Drive extends SubsystemBase {
         kGoalSpeeds = new ChassisSpeeds();
     }
 
-    public void assignJoysticks(DoubleSupplier stickX, DoubleSupplier stickY, DoubleSupplier stickTheta) {
-        joystickX = stickX;
-        joystickY = stickY;
-        joystickTheta = stickTheta;
-    }
-
     @Override
     public void periodic() {
         for(int i = 0; i < 4; ++i) {
@@ -91,10 +90,10 @@ public class Drive extends SubsystemBase {
     }
 
     private double metersToRotations(double meters) {
-        return meters / (Math.PI * 2) / DriveConstants.getInstance().kHardwareSpecifictions.kWheelRadiusMeters();
+        return meters / (Math.PI * 2) / DriveConstants.getInstance().kWheelRadiusMeters;
     }
     private double rotationsToMeters(double rotations) {
-        return rotations * (Math.PI * 2) * DriveConstants.getInstance().kHardwareSpecifictions.kWheelRadiusMeters();
+        return rotations * (Math.PI * 2) * DriveConstants.getInstance().kWheelRadiusMeters;
     }
 
     private double[] processJoystickInputs(double x, double y, double omega) {
@@ -102,8 +101,16 @@ public class Drive extends SubsystemBase {
         double processedY = Math.pow(y, 2);
         double processedOmega = Math.pow(omega, 2);
 
+        processedX = MathUtil.applyDeadband(processedX, DriveConstants.getInstance().kJoystickDeadzone);
+        processedY = MathUtil.applyDeadband(processedY, DriveConstants.getInstance().kJoystickDeadzone);
+        processedOmega = MathUtil.applyDeadband(processedOmega, DriveConstants.getInstance().kJoystickDeadzone);
+
         processedX *= Math.signum(x);
         processedY *= Math.signum(y);
+
+        processedX = kXRateLimiter.calculate(processedX);
+        processedY = kYRateLimiter.calculate(processedY);
+        
         processedOmega *= Math.signum(omega);
 
         processedX *= DriveConstants.getInstance().kSoftLimits.maximumLinearVelocityMPS();
@@ -118,7 +125,14 @@ public class Drive extends SubsystemBase {
         double[] processedInputs = processJoystickInputs(joystickX.getAsDouble(), joystickY.getAsDouble(), joystickTheta.getAsDouble());
 
         kGoalSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(processedInputs[1], processedInputs[0], -processedInputs[2], new Rotation2d(Units.rotationsToRadians(kGyro.getYawAngleRotations())));
-        kGoalSpeeds = ChassisSpeeds.discretize(kGoalSpeeds, 0.02d);
+        SwerveModuleState[] desaturateStates = kKinematicsProcessor.toSwerveModuleStates(kGoalSpeeds);
+        // Desaturate the wheels before discretizing them.
+        for(int i = 0; i < 4; ++i) {
+            SwerveDriveKinematics.desaturateWheelSpeeds(desaturateStates, DriveConstants.getInstance().kSoftLimits.maximumLinearVelocityMPS());
+        }
+        // Reconvert these desaturated speeds to a chassis to be discretized
+        kGoalSpeeds = kKinematicsProcessor.toChassisSpeeds(desaturateStates);
+        kGoalSpeeds = ChassisSpeeds.discretize(kGoalSpeeds, RobotConstants.getInstance().kTimestep);
         SwerveModuleState[] states = kKinematicsProcessor.toSwerveModuleStates(kGoalSpeeds);
         updateGyroOdometry();
             
@@ -146,6 +160,17 @@ public class Drive extends SubsystemBase {
         }
 
         ChassisSpeeds currentSpeeds = kKinematicsProcessor.toChassisSpeeds(currentState);
-        kGyro.updateYaw(Units.radiansToRotations(currentSpeeds.omegaRadiansPerSecond), 0.02d);
+        kGyro.updateYaw(Units.radiansToRotations(currentSpeeds.omegaRadiansPerSecond), RobotConstants.getInstance().kTimestep);
+    }
+
+    // Public methods
+    public void assignJoysticks(DoubleSupplier stickX, DoubleSupplier stickY, DoubleSupplier stickTheta) {
+        joystickX = stickX;
+        joystickY = stickY;
+        joystickTheta = stickTheta;
+    }
+
+    public void setDriveState(driveState stateToSet) {
+        state = stateToSet;
     }
 }
