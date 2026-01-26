@@ -122,7 +122,7 @@ public class ModuleSim implements ModuleIO {
     }
 
     @Override
-    public void resetAzimuth(double position) {
+    public void resetAzimuth() {
         kAzimuthMotor.setAngle(0.0d);
     }
 

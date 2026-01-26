@@ -20,6 +20,8 @@ public interface ModuleIO {
         public double azimuthStatorCurrent = 0.0d;
         public double azimuthSupplyCurrent = 0.0d;
         public double azimuthSupplyVoltage = 0.0d;
+
+        public boolean CANCoderOk = false;
     }
 
     default public void updateInputs(moduleInputs toUpdate) {}
@@ -80,10 +82,9 @@ public interface ModuleIO {
     default public void stopAzimuth() {}
 
     /**
-     * sets the CANCoder reading to some degrees, this is to account for wheel offsets.
-     * @param position The rotations to offset the motor by.
+     * sets the CANCoder reading to zero degrees.
      */
-    default public void resetAzimuth(double position) {}
+    default public void resetAzimuth() {}
 
     // Misc
 

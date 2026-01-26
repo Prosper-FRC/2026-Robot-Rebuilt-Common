@@ -27,10 +27,10 @@ public class RobotContainer {
             case REAL:
                 kDrive = new Drive(
                     new ModuleTalonFX[] {
-                        new ModuleTalonFX(DriveConstants.getInstance().kFLModuleIDs),
-                        new ModuleTalonFX(DriveConstants.getInstance().kFRModuleIDs),
-                        new ModuleTalonFX(DriveConstants.getInstance().kBLModuleIDs),
-                        new ModuleTalonFX(DriveConstants.getInstance().kBRModuleIDs)
+                        new ModuleTalonFX(DriveConstants.getInstance().kFLModuleIDs, DriveConstants.getInstance().kFLModuleOffsets),
+                        new ModuleTalonFX(DriveConstants.getInstance().kFRModuleIDs, DriveConstants.getInstance().kFRModuleOffsets),
+                        new ModuleTalonFX(DriveConstants.getInstance().kBLModuleIDs, DriveConstants.getInstance().kBLModuleOffsets),
+                        new ModuleTalonFX(DriveConstants.getInstance().kBRModuleIDs, DriveConstants.getInstance().kBRModuleOffsets)
                     }, new GyroPigeon2());
                 break;
             case REPLAY:

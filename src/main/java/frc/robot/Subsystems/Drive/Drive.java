@@ -58,10 +58,10 @@ public class Drive extends SubsystemBase {
         kGyro = gyro;
 
         kKinematicsProcessor = new SwerveDriveKinematics(
-            DriveConstants.getInstance().kModuleOffsets.FLPoseOffset(),
-            DriveConstants.getInstance().kModuleOffsets.FRPoseOffset(),
-            DriveConstants.getInstance().kModuleOffsets.BLPoseOffset(),
-            DriveConstants.getInstance().kModuleOffsets.BRPoseOffset()
+            DriveConstants.getInstance().kFLModuleOffsets.poseOffset(),
+            DriveConstants.getInstance().kFRModuleOffsets.poseOffset(),
+            DriveConstants.getInstance().kBLModuleOffsets.poseOffset(),
+            DriveConstants.getInstance().kBRModuleOffsets.poseOffset()
         );
         kOdometry = new SwerveDriveOdometry(
             kKinematicsProcessor, 
