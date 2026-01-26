@@ -55,4 +55,9 @@ public class GyroPigeon2 implements GyroIO {
     public double getYawAngleRPS() {
         return kDeltaYaw.getValueAsDouble();
     }
+
+    @Override
+    public void resetGyro() {
+        kGyro.reset();
+    }
 }

@@ -16,9 +16,28 @@ public interface GyroIO {
 
     default public void updateInputs(gyroInputs toUpdate) {}
 
+    /**
+     * Reads the angle of the gyroscope, the dummy layer always returns -1.0.
+     * @return The current angle in rotations on the Z axis of the robot.
+     */
     default public double getYawAngleRotations() { return -1.0d; }
 
+    /**
+     * Reads the change in angle of the gyroscope, the dummy layer always returns -1.0.
+     * @return The change in angle in rotations per second on the Z axis of the robot.
+     */
     default public double getYawAngleRPS() { return -1.0d; }
 
-    default public void updateYaw(double omegaSecond, double dt) {}
+    /**
+     * When extra processing is needed before updating the gyroscope, this method is really
+     * only used to update the sim gyroscope however, since most real gyroscopes actually work.
+     * @param omega The change in angle between this update and the previous update (This should be calculated via swerve odometry).
+     * @param dt The change in time.
+     */
+    default public void updateYaw(double omega, double dt) {}
+
+    /**
+     * Resets the gyroscope reading to zero (Currently unsused because I don't want to set up commands just yet).
+     */
+    default public void resetGyro() {}
 }

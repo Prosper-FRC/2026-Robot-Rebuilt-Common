@@ -28,8 +28,13 @@ public class GyroSim implements GyroIO {
     }
 
     @Override
-    public void updateYaw(double omegaRotationsPerSecond, double dt) {
-        deltaYaw = omegaRotationsPerSecond;
-        yaw += omegaRotationsPerSecond * dt;
+    public void updateYaw(double omega, double dt) {
+        deltaYaw = omega;
+        yaw += omega * dt;
+    }
+
+    @Override
+    public void resetGyro() {
+        yaw = 0.0d;
     }
 }

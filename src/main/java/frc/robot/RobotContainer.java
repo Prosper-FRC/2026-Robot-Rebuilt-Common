@@ -5,8 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Subsystems.Drive.Drive;
 import frc.robot.Subsystems.Drive.DriveConstants;
@@ -18,10 +16,13 @@ import frc.robot.Subsystems.Drive.ModuleSim;
 import frc.robot.Subsystems.Drive.ModuleTalonFX;
 
 public class RobotContainer {
+    // Declare robot constants and subsystems.
     public final Drive kDrive;
     public final CommandXboxController kDriveController = new CommandXboxController(RobotConstants.getInstance().kDriveControllerPort);
 
     public RobotContainer() {
+        // Initializes the subsystems.
+        // TODO Replace this process with a superstructure?
         switch (RobotConstants.getInstance().kMode) {
             case REAL:
                 kDrive = new Drive(
@@ -51,13 +52,10 @@ public class RobotContainer {
         configureBindings();
     }
 
+    // Bind buttons to hardware.
     private void configureBindings() {
         DriverStation.silenceJoystickConnectionWarning(true);;
 
         kDrive.assignJoysticks(() -> kDriveController.getLeftX(), () -> kDriveController.getLeftY(), () -> kDriveController.getRightX());
-    }
-
-    public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
     }
 }

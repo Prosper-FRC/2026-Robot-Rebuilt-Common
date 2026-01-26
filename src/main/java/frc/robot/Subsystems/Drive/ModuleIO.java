@@ -3,7 +3,6 @@ package frc.robot.Subsystems.Drive;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ModuleIO {
-    // TODO check unit conversion accuracy for ALL AK classes
     @AutoLog
     static class moduleInputs {
         public boolean driveOk = false;
@@ -26,29 +25,81 @@ public interface ModuleIO {
     default public void updateInputs(moduleInputs toUpdate) {}
 
     // Drive methods
+
+    /**
+     * Sets the target drive position in rotations (Not implemented into sim).
+     * @param rotations The number of rotations.
+     */
     default public void setDriveRotations(double rotations) {}
 
+    /**
+     * Sets the target drive velocity in rotations per second.
+     * @param rps The number of rotations per second to target.
+     */
     default public void setDriveRPS(double rps) {}
 
+    /**
+     * Sets the voltage applied to the drive motor.
+     * @param volts The voltage to apply to the drive motor.
+     */
     default public void setDriveVoltage(double volts) {}
 
+    /**
+     * Stops the motor.
+     */
     default public void stopDrive() {}
 
+    /**
+     * Sets the encoder reading of the drive motor to zero.
+     */
     default public void resetDrive() {}
 
     // Azimuth methods
+
+    /**
+     * Sets the target position of the azimuth in rotations.
+     * @param rotations The number of rotations to target.
+     */
     default public void setAzimuthRotations(double rotations) {}
 
+    /**
+     * Sets the target velocity of the azimuth in rotations per second (Not implemented into sim).
+     * @param rps The number of rotations per second to target.
+     */
     default public void setAzimuthRPS(double rps) {}
 
+    /**
+     * Sets the voltage applied to the azimuth motor.
+     * @param volts The voltage applied to the azimuth motor.
+     */
     default public void setAzimuthVoltage(double volts) {}
 
+    /**
+     * Stops the motor.
+     */
     default public void stopAzimuth() {}
 
+    /**
+     * sets the CANCoder reading to some degrees, this is to account for wheel offsets.
+     * @param position The rotations to offset the motor by.
+     */
     default public void resetAzimuth(double position) {}
 
     // Misc
+
+    /**
+     * Updates the PID values for the drive motor configuration (Not currently implemented).
+     * @param kP The P term.
+     * @param kI The I term.
+     * @param kD The D term.
+     */
     default public void updateDrivePIDValues(double kP, double kI, double kD) {}
 
+    /**
+     * Updates the PID values for the azimuth motor configuration (Not currently implemented).
+     * @param kP The P term.
+     * @param kI The I term.
+     * @param kD The D term.
+     */
     default public void updateAzimuthPIDValues(double kP, double kI, double kD) {}
 }

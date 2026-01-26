@@ -158,7 +158,6 @@ public class ModuleTalonFX implements ModuleIO {
         kCANcoder.setPosition(0.0d);
     }
 
-    // Misc (No implementation just yet because I don't feel like it until we tune PID)
     @Override
     public void updateDrivePIDValues(double kP, double kI, double kD) {}
 
