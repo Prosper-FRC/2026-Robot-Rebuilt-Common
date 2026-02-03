@@ -7,6 +7,7 @@ public class IntakeConstants {
 
     // Declare and Assign general constants here.
     public final int kTeamNumber;
+    public final double kRollerRPS = 0.0d;
 
     // Declare team specific constants here.
 
