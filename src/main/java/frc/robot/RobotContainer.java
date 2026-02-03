@@ -4,14 +4,7 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Helpers.TalonFXMotor;
-
 public class RobotContainer {
-    private final TalonFXMotor kMotor = new TalonFXMotor(0, new TalonFXConfiguration());
 
     public RobotContainer() {
         configureBindings();
@@ -19,7 +12,4 @@ public class RobotContainer {
 
     private void configureBindings() {}
 
-    public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
-    }
 }
