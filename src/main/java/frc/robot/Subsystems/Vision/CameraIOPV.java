@@ -49,11 +49,11 @@ public class CameraIOPV implements CameraIO {
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cameraTransform);
         poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
 
-        if(RobotConstants.kMode == mode.SIM) {  // Why is this variable not static like how it is in reefscape
+        if(RobotConstants.getInstance().kMode == mode.SIM) {  // Why is this variable not static like how it is in reefscape
             // Create the vision system simulation which handles cameras and targets on the field.
             visionSim = new VisionSystemSim("main");
             // Add all the AprilTags inside the tag layout as visible targets to this simulated field.
-            visionSim.addAprilTags(AprilTagFields.k2026RebuiltAndymark.loadAprilTagLayoutField()); // This should be the correct season but the docs also say this method is deprecated and to use:  AprilTagFieldLayout.loadField(AprilTagFields) instead
+            visionSim.addAprilTags(AprilTagFields.kDefaultField.loadAprilTagLayoutField()); // This should be the correct season but the docs also say this method is deprecated and to use:  AprilTagFieldLayout.loadField(AprilTagFields) instead
             // Create simulated camera properties. These can be set to mimic your actual camera.
             var cameraProp = new SimCameraProperties();
             cameraProp.setCalibration(960, 720, kOV2311DiagonalCameraFOV);
@@ -76,7 +76,7 @@ public class CameraIOPV implements CameraIO {
         // To stop the dangerous case where the camera disconnects, and causes the code to crash
         try {
             // Updates the position from which the cameras have to look at
-            if (RobotConstants.kMode == mode.SIM) { // Original reefscape code had kMode as static
+            if (RobotConstants.getInstance().kMode == mode.SIM) { // Original reefscape code had kMode as static
                 visionSim.update(simOdomPose);
             }
             

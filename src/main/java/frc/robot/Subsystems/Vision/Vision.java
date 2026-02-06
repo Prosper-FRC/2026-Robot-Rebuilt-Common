@@ -5,16 +5,16 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.Vector; 
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N3;
-import frc.robot.utils.debugging.LoggedTunableNumber; // Unsure how to add the utils folder, if it is any different from 2025 reefscape
+import frc.robot.utils.debugging.LoggedTunableNumber; // Unsure if logged tunable number file has an updated 2026 version
 import static frc.robot.Subsystems.Vision.VisionConstants.kSingleStdDevs;
 import static frc.robot.Subsystems.Vision.VisionConstants.kMultiStdDevs;
 import static frc.robot.Subsystems.Vision.VisionConstants.KUseSingleTagTransform;
-import static frc.robot.Subsystems.Vision.VisionConstants.kAmbiguityThreshold;;
+import static frc.robot.Subsystems.Vision.VisionConstants.kAmbiguityThreshold;
 
 public class Vision {
     private CameraIO[] cameras;
@@ -25,7 +25,7 @@ public class Vision {
     private static final LoggedTunableNumber kMultiXYStdev = new LoggedTunableNumber(
         "Vision/kMultiXYStdev", kMultiStdDevs.get(0));
 
-    private final AprilTagFieldLayout k2025Field = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    private final AprilTagFieldLayout k2025Field = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark); // 2026 field needed
 
     public Vision(CameraIO[] cameras) {
         Logger.recordOutput("Vision/UseSingleTagTransform", KUseSingleTagTransform);
