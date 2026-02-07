@@ -19,6 +19,10 @@ public class RobotConstants {
     public final double kTimestep = 0.02d;
     public static final boolean kTuningMode = true; 
 
+    // FALSE IT BEFORE COMPETITION
+    public static final boolean kTuningMode = true;
+
+
     // Declare team specific constants here.
 
     private RobotConstants() {
