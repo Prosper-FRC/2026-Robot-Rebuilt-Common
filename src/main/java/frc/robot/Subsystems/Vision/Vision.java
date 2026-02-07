@@ -10,23 +10,31 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N3;
+import frc.robot.Subsystems.Vision.CameraIO.CameraIOInputs;
 import frc.robot.utils.debugging.LoggedTunableNumber; // Unsure how to add the utils folder, if it is any different from 2025 reefscape
 import static frc.robot.Subsystems.Vision.VisionConstants.kSingleStdDevs;
 import static frc.robot.Subsystems.Vision.VisionConstants.kMultiStdDevs;
 import static frc.robot.Subsystems.Vision.VisionConstants.KUseSingleTagTransform;
 import static frc.robot.Subsystems.Vision.VisionConstants.kAmbiguityThreshold;;
 
+
 public class Vision {
     private CameraIO[] cameras;
     private CameraIOInputsAutoLogged[] camerasData;
+    
+    // FOR LIMELIGHTS ONLY
+    private boolean isLimelight = false;
+    private final CameraIOInputsAutoLogged inputsRight = new CameraIOInputsAutoLogged();
+    private final CameraIOInputsAutoLogged inputsLeft = new CameraIOInputsAutoLogged();
 
     private static final LoggedTunableNumber kSingleXYStdev = new LoggedTunableNumber(
         "Vision/kSingleXYStdev", kSingleStdDevs.get(0));
     private static final LoggedTunableNumber kMultiXYStdev = new LoggedTunableNumber(
         "Vision/kMultiXYStdev", kMultiStdDevs.get(0));
 
-    private final AprilTagFieldLayout k2025Field = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    private final AprilTagFieldLayout k2026Field = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
+    // PhotonVision
     public Vision(CameraIO[] cameras) {
         Logger.recordOutput("Vision/UseSingleTagTransform", KUseSingleTagTransform);
         this.cameras = cameras;
@@ -37,6 +45,7 @@ public class Vision {
     }
 
     public void periodic(Pose2d lastRobotPose, Pose2d simOdomPose) {
+        
         for(int i = 0; i < cameras.length; i++) {
             cameras[i].updateInputs(camerasData[i], lastRobotPose, simOdomPose);
             Logger.processInputs("Vision/"+camerasData[i].camName, camerasData[i]);
@@ -47,6 +56,7 @@ public class Vision {
         }
 
     }
+
 
     // Gets the vision data. Standard Deviations are how much we trus the vision value
     public VisionObservation[] getVisionObservations() {
@@ -109,7 +119,7 @@ public class Vision {
                     if(KUseSingleTagTransform) {
                         singleTagPose = 
                             // Pose of involved tag
-                            k2025Field.getTagPose(camData.singleTagAprilTagID).get().toPose2d()
+                            k2026Field.getTagPose(camData.singleTagAprilTagID).get().toPose2d()
                             // Transform pose to camera
                             .plus(new Transform2d(
                                     camData.cameraToApriltag.getX(), camData.cameraToApriltag.getY(), 

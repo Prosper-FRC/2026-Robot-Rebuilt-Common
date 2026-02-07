@@ -8,6 +8,10 @@ import org.littletonrobotics.junction.AutoLog;
 public interface CameraIO {
     @AutoLog
     public static class CameraIOInputs {
+
+        // LIMELIGHT ONLY
+        public Pose2d cameraToTarget = new Pose2d();
+
         public String camName = "";
         public boolean isConnected = false;
         public double yaw = 0.0;
