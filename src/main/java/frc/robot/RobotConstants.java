@@ -17,7 +17,6 @@ public class RobotConstants {
     public final mode kMode;
     public final int kDriveControllerPort = 0;
     public final double kTimestep = 0.02d;
-    public static final boolean kTuningMode = true; 
 
     // FALSE IT BEFORE COMPETITION
     public static final boolean kTuningMode = true;
