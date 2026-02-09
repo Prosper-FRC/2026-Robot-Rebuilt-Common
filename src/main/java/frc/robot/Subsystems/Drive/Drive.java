@@ -5,8 +5,6 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -17,160 +15,143 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotConstants;
+import frc.robot.Subsystems.Drive.Controllers.TeleopController;
 
 public class Drive extends SubsystemBase {
-    // State enum
     public enum driveState {
-        Teleop
+        TELEOP,
+        TELEOP_SNIPER
     }
+    private driveState state = driveState.TELEOP;
 
-    // Initialization of modules
-    private final ModuleIO[] kModules = new ModuleIO[4];
+    // Create IO layers
+    private final ModuleIO[] kModules;
+    private final GyroIO kGyro;
+
+    // Create inputs
     private final moduleInputsAutoLogged[] kModuleInputs = new moduleInputsAutoLogged[] {
-        new moduleInputsAutoLogged(), 
+        new moduleInputsAutoLogged(),
         new moduleInputsAutoLogged(),
         new moduleInputsAutoLogged(),
         new moduleInputsAutoLogged()
     };
-    private final GyroIO kGyro;
+
     private final gyroInputsAutoLogged kGyroInputs = new gyroInputsAutoLogged();
 
-    private DoubleSupplier joystickX = () -> 0.0d;
-    private DoubleSupplier joystickY = () -> 0.0d;
-    private DoubleSupplier joystickTheta = () -> 0.0d;
-    private final SlewRateLimiter kXRateLimiter = new SlewRateLimiter(7.0d);
-    private final SlewRateLimiter kYRateLimiter = new SlewRateLimiter(7.0d);
-
-    private final SwerveDriveKinematics kKinematicsProcessor;
-
-    private driveState state = driveState.Teleop;
-    
-    @AutoLogOutput(key = "Drive/OdometryPose")
-    private Pose2d kOdometryPose = new Pose2d();
+    // Initialize swerve related tools
+    private final SwerveDriveKinematics kKinematics;
     private final SwerveDriveOdometry kOdometry;
-    private ChassisSpeeds kGoalSpeeds;
 
-    // Modules should be inputted in this order: FL, FR, BL, BR.
-    public Drive(ModuleIO[] modules, GyroIO gyro) {
-        for (int i = 0; i < 4; ++i) {
-            kModules[i] = modules[i];
-        }
+    @AutoLogOutput(key = "Drive/Swerve/Speeds")
+    private ChassisSpeeds desiredSpeeds;
+
+    @AutoLogOutput(key = "Drive/OdometryPose")
+    private Pose2d odometryPose = new Pose2d();
+
+    @AutoLogOutput(key = "Drive/Swerve/States")
+    private SwerveModuleState[] states;
+
+    // For teleop control
+    private final TeleopController kTeleopController = new TeleopController();
+    
+    public Drive(ModuleIO moduleFR, ModuleIO moduleFL, ModuleIO moduleBR, ModuleIO moduleBL, GyroIO gyro) {
+        kModules = new ModuleIO[] {
+            moduleFR,
+            moduleFL,
+            moduleBR,
+            moduleBL
+        };
         kGyro = gyro;
 
-        kKinematicsProcessor = new SwerveDriveKinematics(
-            DriveConstants.getInstance().kFLModuleOffsets.poseOffset(),
-            DriveConstants.getInstance().kFRModuleOffsets.poseOffset(),
-            DriveConstants.getInstance().kBLModuleOffsets.poseOffset(),
-            DriveConstants.getInstance().kBRModuleOffsets.poseOffset()
+        kKinematics = new SwerveDriveKinematics(
+            RobotConstants.DriveConstants().kFRModuleOffsets.translationalOffset(),
+            RobotConstants.DriveConstants().kFLModuleOffsets.translationalOffset(),
+            RobotConstants.DriveConstants().kBRModuleOffsets.translationalOffset(),
+            RobotConstants.DriveConstants().kBLModuleOffsets.translationalOffset()
         );
-        kOdometry = new SwerveDriveOdometry(
-            kKinematicsProcessor, 
-            new Rotation2d(Units.rotationsToRadians(kGyro.getYawAngleRotations())),
-            new SwerveModulePosition[] {new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()}
+
+        kOdometry = new SwerveDriveOdometry(kKinematics, 
+            new Rotation2d(0.0d), 
+            getModulePositions()
         );
-        kGoalSpeeds = new ChassisSpeeds();
+    }
+
+    public void supplyControllerInputs(DoubleSupplier xInputs, DoubleSupplier yInput, DoubleSupplier angleInput) {
+        kTeleopController.supplyControllerInputs(xInputs, yInput, angleInput);
+    }
+
+    public void setDriveState(driveState driveState) { state = driveState; }
+
+    public driveState getDriveState() { return state; }
+    
+    public SwerveModulePosition[] getModulePositions() {
+        return new SwerveModulePosition[] {
+            new SwerveModulePosition(rotationsToMeters(kModuleInputs[0].drivePositionRotations), new Rotation2d(Units.rotationsToRadians(kModuleInputs[0].azimuthPositionRotations))),
+            new SwerveModulePosition(rotationsToMeters(kModuleInputs[1].drivePositionRotations), new Rotation2d(Units.rotationsToRadians(kModuleInputs[1].azimuthPositionRotations))),
+            new SwerveModulePosition(rotationsToMeters(kModuleInputs[2].drivePositionRotations), new Rotation2d(Units.rotationsToRadians(kModuleInputs[2].azimuthPositionRotations))),
+            new SwerveModulePosition(rotationsToMeters(kModuleInputs[3].drivePositionRotations), new Rotation2d(Units.rotationsToRadians(kModuleInputs[3].azimuthPositionRotations)))
+        };
+    }
+
+    public void optimizeModules(SwerveModuleState[] states) {
+        for(int i = 0; i < states.length; ++i) {
+        }
+    }
+
+    public double rotationsToMeters(double rotations) {
+        return Units.rotationsToRadians(rotations) * RobotConstants.DriveConstants().kModuleHardLimits.wheelRadiusMeters();
+    }
+    
+    public double metersToRotations(double meters) {
+        return meters / ((2 * Math.PI) * RobotConstants.DriveConstants().kModuleHardLimits.wheelRadiusMeters());
     }
 
     @Override
     public void periodic() {
-        for(int i = 0; i < 4; ++i) {
+        // Update inputs for IO layers.
+        for(int i = 0; i < kModuleInputs.length; ++i) {
             kModules[i].updateInputs(kModuleInputs[i]);
-            Logger.processInputs("Drive/Module" + String.valueOf(i), kModuleInputs[i]);
         }
         kGyro.updateInputs(kGyroInputs);
+
+        // Update AK Logging.
+        Logger.processInputs("Drive/ModuleFR", kModuleInputs[0]);
+        Logger.processInputs("Drive/ModuleFL", kModuleInputs[1]);
+        Logger.processInputs("Drive/ModuleBR", kModuleInputs[2]);
+        Logger.processInputs("Drive/ModuleBL", kModuleInputs[3]);
         Logger.processInputs("Drive/Gyro", kGyroInputs);
 
-        switch (state) {
-            case Teleop:
-                teleopState();
+        // Update Odometry.
+        odometryPose = kOdometry.update(new Rotation2d(Units.rotationsToRadians(kGyroInputs.yawRotations)), getModulePositions());
+
+        // Internal State Handling.
+        switch(state) {
+            case TELEOP:
+                // Compute chassis speeds.
+                desiredSpeeds = kTeleopController.getDesiredSpeeds(false);
+                break;
+            case TELEOP_SNIPER:
+                desiredSpeeds = kTeleopController.getDesiredSpeeds(true);
                 break;
             default:
                 break;
         }
-    }
+        // Discretized robot framed chassis speeds.
+        ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(desiredSpeeds, new Rotation2d(Units.rotationsToRadians(kGyroInputs.yawRotations)));
+        ChassisSpeeds discretizedSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, RobotConstants.Instance().kTimestep);
 
-    private double metersToRotations(double meters) {
-        return meters / (Math.PI * 2) / DriveConstants.getInstance().kWheelRadiusMeters;
-    }
-    private double rotationsToMeters(double rotations) {
-        return rotations * (Math.PI * 2) * DriveConstants.getInstance().kWheelRadiusMeters;
-    }
+        // Perform IK to get each indiviual module's goal setpoint and then desaturate to cap the speed.
+        SwerveModuleState[] moduleStates = kKinematics.toSwerveModuleStates(discretizedSpeeds);
+        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, RobotConstants.DriveConstants().kModuleSoftLimits.maxLinearVelocityMPS());
 
-    private double[] processJoystickInputs(double x, double y, double omega) {
-        double processedX = Math.pow(x, 2);
-        double processedY = Math.pow(y, 2);
-        double processedOmega = Math.pow(omega, 2);
+        // Optimize the modules so they never rotate more than 90 degrees.
+        optimizeModules(moduleStates);
+        states = moduleStates;
 
-        processedX = MathUtil.applyDeadband(processedX, DriveConstants.getInstance().kJoystickDeadzone);
-        processedY = MathUtil.applyDeadband(processedY, DriveConstants.getInstance().kJoystickDeadzone);
-        processedOmega = MathUtil.applyDeadband(processedOmega, DriveConstants.getInstance().kJoystickDeadzone);
-
-        processedX *= Math.signum(x);
-        processedY *= Math.signum(y);
-
-        processedX = kXRateLimiter.calculate(processedX);
-        processedY = kYRateLimiter.calculate(processedY);
-        
-        processedOmega *= Math.signum(omega);
-
-        processedX *= DriveConstants.getInstance().kSoftLimits.maximumLinearVelocityMPS();
-        processedY *= DriveConstants.getInstance().kSoftLimits.maximumLinearVelocityMPS();
-        processedOmega *= Units.rotationsToRadians(DriveConstants.getInstance().kSoftLimits.maximumAngularVelocityRotations());
-
-        return new double[]{processedX, processedY, processedOmega};
-    }
-
-    //////////// STATE UPDATES ////////////
-    private void teleopState() {
-        double[] processedInputs = processJoystickInputs(joystickX.getAsDouble(), joystickY.getAsDouble(), joystickTheta.getAsDouble());
-
-        kGoalSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(processedInputs[1], processedInputs[0], -processedInputs[2], new Rotation2d(Units.rotationsToRadians(kGyro.getYawAngleRotations())));
-        SwerveModuleState[] desaturateStates = kKinematicsProcessor.toSwerveModuleStates(kGoalSpeeds);
-        // Desaturate the wheels before discretizing them.
-        for(int i = 0; i < 4; ++i) {
-            SwerveDriveKinematics.desaturateWheelSpeeds(desaturateStates, DriveConstants.getInstance().kSoftLimits.maximumLinearVelocityMPS());
+        // Apply the modules goals to the actual motor.
+        for(int i = 0; i < kModules.length; ++i) {
+            kModules[i].setDriveRPS(metersToRotations(moduleStates[i].speedMetersPerSecond));
+            kModules[i].setAzimuthRotations(moduleStates[i].angle.getRotations());
         }
-        // Reconvert these desaturated speeds to a chassis to be discretized
-        kGoalSpeeds = kKinematicsProcessor.toChassisSpeeds(desaturateStates);
-        kGoalSpeeds = ChassisSpeeds.discretize(kGoalSpeeds, RobotConstants.getInstance().kTimestep);
-        SwerveModuleState[] states = kKinematicsProcessor.toSwerveModuleStates(kGoalSpeeds);
-        updateGyroOdometry();
-            
-        for (int i = 0; i < 4; ++i) {
-            states[i].optimize(new Rotation2d(Units.rotationsToRadians(kModuleInputs[i].azimuthPositionRotations)));
-            kModules[i].setAzimuthRotations(states[i].angle.getRotations());
-            kModules[i].setDriveRPS(metersToRotations(states[i].speedMetersPerSecond));
-        }
-        kOdometry.update(new Rotation2d(Units.rotationsToRadians(kGyro.getYawAngleRotations())),
-            new SwerveModulePosition[]
-            {
-                new SwerveModulePosition(rotationsToMeters(kModuleInputs[0].drivePositionRotations), new Rotation2d(Units.rotationsToRadians(kModuleInputs[0].azimuthPositionRotations))),
-                new SwerveModulePosition(rotationsToMeters(kModuleInputs[1].drivePositionRotations), new Rotation2d(Units.rotationsToRadians(kModuleInputs[1].azimuthPositionRotations))),
-                new SwerveModulePosition(rotationsToMeters(kModuleInputs[2].drivePositionRotations), new Rotation2d(Units.rotationsToRadians(kModuleInputs[2].azimuthPositionRotations))),
-                new SwerveModulePosition(rotationsToMeters(kModuleInputs[3].drivePositionRotations), new Rotation2d(Units.rotationsToRadians(kModuleInputs[3].azimuthPositionRotations)))
-            }
-        );
-        kOdometryPose = kOdometry.getPoseMeters();
-    }
-
-    private void updateGyroOdometry() {
-        SwerveModuleState[] currentState = new SwerveModuleState[4];
-        for(int i = 0; i < 4; ++i) {
-            currentState[i] = new SwerveModuleState(rotationsToMeters(kModuleInputs[i].driveVelocityRPS), new Rotation2d(Units.rotationsToRadians(kModuleInputs[i].azimuthPositionRotations)));
-        }
-
-        ChassisSpeeds currentSpeeds = kKinematicsProcessor.toChassisSpeeds(currentState);
-        kGyro.updateYaw(Units.radiansToRotations(currentSpeeds.omegaRadiansPerSecond), RobotConstants.getInstance().kTimestep);
-    }
-
-    // Public methods
-    public void assignJoysticks(DoubleSupplier stickX, DoubleSupplier stickY, DoubleSupplier stickTheta) {
-        joystickX = stickX;
-        joystickY = stickY;
-        joystickTheta = stickTheta;
-    }
-
-    public void setDriveState(driveState stateToSet) {
-        state = stateToSet;
     }
 }

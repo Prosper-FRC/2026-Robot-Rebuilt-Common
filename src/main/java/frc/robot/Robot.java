@@ -18,7 +18,7 @@ public class Robot extends LoggedRobot {
 
     public Robot() {
         // Sets up AK logging.
-        switch(RobotConstants.getInstance().kMode) {
+        switch(RobotConstants.Instance().kMode) {
             case REAL:
                 Logger.addDataReceiver(new WPILOGWriter());
                 Logger.addDataReceiver(new NT4Publisher());

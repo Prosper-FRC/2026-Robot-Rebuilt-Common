@@ -6,58 +6,57 @@ import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
+import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants.gyroOffsets;
 
 public class GyroPigeon2 implements GyroIO {
+    // Create an object to store the gyro
     private final Pigeon2 kGyro;
-    private final Pigeon2Configuration kConfiguration;
 
-    private final StatusSignal<Angle> kYaw;
+    // Create an instance the holds the gyro configurations.
+    private final Pigeon2Configuration kGyroConfiguration = new Pigeon2Configuration();
+
+    // Create objects to store the status signals of the Gyro.
     private final StatusSignal<Angle> kRoll;
     private final StatusSignal<Angle> kPitch;
-    private final StatusSignal<AngularVelocity> kDeltaYaw;
-    private final StatusSignal<AngularVelocity> kDeltaRoll;
-    private final StatusSignal<AngularVelocity> kDeltaPitch;
+    private final StatusSignal<Angle> kYaw;
 
-    public GyroPigeon2() {
-        kGyro = new Pigeon2(DriveConstants.getInstance().kGyroID);
-        kConfiguration = new Pigeon2Configuration();
+    public GyroPigeon2(int GyroID, gyroOffsets offsets, String CANBus) {
+        kGyro = new Pigeon2(GyroID, CANBus);
 
-        kGyro.getConfigurator().apply(kConfiguration);
+        // Apply offsets the the gyroscope
+        kGyroConfiguration.MountPose.MountPoseRoll = offsets.roll();
+        kGyroConfiguration.MountPose.MountPosePitch = offsets.pitch();
+        kGyroConfiguration.MountPose.MountPoseYaw = offsets.yaw();
 
-        kYaw = kGyro.getYaw();
+        // Store the references to the gyro sensor readings.
         kRoll = kGyro.getRoll();
         kPitch = kGyro.getPitch();
-        kDeltaYaw = kGyro.getAngularVelocityZDevice();
-        kDeltaRoll = kGyro.getAngularVelocityXDevice();
-        kDeltaPitch = kGyro.getAngularVelocityYDevice();
+        kYaw = kGyro.getYaw();
     }
 
     @Override
     public void updateInputs(gyroInputs toUpdate) {
-        toUpdate.isOK = BaseStatusSignal.refreshAll(kYaw, kRoll, kPitch,
-        kDeltaYaw, kDeltaRoll, kDeltaPitch).isOK();
+        toUpdate.isOk = BaseStatusSignal.refreshAll(
+            kRoll, kPitch, kYaw
+        ).isOK();
 
-        toUpdate.rotationsYaw = kYaw.getValueAsDouble() / 360;
-        toUpdate.rotationsRoll = kRoll.getValueAsDouble() / 360;
-        toUpdate.rotationsPitch = kPitch.getValueAsDouble() / 360;
-        toUpdate.rpsYaw = kDeltaYaw.getValueAsDouble() / 360;
-        toUpdate.rpsRoll = kDeltaRoll.getValueAsDouble() / 360;
-        toUpdate.rpsPitch = kDeltaPitch.getValueAsDouble() / 360;
+        toUpdate.rollRotations = kRoll.getValueAsDouble()/360;
+        toUpdate.pitchRotations = kPitch.getValueAsDouble()/360;
+        toUpdate.yawRotations = kYaw.getValueAsDouble()/360;
     }
 
     @Override
-    public double getYawAngleRotations() {
-        return kYaw.getValueAsDouble();
+    public void updateGyro(double yaw) {
+        kGyro.setYaw(kYaw.getValueAsDouble() + yaw);
     }
 
-    @Override
-    public double getYawAngleRPS() {
-        return kDeltaYaw.getValueAsDouble();
+    @Override 
+    public void setGyro(double yaw) {
+        kGyro.setYaw(yaw);
     }
 
     @Override
     public void resetGyro() {
-        kGyro.reset();
+        kGyro.setYaw(0.0d);
     }
 }

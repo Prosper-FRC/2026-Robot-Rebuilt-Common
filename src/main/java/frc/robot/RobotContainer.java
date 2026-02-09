@@ -7,45 +7,32 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Subsystems.Drive.Drive;
-import frc.robot.Subsystems.Drive.DriveConstants;
-import frc.robot.Subsystems.Drive.GyroIO;
-import frc.robot.Subsystems.Drive.GyroPigeon2;
 import frc.robot.Subsystems.Drive.GyroSim;
-import frc.robot.Subsystems.Drive.ModuleIO;
 import frc.robot.Subsystems.Drive.ModuleSim;
-import frc.robot.Subsystems.Drive.ModuleTalonFX;
 
 public class RobotContainer {
     // Declare robot constants and subsystems.
-    public final Drive kDrive;
-    public final CommandXboxController kDriveController = new CommandXboxController(RobotConstants.getInstance().kDriveControllerPort);
+    public final CommandXboxController kDriveController = new CommandXboxController(RobotConstants.Instance().kDriveControllerPort);
+    public Drive kDrive;
 
     public RobotContainer() {
         // Initializes the subsystems.
         // TODO Replace this process with a superstructure?
-        switch (RobotConstants.getInstance().kMode) {
+        switch (RobotConstants.Instance().kMode) {
             case REAL:
-                kDrive = new Drive(
-                    new ModuleTalonFX[] {
-                        new ModuleTalonFX(DriveConstants.getInstance().kFLModuleIDs, DriveConstants.getInstance().kFLModuleOffsets),
-                        new ModuleTalonFX(DriveConstants.getInstance().kFRModuleIDs, DriveConstants.getInstance().kFRModuleOffsets),
-                        new ModuleTalonFX(DriveConstants.getInstance().kBLModuleIDs, DriveConstants.getInstance().kBLModuleOffsets),
-                        new ModuleTalonFX(DriveConstants.getInstance().kBRModuleIDs, DriveConstants.getInstance().kBRModuleOffsets)
-                    }, new GyroPigeon2());
                 break;
             case REPLAY:
-                kDrive = new Drive(new ModuleIO[] {}, new GyroIO() {});
                 break;
             case SIM:
-                kDrive = new Drive(new ModuleSim[] {
-                    new ModuleSim(),
-                    new ModuleSim(),
-                    new ModuleSim(),
-                    new ModuleSim()
-                }, new GyroSim());
+                kDrive = new Drive(
+                    new ModuleSim(), 
+                    new ModuleSim(), 
+                    new ModuleSim(), 
+                    new ModuleSim(), 
+                    new GyroSim()
+                );
                 break;
             default:
-                kDrive = new Drive(new ModuleIO[] {}, new GyroIO() {});
                 break;
         }
 
@@ -54,8 +41,8 @@ public class RobotContainer {
 
     // Bind buttons to hardware.
     private void configureBindings() {
-        DriverStation.silenceJoystickConnectionWarning(true);;
+        DriverStation.silenceJoystickConnectionWarning(true);
 
-        kDrive.assignJoysticks(() -> kDriveController.getLeftX(), () -> kDriveController.getLeftY(), () -> kDriveController.getRightX());
+        kDrive.supplyControllerInputs(() -> kDriveController.getLeftX(), () -> kDriveController.getLeftY(), () -> kDriveController.getRightX());
     }
 }

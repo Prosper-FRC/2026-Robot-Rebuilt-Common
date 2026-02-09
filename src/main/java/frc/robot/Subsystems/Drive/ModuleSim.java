@@ -1,5 +1,7 @@
 package frc.robot.Subsystems.Drive;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -9,121 +11,110 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.RobotConstants;
 
 public class ModuleSim implements ModuleIO {
-    private final DCMotorSim kDriveMotor;
-    private final DCMotorSim kAzimuthMotor;
+    private final DCMotorSim kDrive;
+    private final DCMotorSim kAzimuth;
+    
     private final PIDController kDriveController;
     private final PIDController kAzimuthController;
     private final SimpleMotorFeedforward kDriveFeedforward;
-    private double driveTargetValue = 0.0d;
-    private double appliedDriveVoltage = 0.0d;
-    private double azimuthTargetValue = 0.0d;
-    private double appliedAzimtuhVoltage = 0.0d;
-    private double estimatedDriveVelocityRPS = 0.0d;
-    private double estimatedDrivePositionRotations = 0.0d;
-    private boolean enableDrivePID = true;
-    private boolean enableAzimuthPID = true;
+
+    @AutoLogOutput(key = "Drive/Sim/DriveGoal")
+    private double driveGoal = 0.0d;
+    @AutoLogOutput(key = "Drive/Sim/AzimuthGoal")
+    private double azimuthGoal = 0.0d;
+    @AutoLogOutput(key = "Drive/Sim/DriveVoltage")
+    private double driveAppliedVoltage = 0.0d;
+    @AutoLogOutput(key = "Drive/Sim/AzimuthVoltage")
+    private double azimuthAppliedVoltage = 0.0d;
 
     public ModuleSim() {
-        kDriveMotor = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.00035d, DriveConstants.getInstance().kDriveGearing), DCMotor.getKrakenX60Foc(1), 0.0d, 0.0d);
-        kAzimuthMotor = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.003d, DriveConstants.getInstance().kAzimuthGearing), DCMotor.getKrakenX60Foc(1), 0.0d, 0.0d);
+        // Set up motor simulators
+        kDrive = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.004d, RobotConstants.DriveConstants().kModuleHardLimits.driveGearRatio()), DCMotor.getKrakenX60(1), 0.0d, 0.0d);
+        kAzimuth = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44(1), 0.025d, RobotConstants.DriveConstants().kModuleHardLimits.azimuthGearRatio()), DCMotor.getKrakenX44(1), 0.0d, 0.0d);
 
-        kDriveController = DriveConstants.getInstance().kDrivePIDController;
-        kAzimuthController = DriveConstants.getInstance().kAzimuthPIDController;
-        kDriveFeedforward = DriveConstants.getInstance().kSimDriveFeedforward;
-
-        kAzimuthController.enableContinuousInput(-0.5d, 0.5d);
+        // Get PID values
+        kDriveController = RobotConstants.DriveConstants().kSimDrivePID;
+        kAzimuthController = RobotConstants.DriveConstants().kSimAzimuthPID;
+        kDriveFeedforward = RobotConstants.DriveConstants().kSimDriveFeedforward;
     }
 
     @Override
     public void updateInputs(moduleInputs toUpdate) {
+        // Update inputs
         toUpdate.driveOk = true;
         toUpdate.azimuthOk = true;
+        toUpdate.CANCoderOk = true;
 
-        toUpdate.azimuthPositionRotations = kAzimuthMotor.getAngularPositionRotations();
-        toUpdate.azimuthVelocityRPS = kAzimuthMotor.getAngularVelocityRPM() / 60;
-        toUpdate.azimuthSupplyCurrent = kAzimuthMotor.getCurrentDrawAmps();
-        toUpdate.azimuthStatorCurrent = kAzimuthMotor.getTorqueNewtonMeters();
-        toUpdate.azimuthSupplyVoltage = kAzimuthMotor.getInputVoltage();
-        toUpdate.azimuthTemperatureCelcius = 20;
+        toUpdate.drivePositionRotations = kDrive.getAngularPositionRotations();
+        toUpdate.driveVelocityRPS = kDrive.getAngularVelocityRPM()/60;
+        toUpdate.driveSupplyCurrent = kDrive.getCurrentDrawAmps();
+        toUpdate.driveSupplyVoltage = kDrive.getInputVoltage();
 
-        toUpdate.drivePositionRotations = estimatedDrivePositionRotations;
-        toUpdate.driveVelocityRPS = estimatedDriveVelocityRPS;
-        toUpdate.driveSupplyCurrent = kDriveMotor.getCurrentDrawAmps();
-        toUpdate.driveStatorCurrent = kDriveMotor.getTorqueNewtonMeters();
-        toUpdate.driveSupplyVoltage = kDriveMotor.getInputVoltage();
-        toUpdate.driveTemperatureCelcius = 20;
+        toUpdate.azimuthPositionRotations = kAzimuth.getAngularPositionRotations();
+        toUpdate.azimuthVelocityRPS = kAzimuth.getAngularVelocityRPM()/60;
+        toUpdate.azimuthSupplyCurrent = kAzimuth.getCurrentDrawAmps();
+        toUpdate.azimuthSupplyVoltage = kAzimuth.getInputVoltage();
 
-        if(enableDrivePID) {
-            appliedDriveVoltage = kDriveController.calculate(toUpdate.driveVelocityRPS, driveTargetValue) + kDriveFeedforward.calculate(driveTargetValue);
-        }
-        if(enableAzimuthPID) {
-            appliedAzimtuhVoltage = kAzimuthController.calculate(toUpdate.azimuthPositionRotations, azimuthTargetValue);
-        }
+        toUpdate.CANCoderPositionRotations = kAzimuth.getAngularPositionRotations();
 
-        appliedDriveVoltage = MathUtil.clamp(appliedDriveVoltage, -DriveConstants.getInstance().kMaxVoltage, DriveConstants.getInstance().kMaxVoltage);
-        appliedAzimtuhVoltage = MathUtil.clamp(appliedAzimtuhVoltage, -DriveConstants.getInstance().kMaxVoltage, DriveConstants.getInstance().kMaxVoltage);
+        // Update PID
+        // kAzimuthController.enableContinuousInput(-0.5d, 0.5d);
 
-        kDriveMotor.setInputVoltage(appliedDriveVoltage);
-        kAzimuthMotor.setInputVoltage(appliedAzimtuhVoltage);
+        driveAppliedVoltage = kDriveController.calculate(toUpdate.driveVelocityRPS, driveGoal) + kDriveFeedforward.calculate(driveGoal);
+        azimuthAppliedVoltage = kAzimuthController.calculate(toUpdate.azimuthPositionRotations, azimuthGoal);
         
-        // Some math stuff to keep up with the robots momentum on each wheel.
-        double force = kDriveMotor.getTorqueNewtonMeters()/DriveConstants.getInstance().kWheelRadiusMeters;
-        double acceleration = force/DriveConstants.getInstance().kRobotMassKG;
-        estimatedDriveVelocityRPS += acceleration;
-        estimatedDrivePositionRotations += estimatedDriveVelocityRPS * RobotConstants.getInstance().kTimestep;
+        driveAppliedVoltage = MathUtil.clamp(driveAppliedVoltage, -12.0d, 12.0d);
+        azimuthAppliedVoltage = MathUtil.clamp(azimuthAppliedVoltage, -12.0d, 12.0d);
 
-        kDriveMotor.update(RobotConstants.getInstance().kTimestep);
-        kAzimuthMotor.update(RobotConstants.getInstance().kTimestep);
+        kDrive.setInputVoltage(driveAppliedVoltage);
+        kAzimuth.setInputVoltage(azimuthAppliedVoltage);
+
+        kDrive.update(RobotConstants.Instance().kTimestep);
+        kAzimuth.update(RobotConstants.Instance().kTimestep);
     }
 
     // Drive methods
     @Override
     public void setDriveRPS(double rps) {
-        driveTargetValue = rps;
-        enableDrivePID = true;
+        driveGoal = rps;
     }
 
     @Override
     public void setDriveVoltage(double volts) {
-        appliedDriveVoltage = volts;
-        enableDrivePID = false;
+        driveAppliedVoltage = volts;
     }
 
     @Override
     public void stopDrive() {
-        appliedDriveVoltage = 0.0d;
-        driveTargetValue = 0.0d;
-        enableDrivePID = false;
+        driveGoal = 0.0d;
+        driveAppliedVoltage = 0.0d;
     }
 
     @Override
     public void resetDrive() {
-        kDriveMotor.setAngle(0.0);
+        kDrive.setAngle(0.0d);
     }
 
     // Azimuth methods
     @Override
     public void setAzimuthRotations(double rotations) {
-        azimuthTargetValue = rotations;
-        enableAzimuthPID = true;
+        azimuthGoal = rotations;
     }
 
     @Override
     public void setAzimuthVoltage(double volts) {
-        appliedAzimtuhVoltage = volts;
-        enableAzimuthPID = false;
+        azimuthAppliedVoltage = volts;
     }
 
     @Override
     public void stopAzimuth() {
-        azimuthTargetValue = 0.0d;
-        appliedAzimtuhVoltage = 0.0d;
-        enableAzimuthPID = false;
+        azimuthGoal = 0.0d;
+        azimuthAppliedVoltage = 0.0d;
     }
 
     @Override
     public void resetAzimuth() {
-        kAzimuthMotor.setAngle(0.0d);
+        kAzimuth.setAngle(0.0d);
     }
 
 } 

@@ -4,222 +4,249 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.Subsystems.Drive.DriveConstants.moduleIDs;
-import frc.robot.Subsystems.Drive.DriveConstants.moduleOffsets;
+import frc.robot.RobotConstants;
+import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants.moduleGains;
+import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants.moduleIDs;
+import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants.moduleOffsets;
 
 public class ModuleTalonFX implements ModuleIO {
-    private final TalonFX kDriveMotor;
-    private final TalonFX kAzimuthMotor;
-    private final TalonFXConfiguration kDriveConfiguration;
-    private final TalonFXConfiguration kAzimuthConfiguration;
+    // Create objects to hold motor and cancoder references.
+    private final TalonFX kDrive;
+    private final TalonFX kAzimuth;
     private final CANcoder kCANcoder;
-    private final CANcoderConfiguration kCANCoderConfig;
 
-    // Status Signals for logging and stuff.
-    private final StatusSignal<Angle> kDriveRotations;
-    private final StatusSignal<AngularVelocity> kDriveRPS;
+    // Create configuration instances to fully refresh motor configurations.
+    private final TalonFXConfiguration kDriveConfiguration = new TalonFXConfiguration();
+    private final TalonFXConfiguration kAzimuthConfiguration = new TalonFXConfiguration();
+    private final CANcoderConfiguration kCANcoderConfiguration = new CANcoderConfiguration();
+
+    // Create StatusSignal objects to hold motor/cancoder status.
+    private final StatusSignal<Angle> kDrivePosition;
+    private final StatusSignal<AngularVelocity> kDriveVelocity;
     private final StatusSignal<Temperature> kDriveTemperature;
     private final StatusSignal<Current> kDriveStatorCurrent;
     private final StatusSignal<Current> kDriveSupplyCurrent;
     private final StatusSignal<Voltage> kDriveSupplyVoltage;
 
-    private final StatusSignal<Angle> kAzimuthRotations;
-    private final StatusSignal<AngularVelocity> kAzimuthRPS;
+    private final StatusSignal<Angle> kAzimuthPosition;
+    private final StatusSignal<AngularVelocity> kAzimuthVelocity;
     private final StatusSignal<Temperature> kAzimuthTemperature;
     private final StatusSignal<Current> kAzimuthStatorCurrent;
     private final StatusSignal<Current> kAzimuthSupplyCurrent;
     private final StatusSignal<Voltage> kAzimuthSupplyVoltage;
+    
+    private final StatusSignal<Angle> kCANcoderPosition;
 
-    // TODO: Set up FOC once we have the subscription.
-    private final VelocityVoltage kVelocityControl = new VelocityVoltage(0.0d);
-    private final PositionVoltage kPositionControl = new PositionVoltage(0.0d);
+    // Create control objects to apply a control to the motors.
+    private final MotionMagicVoltage kPositionControl = new MotionMagicVoltage(0.0d);
+    private final MotionMagicVelocityVoltage kVelocityControl = new MotionMagicVelocityVoltage(0.0d);
     private final VoltageOut kVoltageControl = new VoltageOut(0.0d);
     private final NeutralOut kNeutralControl = new NeutralOut();
 
-    public ModuleTalonFX(moduleIDs ids, moduleOffsets offsets) {
-        kDriveConfiguration = new TalonFXConfiguration();
-        kAzimuthConfiguration = new TalonFXConfiguration();
-        kCANCoderConfig = new CANcoderConfiguration();
+    public ModuleTalonFX(moduleIDs ids, moduleOffsets offsets, moduleGains gains, String CANBus) {
+        kDrive = new TalonFX(ids.driveID(), CANBus);
+        kAzimuth = new TalonFX(ids.azimuthID(), CANBus);
+        kCANcoder = new CANcoder(ids.CANcoderID(), CANBus);
+        
+        // TODO: Reconfigure the motors with premium feature once we've activated the licenses
+        ///// DRIVE MOTOR /////
+        // Drive Gains
+        kDriveConfiguration.Slot0.kP = gains.driveGains().kP();
+        kDriveConfiguration.Slot0.kI = gains.driveGains().kI();
+        kDriveConfiguration.Slot0.kD = gains.driveGains().kD();
+        kDriveConfiguration.Slot0.kS = gains.driveGains().kS();
+        kDriveConfiguration.Slot0.kV = gains.driveGains().kV();
+        kDriveConfiguration.Slot0.kA = gains.driveGains().kA();
+        kDriveConfiguration.MotionMagic.MotionMagicAcceleration =  RobotConstants.DriveConstants().kModuleGains.driveMMGains().maxAcceleration();
 
-        kDriveMotor = new TalonFX(ids.driveID());
-        kAzimuthMotor = new TalonFX(ids.azimuthID());
-        kCANcoder = new CANcoder(ids.canCoderID());
+        // Drive Configurations
+        kDriveConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
+        kDriveConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
+        kDriveConfiguration.CurrentLimits.StatorCurrentLimit = RobotConstants.DriveConstants().kModuleCurrentLimits.driveStatorCurrentLimit();
+        kDriveConfiguration.CurrentLimits.SupplyCurrentLimit = RobotConstants.DriveConstants().kModuleCurrentLimits.driveSupplyCurrentLimit();
+        kDriveConfiguration.Voltage.PeakForwardVoltage = RobotConstants.DriveConstants().kModuleVoltageLimits.driveVoltagePeakRange();
+        kDriveConfiguration.Voltage.PeakReverseVoltage = -RobotConstants.DriveConstants().kModuleVoltageLimits.driveVoltagePeakRange();
+        kDriveConfiguration.Feedback.SensorToMechanismRatio = RobotConstants.DriveConstants().kModuleHardLimits.driveGearRatio();
 
-        // Configure motors
-        kDriveConfiguration.CurrentLimits.StatorCurrentLimit = DriveConstants.getInstance().kDriveCurrentConfig.statorCurrentLimit();
-        kDriveConfiguration.CurrentLimits.SupplyCurrentLimit = DriveConstants.getInstance().kDriveCurrentConfig.supplyCurrentLimit();
-        kDriveConfiguration.CurrentLimits.StatorCurrentLimitEnable = DriveConstants.getInstance().kDriveCurrentConfig.useStatorCurrentLimit();
-        kDriveConfiguration.CurrentLimits.SupplyCurrentLimitEnable = DriveConstants.getInstance().kDriveCurrentConfig.useSupplyCurrentLimit();
-        kDriveConfiguration.TorqueCurrent.PeakForwardTorqueCurrent = DriveConstants.getInstance().kDriveCurrentConfig.maxForwardTorque();
-        kDriveConfiguration.TorqueCurrent.PeakReverseTorqueCurrent = DriveConstants.getInstance().kDriveCurrentConfig.maxReverseTorque();
-        kDriveConfiguration.Feedback.SensorToMechanismRatio = DriveConstants.getInstance().kDriveGearing;
-        kDriveConfiguration.MotorOutput.Inverted = DriveConstants.getInstance().kDriveMotorOutputConfig.isInverted() ? InvertedValue.CounterClockwise_Positive : InvertedValue.Clockwise_Positive;
-        kDriveConfiguration.MotorOutput.NeutralMode = DriveConstants.getInstance().kDriveMotorOutputConfig.isBraked() ? NeutralModeValue.Brake : NeutralModeValue.Coast;
-        kDriveConfiguration.MotorOutput.PeakForwardDutyCycle = DriveConstants.getInstance().kDriveMotorOutputConfig.peakForwardDutyCycle();
-        kDriveConfiguration.MotorOutput.PeakForwardDutyCycle = DriveConstants.getInstance().kDriveMotorOutputConfig.peakReverseDutyCycle();
-        kDriveConfiguration.Voltage.PeakForwardVoltage = DriveConstants.getInstance().kDriveVoltageConfig.peakForwardVoltage();
-        kDriveConfiguration.Voltage.PeakReverseVoltage = DriveConstants.getInstance().kDriveVoltageConfig.peakReverseVoltage();
+        ///// AZIMUTH MOTOR /////
+        // Azimuth Gains
+        kAzimuthConfiguration.Slot0.kP = gains.azimuthGains().kP();
+        kAzimuthConfiguration.Slot0.kI = gains.azimuthGains().kI();
+        kAzimuthConfiguration.Slot0.kD = gains.azimuthGains().kD();
+        kAzimuthConfiguration.Slot0.kS = gains.azimuthGains().kS();
+        kAzimuthConfiguration.Slot0.kV = gains.azimuthGains().kV();
+        kAzimuthConfiguration.Slot0.kA = gains.azimuthGains().kA();
 
-        kAzimuthConfiguration.CurrentLimits.StatorCurrentLimit = DriveConstants.getInstance().kAzimuthCurrentConfig.statorCurrentLimit();
-        kAzimuthConfiguration.CurrentLimits.SupplyCurrentLimit = DriveConstants.getInstance().kAzimuthCurrentConfig.supplyCurrentLimit();
-        kAzimuthConfiguration.CurrentLimits.StatorCurrentLimitEnable = DriveConstants.getInstance().kAzimuthCurrentConfig.useStatorCurrentLimit();
-        kAzimuthConfiguration.CurrentLimits.SupplyCurrentLimitEnable = DriveConstants.getInstance().kAzimuthCurrentConfig.useSupplyCurrentLimit();
-        kAzimuthConfiguration.TorqueCurrent.PeakForwardTorqueCurrent = DriveConstants.getInstance().kAzimuthCurrentConfig.maxForwardTorque();
-        kAzimuthConfiguration.TorqueCurrent.PeakReverseTorqueCurrent = DriveConstants.getInstance().kAzimuthCurrentConfig.maxReverseTorque();
-        kAzimuthConfiguration.Feedback.SensorToMechanismRatio = DriveConstants.getInstance().kAzimuthGearing;
-        kAzimuthConfiguration.MotorOutput.Inverted = DriveConstants.getInstance().kAzimuthMotorOutputConfig.isInverted() ? InvertedValue.CounterClockwise_Positive : InvertedValue.Clockwise_Positive;
-        kAzimuthConfiguration.MotorOutput.NeutralMode = DriveConstants.getInstance().kAzimuthMotorOutputConfig.isBraked() ? NeutralModeValue.Brake : NeutralModeValue.Coast;
-        kAzimuthConfiguration.MotorOutput.PeakForwardDutyCycle = DriveConstants.getInstance().kAzimuthMotorOutputConfig.peakForwardDutyCycle();
-        kAzimuthConfiguration.MotorOutput.PeakForwardDutyCycle = DriveConstants.getInstance().kAzimuthMotorOutputConfig.peakReverseDutyCycle();
-        kAzimuthConfiguration.Voltage.PeakForwardVoltage = DriveConstants.getInstance().kAzimuthVoltageConfig.peakForwardVoltage();
-        kAzimuthConfiguration.Voltage.PeakReverseVoltage = DriveConstants.getInstance().kAzimuthVoltageConfig.peakReverseVoltage();
-        kCANCoderConfig.MagnetSensor.MagnetOffset = offsets.rotationOffset();
+        // Azimuth Configurations
+        kAzimuthConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
+        kAzimuthConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
+        kAzimuthConfiguration.CurrentLimits.StatorCurrentLimit = RobotConstants.DriveConstants().kModuleCurrentLimits.azimuthStatorCurrentLimit();
+        kAzimuthConfiguration.CurrentLimits.SupplyCurrentLimit = RobotConstants.DriveConstants().kModuleCurrentLimits.azimuthSupplyCurrentLimit();
+        kAzimuthConfiguration.Voltage.PeakForwardVoltage = RobotConstants.DriveConstants().kModuleVoltageLimits.azimuthVoltagePeakRange();
+        kAzimuthConfiguration.Voltage.PeakReverseVoltage = -RobotConstants.DriveConstants().kModuleVoltageLimits.azimuthVoltagePeakRange();
+        kAzimuthConfiguration.Feedback.SensorToMechanismRatio = RobotConstants.DriveConstants().kModuleHardLimits.azimuthGearRatio();
+
+        // Extra Azimuth Configuration
         kAzimuthConfiguration.Feedback.FeedbackRemoteSensorID = kCANcoder.getDeviceID();
-        kAzimuthConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        kAzimuthConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        kAzimuthConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
 
-        // Setting PIDF gains.
-        kDriveConfiguration.Slot0.kP = DriveConstants.getInstance().kDrivePIDController.getP();
-        kDriveConfiguration.Slot0.kI = DriveConstants.getInstance().kDrivePIDController.getI();
-        kDriveConfiguration.Slot0.kD = DriveConstants.getInstance().kDrivePIDController.getD();
-        kDriveConfiguration.Slot0.kA = DriveConstants.getInstance().kDriveGains.kA();
-        kDriveConfiguration.Slot0.kS = DriveConstants.getInstance().kDriveGains.kS();
-        kDriveConfiguration.Slot0.kV = DriveConstants.getInstance().kDriveGains.kV();
+        ///// CANCODER /////
+        kCANcoderConfiguration.MagnetSensor.MagnetOffset = offsets.rotationalOffset().getRotations();
 
-        kAzimuthConfiguration.Slot0.kP = DriveConstants.getInstance().kAzimuthPIDController.getP();
-        kAzimuthConfiguration.Slot0.kI = DriveConstants.getInstance().kAzimuthPIDController.getI();
-        kAzimuthConfiguration.Slot0.kD = DriveConstants.getInstance().kAzimuthPIDController.getD();
-        kAzimuthConfiguration.Slot0.kA = DriveConstants.getInstance().kAzimuthGains.kA();
-        kAzimuthConfiguration.Slot0.kS = DriveConstants.getInstance().kAzimuthGains.kS();
-        kAzimuthConfiguration.Slot0.kV = DriveConstants.getInstance().kAzimuthGains.kV();
-        // TODO: Motion magic!!!
+        // Applying the configurations
+        kDrive.getConfigurator().apply(kDriveConfiguration);
+        kAzimuth.getConfigurator().apply(kAzimuthConfiguration);
+        kCANcoder.getConfigurator().apply(kCANcoderConfiguration);
 
-        // Apply the configurations
-        kDriveMotor.getConfigurator().apply(kDriveConfiguration);
-        kAzimuthMotor.getConfigurator().apply(kAzimuthConfiguration);
-        kCANcoder.getConfigurator().apply(kCANCoderConfig);
+        // Getting the StatusSignals from the motors and cancoder.
+        kDrivePosition = kDrive.getPosition();
+        kDriveVelocity = kDrive.getVelocity();
+        kDriveTemperature = kDrive.getDeviceTemp();
+        kDriveStatorCurrent = kDrive.getStatorCurrent();
+        kDriveSupplyCurrent = kDrive.getSupplyCurrent();
+        kDriveSupplyVoltage = kDrive.getMotorVoltage();
 
-        // Assigning status signals
-        kDriveRotations = kDriveMotor.getPosition();
-        kDriveRPS = kDriveMotor.getVelocity();
-        kDriveTemperature = kDriveMotor.getDeviceTemp();
-        kDriveStatorCurrent = kDriveMotor.getStatorCurrent();
-        kDriveSupplyCurrent = kDriveMotor.getSupplyCurrent();
-        kDriveSupplyVoltage = kDriveMotor.getSupplyVoltage();
+        kAzimuthPosition = kAzimuth.getPosition();
+        kAzimuthVelocity = kAzimuth.getVelocity();
+        kAzimuthTemperature = kAzimuth.getDeviceTemp();
+        kAzimuthStatorCurrent = kAzimuth.getStatorCurrent();
+        kAzimuthSupplyCurrent = kAzimuth.getSupplyCurrent();
+        kAzimuthSupplyVoltage = kAzimuth.getMotorVoltage();
 
-        kAzimuthRotations = kCANcoder.getAbsolutePosition();
-        kAzimuthRPS = kCANcoder.getVelocity();
-        kAzimuthTemperature = kAzimuthMotor.getDeviceTemp();
-        kAzimuthStatorCurrent = kAzimuthMotor.getStatorCurrent();
-        kAzimuthSupplyCurrent = kAzimuthMotor.getSupplyCurrent();
-        kAzimuthSupplyVoltage = kAzimuthMotor.getSupplyVoltage();
+        kCANcoderPosition = kCANcoder.getAbsolutePosition();
     }
 
     @Override
     public void updateInputs(moduleInputs toUpdate) {
+        // Refresh all StatusSignals for latest data.
         toUpdate.driveOk = BaseStatusSignal.refreshAll(
-            kDriveRotations,
-            kDriveRPS,
+            kDrivePosition,
+            kDriveVelocity,
             kDriveTemperature,
             kDriveStatorCurrent,
             kDriveSupplyCurrent,
-            kDriveSupplyVoltage)
-        .isOK();
-
+            kDriveSupplyVoltage
+        ).isOK();
+        
         toUpdate.azimuthOk = BaseStatusSignal.refreshAll(
+            kAzimuthPosition,
+            kAzimuthVelocity,
             kAzimuthTemperature,
             kAzimuthStatorCurrent,
             kAzimuthSupplyCurrent,
-            kAzimuthSupplyVoltage)
-        .isOK();
+            kAzimuthSupplyVoltage
+        ).isOK();
 
-        toUpdate.CANCoderOk = BaseStatusSignal.refreshAll(kAzimuthRotations, kAzimuthRPS).isOK();
+        toUpdate.CANCoderOk = BaseStatusSignal.refreshAll(
+            kCANcoderPosition
+        ).isOK();
 
-        toUpdate.drivePositionRotations = kDriveRotations.getValueAsDouble();
-        toUpdate.driveVelocityRPS = kDriveRPS.getValueAsDouble();
+        // Set the driveInput values to the refreshed status signals.
+        toUpdate.drivePositionRotations = kDrivePosition.getValueAsDouble();
+        toUpdate.driveVelocityRPS = kDriveVelocity.getValueAsDouble();
         toUpdate.driveTemperatureCelcius = kDriveTemperature.getValueAsDouble();
         toUpdate.driveStatorCurrent = kDriveStatorCurrent.getValueAsDouble();
         toUpdate.driveSupplyCurrent = kDriveSupplyCurrent.getValueAsDouble();
         toUpdate.driveSupplyVoltage = kDriveSupplyVoltage.getValueAsDouble();
 
-        toUpdate.azimuthPositionRotations = kAzimuthRotations.getValueAsDouble();
-        toUpdate.azimuthVelocityRPS = kAzimuthRPS.getValueAsDouble();
+        toUpdate.azimuthPositionRotations = kAzimuthPosition.getValueAsDouble();
+        toUpdate.azimuthVelocityRPS = kAzimuthVelocity.getValueAsDouble();
         toUpdate.azimuthTemperatureCelcius = kAzimuthTemperature.getValueAsDouble();
         toUpdate.azimuthStatorCurrent = kAzimuthStatorCurrent.getValueAsDouble();
         toUpdate.azimuthSupplyCurrent = kAzimuthSupplyCurrent.getValueAsDouble();
         toUpdate.azimuthSupplyVoltage = kAzimuthSupplyVoltage.getValueAsDouble();
+
+        toUpdate.CANCoderPositionRotations = kCANcoderPosition.getValueAsDouble();
     }
 
-    // Drive methods
+    // Drive specific methods
     @Override
     public void setDriveRotations(double rotations) {
-        kDriveMotor.setControl(kPositionControl.withPosition(rotations).withSlot(0));
+        kDrive.setControl(kPositionControl.withPosition(rotations).withSlot(0));
     }
 
     @Override
     public void setDriveRPS(double rps) {
-        kDriveMotor.setControl(kVelocityControl.withVelocity(rps).withSlot(0));
+        kDrive.setControl(kVelocityControl.withVelocity(rps).withSlot(0));
     }
     
     @Override
     public void setDriveVoltage(double volts) {
-        kDriveMotor.setControl(kVoltageControl.withOutput(volts));
+        kDrive.setControl(kVoltageControl.withOutput(volts));
     }
 
     @Override
     public void stopDrive() {
-        kDriveMotor.setControl(kNeutralControl);
+        kDrive.setControl(kNeutralControl);
     }
 
     @Override
     public void resetDrive() {
-        kDriveMotor.setPosition(0.0d);
+        kDrive.setPosition(0.0d);
     }
 
-    // Azimuth methods
+    // Azimuth specific methods
     @Override
     public void setAzimuthRotations(double rotations) {
-        kAzimuthMotor.setControl(kPositionControl.withPosition(rotations).withSlot(0));
+        kAzimuth.setControl(kPositionControl.withPosition(rotations).withSlot(0));
     }
 
     @Override
     public void setAzimuthRPS(double rps) {
-        kAzimuthMotor.setControl(kVelocityControl.withVelocity(rps).withSlot(0));
+        kAzimuth.setControl(kVelocityControl.withVelocity(rps).withSlot(0));
     }
-
+    
     @Override
     public void setAzimuthVoltage(double volts) {
-        kAzimuthMotor.setControl(kVoltageControl.withOutput(volts));
+        kAzimuth.setControl(kVoltageControl.withOutput(volts));
     }
 
     @Override
     public void stopAzimuth() {
-        kAzimuthMotor.setControl(kNeutralControl);
+        kAzimuth.setControl(kNeutralControl);
     }
 
     @Override
     public void resetAzimuth() {
+        kAzimuth.setPosition(0.0d);
+    }
+
+    // CANcoder specific methods
+    @Override
+    public void resetCANcoder() {
         kCANcoder.setPosition(0.0d);
     }
 
+    // Misc
     @Override
-    public void updateDrivePIDValues(double kP, double kI, double kD) {}
+    public void updateDrivePIDValues(double kP, double kI, double kD) {
+        kDriveConfiguration.Slot0.kP = kP;
+        kDriveConfiguration.Slot0.kI = kI;
+        kDriveConfiguration.Slot0.kD = kD;
+
+        kDrive.getConfigurator().apply(kDriveConfiguration);
+    }
 
     @Override
-    public void updateAzimuthPIDValues(double kP, double kI, double kD) {}
+    public void updateAzimuthPIDValues(double kP, double kI, double kD) {
+        kAzimuthConfiguration.Slot0.kP = kP;
+        kAzimuthConfiguration.Slot0.kI = kI;
+        kAzimuthConfiguration.Slot0.kD = kD;
 
+        kAzimuth.getConfigurator().apply(kAzimuthConfiguration);
+    }
 }

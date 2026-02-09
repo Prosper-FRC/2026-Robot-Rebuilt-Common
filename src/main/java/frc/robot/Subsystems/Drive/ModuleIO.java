@@ -22,6 +22,7 @@ public interface ModuleIO {
         public double azimuthSupplyVoltage = 0.0d;
 
         public boolean CANCoderOk = false;
+        public double CANCoderPositionRotations = 0.0d;
     }
 
     default public void updateInputs(moduleInputs toUpdate) {}
@@ -82,14 +83,19 @@ public interface ModuleIO {
     default public void stopAzimuth() {}
 
     /**
-     * sets the CANCoder reading to zero degrees.
+     * sets the Azimuth reading to zero degrees.
      */
     default public void resetAzimuth() {}
+
+    /**
+     * sets the CANcoder reading to zero degrees
+     */
+    default public void resetCANcoder() {}
 
     // Misc
 
     /**
-     * Updates the PID values for the drive motor configuration (Not currently implemented).
+     * Updates the PID values for the drive motor configuration.
      * @param kP The P term.
      * @param kI The I term.
      * @param kD The D term.
@@ -97,7 +103,7 @@ public interface ModuleIO {
     default public void updateDrivePIDValues(double kP, double kI, double kD) {}
 
     /**
-     * Updates the PID values for the azimuth motor configuration (Not currently implemented).
+     * Updates the PID values for the azimuth motor configuration.
      * @param kP The P term.
      * @param kI The I term.
      * @param kD The D term.
