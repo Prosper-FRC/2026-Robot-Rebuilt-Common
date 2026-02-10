@@ -27,7 +27,7 @@ public class DriveConstants {
     public int kGyroID = 41;
 
     public moduleHardLimits kModuleHardLimits = new moduleHardLimits(0.0508d, 6.12d/1.0d, 150.0d/7.0d, 3.0d);
-    public moduleSoftlimits kModuleSoftLimits = new moduleSoftlimits(new moduleControllerLimits(0.1d, 2, 3.0d), 2.0d, 4.0d, 0.25d, true, true);
+    public moduleSoftlimits kModuleSoftLimits = new moduleSoftlimits(new moduleControllerLimits(0.1d, 2, 6.0d), 2.0d, 4.0d, 0.25d, true, true);
 
     public double sniperModeScalar = 0.2d;
 
@@ -47,9 +47,9 @@ public class DriveConstants {
     public moduleCurrentLimits kModuleCurrentLimits = new moduleCurrentLimits(60, 80, 30, 45);
     public moduleVoltageLimits kModuleVoltageLimits = new moduleVoltageLimits(12.0d, 12.0d);
 
-    public PIDController kSimDrivePID = new PIDController(0.1d, 0.0d, 0.0d);
-    public SimpleMotorFeedforward kSimDriveFeedforward = new SimpleMotorFeedforward(0.0d, 0.124d);
-    public PIDController kSimAzimuthPID = new PIDController(50.0d, 0.0d, 0.5d);
+    public PIDController kSimDrivePID = new PIDController(0.5d, 0.0d, 0.0d);
+    public SimpleMotorFeedforward kSimDriveFeedforward = new SimpleMotorFeedforward(0.0d, 0.75d);
+    public PIDController kSimAzimuthPID = new PIDController(37.5d, 0.0d, 0.5d);
 
     public DriveConstants() {}
 }

@@ -51,6 +51,9 @@ public class Drive extends SubsystemBase {
     @AutoLogOutput(key = "Drive/Swerve/States")
     private SwerveModuleState[] states;
 
+    @AutoLogOutput(key = "Drive/Swerve/RealStates")
+    private SwerveModuleState[] realStates;
+
     // For teleop control
     private final TeleopController kTeleopController = new TeleopController();
     
@@ -74,6 +77,10 @@ public class Drive extends SubsystemBase {
             new Rotation2d(0.0d), 
             getModulePositions()
         );
+
+        for(int i = 0; i < kModules.length; ++i) {
+            kModules[i].recalibrateAzimuth();
+        }
     }
 
     public void supplyControllerInputs(DoubleSupplier xInputs, DoubleSupplier yInput, DoubleSupplier angleInput) {
@@ -95,6 +102,7 @@ public class Drive extends SubsystemBase {
 
     public void optimizeModules(SwerveModuleState[] states) {
         for(int i = 0; i < states.length; ++i) {
+            states[i].optimize(Rotation2d.fromRotations(kModuleInputs[i].azimuthPositionRotations));
         }
     }
 
@@ -136,6 +144,7 @@ public class Drive extends SubsystemBase {
             default:
                 break;
         }
+
         // Discretized robot framed chassis speeds.
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(desiredSpeeds, new Rotation2d(Units.rotationsToRadians(kGyroInputs.yawRotations)));
         ChassisSpeeds discretizedSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, RobotConstants.Instance().kTimestep);
@@ -147,6 +156,17 @@ public class Drive extends SubsystemBase {
         // Optimize the modules so they never rotate more than 90 degrees.
         optimizeModules(moduleStates);
         states = moduleStates;
+
+        realStates = new SwerveModuleState[] {
+            new SwerveModuleState(rotationsToMeters(kModuleInputs[0].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[0].azimuthPositionRotations)),
+            new SwerveModuleState(rotationsToMeters(kModuleInputs[1].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[1].azimuthPositionRotations)),
+            new SwerveModuleState(rotationsToMeters(kModuleInputs[2].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[2].azimuthPositionRotations)),
+            new SwerveModuleState(rotationsToMeters(kModuleInputs[3].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[3].azimuthPositionRotations))
+        };
+
+        if(RobotConstants.Instance().kMode == RobotConstants.mode.SIM) {
+            kGyro.updateGyro(Units.radiansToRotations(kKinematics.toChassisSpeeds(realStates).omegaRadiansPerSecond * RobotConstants.Instance().kTimestep));
+        }
 
         // Apply the modules goals to the actual motor.
         for(int i = 0; i < kModules.length; ++i) {

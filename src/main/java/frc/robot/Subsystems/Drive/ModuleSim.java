@@ -55,10 +55,8 @@ public class ModuleSim implements ModuleIO {
         toUpdate.azimuthSupplyCurrent = kAzimuth.getCurrentDrawAmps();
         toUpdate.azimuthSupplyVoltage = kAzimuth.getInputVoltage();
 
-        toUpdate.CANCoderPositionRotations = kAzimuth.getAngularPositionRotations();
-
         // Update PID
-        // kAzimuthController.enableContinuousInput(-0.5d, 0.5d);
+        kAzimuthController.enableContinuousInput(-0.5d, 0.5d);
 
         driveAppliedVoltage = kDriveController.calculate(toUpdate.driveVelocityRPS, driveGoal) + kDriveFeedforward.calculate(driveGoal);
         azimuthAppliedVoltage = kAzimuthController.calculate(toUpdate.azimuthPositionRotations, azimuthGoal);
@@ -111,10 +109,4 @@ public class ModuleSim implements ModuleIO {
         azimuthGoal = 0.0d;
         azimuthAppliedVoltage = 0.0d;
     }
-
-    @Override
-    public void resetAzimuth() {
-        kAzimuth.setAngle(0.0d);
-    }
-
 } 

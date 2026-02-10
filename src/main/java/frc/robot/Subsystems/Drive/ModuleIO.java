@@ -22,7 +22,6 @@ public interface ModuleIO {
         public double azimuthSupplyVoltage = 0.0d;
 
         public boolean CANCoderOk = false;
-        public double CANCoderPositionRotations = 0.0d;
     }
 
     default public void updateInputs(moduleInputs toUpdate) {}
@@ -78,19 +77,14 @@ public interface ModuleIO {
     default public void setAzimuthVoltage(double volts) {}
 
     /**
+     * Sets the azimuth's position to the CANCoders absolute raw reading
+     */
+    default public void recalibrateAzimuth() {}
+
+    /**
      * Stops the motor.
      */
     default public void stopAzimuth() {}
-
-    /**
-     * sets the Azimuth reading to zero degrees.
-     */
-    default public void resetAzimuth() {}
-
-    /**
-     * sets the CANcoder reading to zero degrees
-     */
-    default public void resetCANcoder() {}
 
     // Misc
 

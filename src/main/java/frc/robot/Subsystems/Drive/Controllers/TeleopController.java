@@ -25,8 +25,9 @@ public class TeleopController {
     public TeleopController() {}
 
     public void supplyControllerInputs(DoubleSupplier x, DoubleSupplier y, DoubleSupplier angle) {
-        xInput = x;
-        yInput = y;
+        // These should be swapped.
+        xInput = y;
+        yInput = x;
         angleInput = angle;
     }
 

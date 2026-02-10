@@ -4,9 +4,9 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -51,8 +51,8 @@ public class ModuleTalonFX implements ModuleIO {
     private final StatusSignal<Angle> kCANcoderPosition;
 
     // Create control objects to apply a control to the motors.
-    private final MotionMagicVoltage kPositionControl = new MotionMagicVoltage(0.0d);
-    private final MotionMagicVelocityVoltage kVelocityControl = new MotionMagicVelocityVoltage(0.0d);
+    private final PositionVoltage kPositionControl = new PositionVoltage(0.0d);
+    private final VelocityVoltage kVelocityControl = new VelocityVoltage(0.0d);
     private final VoltageOut kVoltageControl = new VoltageOut(0.0d);
     private final NeutralOut kNeutralControl = new NeutralOut();
 
@@ -70,7 +70,6 @@ public class ModuleTalonFX implements ModuleIO {
         kDriveConfiguration.Slot0.kS = gains.driveGains().kS();
         kDriveConfiguration.Slot0.kV = gains.driveGains().kV();
         kDriveConfiguration.Slot0.kA = gains.driveGains().kA();
-        kDriveConfiguration.MotionMagic.MotionMagicAcceleration =  RobotConstants.DriveConstants().kModuleGains.driveMMGains().maxAcceleration();
 
         // Drive Configurations
         kDriveConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -100,8 +99,7 @@ public class ModuleTalonFX implements ModuleIO {
         kAzimuthConfiguration.Feedback.SensorToMechanismRatio = RobotConstants.DriveConstants().kModuleHardLimits.azimuthGearRatio();
 
         // Extra Azimuth Configuration
-        kAzimuthConfiguration.Feedback.FeedbackRemoteSensorID = kCANcoder.getDeviceID();
-        kAzimuthConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        kAzimuthConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor; // TODO: Replace with fused version of Azimuth CANcoder Encoder reading.
         kAzimuthConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
 
         ///// CANCODER /////
@@ -169,8 +167,6 @@ public class ModuleTalonFX implements ModuleIO {
         toUpdate.azimuthStatorCurrent = kAzimuthStatorCurrent.getValueAsDouble();
         toUpdate.azimuthSupplyCurrent = kAzimuthSupplyCurrent.getValueAsDouble();
         toUpdate.azimuthSupplyVoltage = kAzimuthSupplyVoltage.getValueAsDouble();
-
-        toUpdate.CANCoderPositionRotations = kCANcoderPosition.getValueAsDouble();
     }
 
     // Drive specific methods
@@ -216,19 +212,14 @@ public class ModuleTalonFX implements ModuleIO {
     }
 
     @Override
+    public void recalibrateAzimuth() {
+        double position = (kCANcoder.getAbsolutePosition().getValueAsDouble()%1.0d) - 0.5d;
+        kAzimuth.setPosition(position);
+    }
+
+    @Override
     public void stopAzimuth() {
         kAzimuth.setControl(kNeutralControl);
-    }
-
-    @Override
-    public void resetAzimuth() {
-        kAzimuth.setPosition(0.0d);
-    }
-
-    // CANcoder specific methods
-    @Override
-    public void resetCANcoder() {
-        kCANcoder.setPosition(0.0d);
     }
 
     // Misc
