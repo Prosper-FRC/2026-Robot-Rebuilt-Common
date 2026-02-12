@@ -22,6 +22,7 @@ public interface ModuleIO {
         public double azimuthSupplyVoltage = 0.0d;
 
         public boolean CANCoderOk = false;
+        public double CANCoderPositionAbs = 0.0d;
     }
 
     default public void updateInputs(moduleInputs toUpdate) {}

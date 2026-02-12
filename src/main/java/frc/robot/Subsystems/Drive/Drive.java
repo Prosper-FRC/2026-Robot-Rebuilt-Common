@@ -1,5 +1,7 @@
 package frc.robot.Subsystems.Drive;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -13,15 +15,23 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotConstants;
 import frc.robot.Subsystems.Drive.Controllers.TeleopController;
 
 public class Drive extends SubsystemBase {
     public enum driveState {
         TELEOP,
-        TELEOP_SNIPER
+        TELEOP_SNIPER,
+        SYSID
     }
+
+    @AutoLogOutput(key = "Drive/DriveState")
     private driveState state = driveState.TELEOP;
 
     // Create IO layers
@@ -56,7 +66,10 @@ public class Drive extends SubsystemBase {
 
     // For teleop control
     private final TeleopController kTeleopController = new TeleopController();
-    
+
+    // For SysId
+    private final SysIdRoutine kRoutine;
+
     public Drive(ModuleIO moduleFR, ModuleIO moduleFL, ModuleIO moduleBR, ModuleIO moduleBL, GyroIO gyro) {
         kModules = new ModuleIO[] {
             moduleFR,
@@ -81,6 +94,15 @@ public class Drive extends SubsystemBase {
         for(int i = 0; i < kModules.length; ++i) {
             kModules[i].recalibrateAzimuth();
         }
+
+        kRoutine = new SysIdRoutine(
+            new SysIdRoutine.Config(null, null, null, // Default values
+            (sysidState) -> Logger.recordOutput("Drive/SysIdState", sysidState.toString())),
+            new SysIdRoutine.Mechanism((voltage) -> this.applySysIdVoltage(voltage.in(Volts)), 
+            null, // AK will be logging the values here.
+            this)
+        );
+
     }
 
     public void supplyControllerInputs(DoubleSupplier xInputs, DoubleSupplier yInput, DoubleSupplier angleInput) {
@@ -91,7 +113,7 @@ public class Drive extends SubsystemBase {
 
     public driveState getDriveState() { return state; }
     
-    public SwerveModulePosition[] getModulePositions() {
+    private SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
             new SwerveModulePosition(rotationsToMeters(kModuleInputs[0].drivePositionRotations), new Rotation2d(Units.rotationsToRadians(kModuleInputs[0].azimuthPositionRotations))),
             new SwerveModulePosition(rotationsToMeters(kModuleInputs[1].drivePositionRotations), new Rotation2d(Units.rotationsToRadians(kModuleInputs[1].azimuthPositionRotations))),
@@ -100,17 +122,63 @@ public class Drive extends SubsystemBase {
         };
     }
 
-    public void optimizeModules(SwerveModuleState[] states) {
+    // Used to direct set the voltages of each drive motor for PID.
+    // NOTE: Before running a SysId test it is smart to ensure all Azimuth motors are facing relatively forwards.
+    private void applySysIdVoltage(double driveVolts) {
+        for(var module : kModules) {
+            // Set drive goal to SysId given voltage.
+            module.setDriveVoltage(driveVolts);
+            // Set azimuth goal to zero degrees (To hold the azimuths in place).
+            module.setAzimuthRotations(0.0d);
+        }
+    }
+
+    // Locks the azimuths in place prior to runnign the main commands
+    // The only way to further simlpify this command is to use Java streams (Which are really weird).
+    private Command lockAzimuthsSysIdCommand() {
+        return new RunCommand(() -> {
+            for(var module : kModules) {
+                module.setAzimuthRotations(0.0d);
+            }
+        }, this).until(() -> {
+            int modulesInPosition = 0;
+            for (var input : kModuleInputs) {
+                if(Math.abs(input.azimuthPositionRotations%0.5d) <= 0.05d) {
+                    modulesInPosition++;
+                }
+            }
+            return modulesInPosition >= 4;
+        });
+    }
+
+    public Command getSysIdCommand() {
+        // Create Dynamic tests
+        Command dynamicForward = kRoutine.dynamic(SysIdRoutine.Direction.kForward);
+        Command dynamicReverse = kRoutine.dynamic(SysIdRoutine.Direction.kReverse);
+
+        // Create quasistatic tests
+        Command quasistaticForward = kRoutine.quasistatic(SysIdRoutine.Direction.kForward);
+        Command quasistaticReverse = kRoutine.quasistatic(SysIdRoutine.Direction.kReverse);
+
+        // Schedule the tests.
+        return new SequentialCommandGroup(
+            lockAzimuthsSysIdCommand(),
+            dynamicForward.andThen(new WaitCommand(1.0d)), dynamicReverse.andThen(new WaitCommand(1.0d)),
+            quasistaticForward.andThen(new WaitCommand(1.0d)), quasistaticReverse.andThen(new WaitCommand(1.0d))
+        );
+    }
+
+    private void optimizeModules(SwerveModuleState[] states) {
         for(int i = 0; i < states.length; ++i) {
             states[i].optimize(Rotation2d.fromRotations(kModuleInputs[i].azimuthPositionRotations));
         }
     }
 
-    public double rotationsToMeters(double rotations) {
+    private double rotationsToMeters(double rotations) {
         return Units.rotationsToRadians(rotations) * RobotConstants.DriveConstants().kModuleHardLimits.wheelRadiusMeters();
     }
     
-    public double metersToRotations(double meters) {
+    private double metersToRotations(double meters) {
         return meters / ((2 * Math.PI) * RobotConstants.DriveConstants().kModuleHardLimits.wheelRadiusMeters());
     }
 
@@ -137,14 +205,33 @@ public class Drive extends SubsystemBase {
             case TELEOP:
                 // Compute chassis speeds.
                 desiredSpeeds = kTeleopController.getDesiredSpeeds(false);
+                stateUpdateTeleop();
                 break;
             case TELEOP_SNIPER:
                 desiredSpeeds = kTeleopController.getDesiredSpeeds(true);
+                break;
+            case SYSID:
                 break;
             default:
                 break;
         }
 
+        // Record real states constantly, even when teleop isn't running.
+        realStates = new SwerveModuleState[] {
+            new SwerveModuleState(rotationsToMeters(kModuleInputs[0].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[0].azimuthPositionRotations)),
+            new SwerveModuleState(rotationsToMeters(kModuleInputs[1].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[1].azimuthPositionRotations)),
+            new SwerveModuleState(rotationsToMeters(kModuleInputs[2].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[2].azimuthPositionRotations)),
+            new SwerveModuleState(rotationsToMeters(kModuleInputs[3].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[3].azimuthPositionRotations))
+        };
+
+        // Update the gyro (usually for sim purposes)
+        if(RobotConstants.Instance().kMode == RobotConstants.mode.SIM) {
+            kGyro.updateGyro(Units.radiansToRotations(kKinematics.toChassisSpeeds(realStates).omegaRadiansPerSecond * RobotConstants.Instance().kTimestep));
+        }
+    }
+
+    /******** STATE UPDATES ********/
+    private void stateUpdateTeleop() {
         // Discretized robot framed chassis speeds.
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(desiredSpeeds, new Rotation2d(Units.rotationsToRadians(kGyroInputs.yawRotations)));
         ChassisSpeeds discretizedSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, RobotConstants.Instance().kTimestep);
@@ -156,17 +243,6 @@ public class Drive extends SubsystemBase {
         // Optimize the modules so they never rotate more than 90 degrees.
         optimizeModules(moduleStates);
         states = moduleStates;
-
-        realStates = new SwerveModuleState[] {
-            new SwerveModuleState(rotationsToMeters(kModuleInputs[0].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[0].azimuthPositionRotations)),
-            new SwerveModuleState(rotationsToMeters(kModuleInputs[1].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[1].azimuthPositionRotations)),
-            new SwerveModuleState(rotationsToMeters(kModuleInputs[2].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[2].azimuthPositionRotations)),
-            new SwerveModuleState(rotationsToMeters(kModuleInputs[3].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[3].azimuthPositionRotations))
-        };
-
-        if(RobotConstants.Instance().kMode == RobotConstants.mode.SIM) {
-            kGyro.updateGyro(Units.radiansToRotations(kKinematics.toChassisSpeeds(realStates).omegaRadiansPerSecond * RobotConstants.Instance().kTimestep));
-        }
 
         // Apply the modules goals to the actual motor.
         for(int i = 0; i < kModules.length; ++i) {

@@ -12,6 +12,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -55,6 +56,8 @@ public class ModuleTalonFX implements ModuleIO {
     private final VelocityVoltage kVelocityControl = new VelocityVoltage(0.0d);
     private final VoltageOut kVoltageControl = new VoltageOut(0.0d);
     private final NeutralOut kNeutralControl = new NeutralOut();
+
+    private final Rotation2d kModuleOffset;
 
     public ModuleTalonFX(moduleIDs ids, moduleOffsets offsets, moduleGains gains, String CANBus) {
         kDrive = new TalonFX(ids.driveID(), CANBus);
@@ -103,7 +106,8 @@ public class ModuleTalonFX implements ModuleIO {
         kAzimuthConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
 
         ///// CANCODER /////
-        kCANcoderConfiguration.MagnetSensor.MagnetOffset = offsets.rotationalOffset().getRotations();
+        kCANcoderConfiguration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5d;
+        kCANcoderConfiguration.MagnetSensor.MagnetOffset = 0.0d; // I'm just gonna manually set the offset for now so I know exactly what is being done mathematically and when.
 
         // Applying the configurations
         kDrive.getConfigurator().apply(kDriveConfiguration);
@@ -126,6 +130,8 @@ public class ModuleTalonFX implements ModuleIO {
         kAzimuthSupplyVoltage = kAzimuth.getMotorVoltage();
 
         kCANcoderPosition = kCANcoder.getAbsolutePosition();
+
+        kModuleOffset = offsets.rotationalOffset();
     }
 
     @Override
@@ -167,6 +173,8 @@ public class ModuleTalonFX implements ModuleIO {
         toUpdate.azimuthStatorCurrent = kAzimuthStatorCurrent.getValueAsDouble();
         toUpdate.azimuthSupplyCurrent = kAzimuthSupplyCurrent.getValueAsDouble();
         toUpdate.azimuthSupplyVoltage = kAzimuthSupplyVoltage.getValueAsDouble();
+    
+        toUpdate.CANCoderPositionAbs = kCANcoderPosition.getValueAsDouble();
     }
 
     // Drive specific methods
@@ -213,7 +221,7 @@ public class ModuleTalonFX implements ModuleIO {
 
     @Override
     public void recalibrateAzimuth() {
-        double position = (kCANcoder.getAbsolutePosition().getValueAsDouble()%1.0d) - 0.5d;
+        double position = kCANcoder.getAbsolutePosition().getValueAsDouble() - kModuleOffset.getRotations();
         kAzimuth.setPosition(position);
     }
 

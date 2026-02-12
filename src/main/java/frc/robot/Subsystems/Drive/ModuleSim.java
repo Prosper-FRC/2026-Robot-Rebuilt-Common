@@ -26,6 +26,10 @@ public class ModuleSim implements ModuleIO {
     private double driveAppliedVoltage = 0.0d;
     @AutoLogOutput(key = "Drive/Sim/AzimuthVoltage")
     private double azimuthAppliedVoltage = 0.0d;
+    @AutoLogOutput(key = "Drive/Sim/UseDrivePID")
+    private boolean useDrivePID = true;
+    @AutoLogOutput(key = "Drive/Sim/UseAzimuthPID")
+    private boolean useAzimuthPID = true;
 
     public ModuleSim() {
         // Set up motor simulators
@@ -58,11 +62,15 @@ public class ModuleSim implements ModuleIO {
         // Update PID
         kAzimuthController.enableContinuousInput(-0.5d, 0.5d);
 
-        driveAppliedVoltage = kDriveController.calculate(toUpdate.driveVelocityRPS, driveGoal) + kDriveFeedforward.calculate(driveGoal);
-        azimuthAppliedVoltage = kAzimuthController.calculate(toUpdate.azimuthPositionRotations, azimuthGoal);
+        if(useDrivePID) {
+            driveAppliedVoltage = kDriveController.calculate(toUpdate.driveVelocityRPS, driveGoal) + kDriveFeedforward.calculate(driveGoal);
+            driveAppliedVoltage = MathUtil.clamp(driveAppliedVoltage, -12.0d, 12.0d);
+        }
         
-        driveAppliedVoltage = MathUtil.clamp(driveAppliedVoltage, -12.0d, 12.0d);
-        azimuthAppliedVoltage = MathUtil.clamp(azimuthAppliedVoltage, -12.0d, 12.0d);
+        if(useAzimuthPID) {
+            azimuthAppliedVoltage = kAzimuthController.calculate(toUpdate.azimuthPositionRotations, azimuthGoal);
+            azimuthAppliedVoltage = MathUtil.clamp(azimuthAppliedVoltage, -12.0d, 12.0d);
+        }
 
         kDrive.setInputVoltage(driveAppliedVoltage);
         kAzimuth.setInputVoltage(azimuthAppliedVoltage);
@@ -74,16 +82,19 @@ public class ModuleSim implements ModuleIO {
     // Drive methods
     @Override
     public void setDriveRPS(double rps) {
+        useDrivePID = true;
         driveGoal = rps;
     }
 
     @Override
     public void setDriveVoltage(double volts) {
+        useDrivePID = false;
         driveAppliedVoltage = volts;
     }
 
     @Override
     public void stopDrive() {
+        useDrivePID = false;
         driveGoal = 0.0d;
         driveAppliedVoltage = 0.0d;
     }
@@ -96,16 +107,19 @@ public class ModuleSim implements ModuleIO {
     // Azimuth methods
     @Override
     public void setAzimuthRotations(double rotations) {
+        useAzimuthPID = true;
         azimuthGoal = rotations;
     }
 
     @Override
     public void setAzimuthVoltage(double volts) {
+        useAzimuthPID = false;
         azimuthAppliedVoltage = volts;
     }
 
     @Override
     public void stopAzimuth() {
+        useAzimuthPID = false;
         azimuthGoal = 0.0d;
         azimuthAppliedVoltage = 0.0d;
     }
