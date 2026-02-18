@@ -105,10 +105,6 @@ public class ModuleTalonFX implements ModuleIO {
         kAzimuthConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor; // TODO: Replace with fused version of Azimuth CANcoder Encoder reading.
         kAzimuthConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
 
-        ///// CANCODER /////
-        kCANcoderConfiguration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5d;
-        kCANcoderConfiguration.MagnetSensor.MagnetOffset = 0.0d; // I'm just gonna manually set the offset for now so I know exactly what is being done mathematically and when.
-
         // Applying the configurations
         kDrive.getConfigurator().apply(kDriveConfiguration);
         kAzimuth.getConfigurator().apply(kAzimuthConfiguration);
