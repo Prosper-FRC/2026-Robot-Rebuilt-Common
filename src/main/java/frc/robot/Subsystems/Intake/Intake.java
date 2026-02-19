@@ -2,12 +2,15 @@ package frc.robot.Subsystems.Intake;
 
 import java.util.function.DoubleSupplier;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
-    private static enum IntakeState {
+    public static enum IntakeState {
         Stowed(() -> 0.0d), // Using dummy poses at the moment
-        Deployed(() -> 0.0d);
+        Deployed(() -> 0.5d);
 
         private final DoubleSupplier kGoalPose;
 
@@ -23,6 +26,7 @@ public class Intake extends SubsystemBase {
     private final IntakeIO kIntake;
     private final IntakeInputsAutoLogged kInputs = new IntakeInputsAutoLogged();
 
+    @AutoLogOutput(key = "Intake/State")
     public IntakeState state = IntakeState.Stowed;
 
     public Intake(IntakeIO hardware) {
@@ -36,15 +40,16 @@ public class Intake extends SubsystemBase {
     @Override
     public void periodic() {
         kIntake.updateInputs(kInputs);
+        Logger.processInputs("Intake", kInputs);
 
         switch (state) {
             case Stowed:
                 kIntake.setPivotPositionRotations(state.getGoalPoseRotations());
-                kIntake.setRollerSpeedRPS(IntakeConstants.getInstance().kRollerRPS);
+                kIntake.stopRoller();;
                 break;
             case Deployed:
                 kIntake.setPivotPositionRotations(state.getGoalPoseRotations());
-                kIntake.stopRoller(); // The roller should probably be set to coast so it free spins for some time, or else a delay will need to be set for the roller to slow down.
+                kIntake.setRollerSpeedRPS(IntakeConstants.getInstance().kRollerRPS);; // Motion magic lets this work just fine.
                 break;
             default:
                 break;
