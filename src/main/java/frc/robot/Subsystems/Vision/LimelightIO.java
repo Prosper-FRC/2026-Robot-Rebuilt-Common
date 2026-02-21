@@ -115,16 +115,16 @@ public class LimelightIO implements CameraIO{
 
         // Photon Vision code from Reefscape Common; planning to take the logic of the code below and adapt it for limelight
 
-        // ArrayList<Transform3d> tagTs = new ArrayList<>();
-        //                 double[] ambiguities = new double[latestEstimatedRobotPose.get().targetsUsed.size()];
-        //                 if(latestEstimatedRobotPose.get().targetsUsed.size() > 0) {
-        //                     for(int i = 0; i < latestEstimatedRobotPose.get().targetsUsed.size(); i++) {
-        //                         tagTs.add(latestEstimatedRobotPose.get().targetsUsed.get(i).getBestCameraToTarget());
-        //                         ambiguities[i] = latestEstimatedRobotPose.get().targetsUsed.get(i).getPoseAmbiguity();
-        //                     }
-        //                 }
+    //     ArrayList<Transform3d> tagTs = new ArrayList<>();
+    //                     double[] ambiguities = new double[inputs.latestEstimatedRobotPose.get().targetsUsed.size()];
+    //                     if(inputs.latestEstimatedRobotPose.get().targetsUsed.size() > 0) {
+    //                         for(int i = 0; i < inputs.latestEstimatedRobotPose.get().targetsUsed.size(); i++) {
+    //                             tagTs.add(inputs.latestEstimatedRobotPose.get().targetsUsed.get(i).getBestCameraToTarget());
+    //                             ambiguities[i] = inputs.latestEstimatedRobotPose.get().targetsUsed.get(i).getPoseAmbiguity();
+    //                         }
+    //                     }
    
-    }
+    // }
 
 
 }
