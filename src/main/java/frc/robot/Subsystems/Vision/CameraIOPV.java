@@ -33,41 +33,41 @@ public class CameraIOPV implements CameraIO {
     private Transform3d cameraTransform;
     private Orientation orientation;
 
-    private PhotonCameraSim limelightSim;
-    private VisionSystemSim visionSim;
+    // private PhotonCameraSim limelightSim;
+    // private VisionSystemSim visionSim;
 
-    public CameraIOPV(String name, Transform3d cameraTransform, Orientation orientation) {
-        camName = name;
-        photonCam = new PhotonCamera(camName);
-        this.cameraTransform = cameraTransform;
-        this.orientation = orientation;
-        // Don't worry about it
-        PhotonCamera.setVersionCheckEnabled(false);
+    // public CameraIOPV(String name, Transform3d cameraTransform, Orientation orientation) {
+    //     camName = name;
+    //     photonCam = new PhotonCamera(camName);
+    //     this.cameraTransform = cameraTransform;
+    //     this.orientation = orientation;
+    //     // Don't worry about it
+    //     PhotonCamera.setVersionCheckEnabled(false);
 
-        poseEstimator = new PhotonPoseEstimator(
-            AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField), 
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cameraTransform);
-        poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
+    //     poseEstimator = new PhotonPoseEstimator(
+    //         AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField), 
+    //         PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cameraTransform);
+    //     poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
 
-        if(RobotConstants.getInstance().kMode == mode.SIM) {  // Why is this variable not static like how it is in reefscape
-            // Create the vision system simulation which handles cameras and targets on the field.
-            visionSim = new VisionSystemSim("main");
-            // Add all the AprilTags inside the tag layout as visible targets to this simulated field.
-            visionSim.addAprilTags(AprilTagFields.k2026RebuiltAndymark.loadAprilTagLayoutField()); // This should be the correct season but the docs also say this method is deprecated and to use:  AprilTagFieldLayout.loadField(AprilTagFields) instead
-            // Create simulated camera properties. These can be set to mimic your actual camera.
-            var cameraProp = new SimCameraProperties();
-            cameraProp.setCalibration(960, 720, kOV2311DiagonalCameraFOV);
-            cameraProp.setCalibError(0.3, 0.20);
-            cameraProp.setFPS(60);
-            cameraProp.setAvgLatencyMs(5);
-            cameraProp.setLatencyStdDevMs(15);
-            // Create a PhotonCameraSim which will update the linked PhotonCamera's values with visible
-            // targets.
-            limelightSim = new PhotonCameraSim(photonCam, cameraProp);
-            // Add the simulated camera to view the targets on this simulated field.
-            visionSim.addCamera(limelightSim, cameraTransform);
-        }
-    }
+    //     if(RobotConstants.getInstance().kMode == mode.SIM) {  // Why is this variable not static like how it is in reefscape
+    //         // Create the vision system simulation which handles cameras and targets on the field.
+    //         visionSim = new VisionSystemSim("main");
+    //         // Add all the AprilTags inside the tag layout as visible targets to this simulated field.
+    //         visionSim.addAprilTags(AprilTagFields.k2026RebuiltAndymark.loadAprilTagLayoutField()); // This should be the correct season but the docs also say this method is deprecated and to use:  AprilTagFieldLayout.loadField(AprilTagFields) instead
+    //         // Create simulated camera properties. These can be set to mimic your actual camera.
+    //         var cameraProp = new SimCameraProperties();
+    //         cameraProp.setCalibration(960, 720, kOV2311DiagonalCameraFOV);
+    //         cameraProp.setCalibError(0.3, 0.20);
+    //         cameraProp.setFPS(60);
+    //         cameraProp.setAvgLatencyMs(5);
+    //         cameraProp.setLatencyStdDevMs(15);
+    //         // Create a PhotonCameraSim which will update the linked PhotonCamera's values with visible
+    //         // targets.
+    //         limelightSim = new PhotonCameraSim(photonCam, cameraProp);
+    //         // Add the simulated camera to view the targets on this simulated field.
+    //         visionSim.addCamera(limelightSim, cameraTransform);
+    //     }
+    // }
 
     @Override
     public void updateInputs(CameraIOInputs inputs, Pose2d lastRobotPose, Pose2d simOdomPose) {
@@ -76,9 +76,9 @@ public class CameraIOPV implements CameraIO {
         // To stop the dangerous case where the camera disconnects, and causes the code to crash
         try {
             // Updates the position from which the cameras have to look at
-            if (RobotConstants.getInstance().kMode == mode.SIM) { // Original reefscape code had kMode as static
-                visionSim.update(simOdomPose);
-            }
+            // if (RobotConstants.getInstance().kMode == mode.SIM) { // Original reefscape code had kMode as static
+            //     visionSim.update(simOdomPose);
+            // }
             
             // Gets the camera data
             List<PhotonPipelineResult> unreadResults = photonCam.getAllUnreadResults();
