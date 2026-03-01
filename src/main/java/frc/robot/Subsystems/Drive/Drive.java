@@ -244,6 +244,17 @@ public class Drive extends SubsystemBase {
         optimizeModules(moduleStates);
         states = moduleStates;
 
+        // Now that we know the desired angles we can get the cosine of the angle to check alignment.
+        for(int i = 0; i < kModules.length; ++i) {
+            double actualRotation = Units.rotationsToRadians(kModuleInputs[i].azimuthPositionRotations);
+
+            // How aligned we are.
+            double scalar = Math.cos(states[i].angle.getRadians() - actualRotation);
+
+            // Apply scalar based on the alignment.
+            states[i].speedMetersPerSecond *= scalar;
+        }
+
         // Apply the modules goals to the actual motor.
         for(int i = 0; i < kModules.length; ++i) {
             kModules[i].setDriveRPS(metersToRotations(moduleStates[i].speedMetersPerSecond));

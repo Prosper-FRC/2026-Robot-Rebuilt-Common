@@ -26,11 +26,11 @@ public class RobotContainer {
         switch (RobotConstants.Instance().kMode) {
             case REAL:
                 kDrive = new Drive(
-                    new ModuleTalonFX(RobotConstants.DriveConstants().kFRModuleIDs, RobotConstants.DriveConstants().kFRModuleOffsets, RobotConstants.DriveConstants().kModuleGains, "drivebase"),
-                    new ModuleTalonFX(RobotConstants.DriveConstants().kFLModuleIDs, RobotConstants.DriveConstants().kFLModuleOffsets, RobotConstants.DriveConstants().kModuleGains, "drivebase"),
-                    new ModuleTalonFX(RobotConstants.DriveConstants().kBRModuleIDs, RobotConstants.DriveConstants().kBRModuleOffsets, RobotConstants.DriveConstants().kModuleGains, "drivebase"),
-                    new ModuleTalonFX(RobotConstants.DriveConstants().kBLModuleIDs, RobotConstants.DriveConstants().kBLModuleOffsets, RobotConstants.DriveConstants().kModuleGains, "drivebase"),
-                    new GyroPigeon2(RobotConstants.DriveConstants().kGyroID, RobotConstants.DriveConstants().kGyroOffsets, "drivebase")
+                    new ModuleTalonFX(RobotConstants.DriveConstants().kFRModuleIDs, RobotConstants.DriveConstants().kFRModuleOffsets, RobotConstants.DriveConstants().kModuleGains, RobotConstants.DriveConstants().kCANBusName),
+                    new ModuleTalonFX(RobotConstants.DriveConstants().kFLModuleIDs, RobotConstants.DriveConstants().kFLModuleOffsets, RobotConstants.DriveConstants().kModuleGains, RobotConstants.DriveConstants().kCANBusName),
+                    new ModuleTalonFX(RobotConstants.DriveConstants().kBRModuleIDs, RobotConstants.DriveConstants().kBRModuleOffsets, RobotConstants.DriveConstants().kModuleGains, RobotConstants.DriveConstants().kCANBusName),
+                    new ModuleTalonFX(RobotConstants.DriveConstants().kBLModuleIDs, RobotConstants.DriveConstants().kBLModuleOffsets, RobotConstants.DriveConstants().kModuleGains, RobotConstants.DriveConstants().kCANBusName),
+                    new GyroPigeon2(RobotConstants.DriveConstants().kGyroID, RobotConstants.DriveConstants().kGyroOffsets, RobotConstants.DriveConstants().kCANBusName)
                 );
                 break;
             case REPLAY:

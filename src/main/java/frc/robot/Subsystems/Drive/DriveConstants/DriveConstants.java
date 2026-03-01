@@ -15,7 +15,7 @@ public class DriveConstants {
     public final record moduleVoltageLimits(double driveVoltagePeakRange, double azimuthVoltagePeakRange) {}
     public final record motorGains(double kP, double kI, double kD, double kS, double kV, double kA) {}
     public final record motionMagicGains(double maxCruiseVelocity, double maxAcceleration) {}
-    public final record moduleGains(motorGains driveGains, motorGains azimuthGains, motionMagicGains driveMMGains, motionMagicGains azimuithMMGains) {}
+    public final record moduleGains(motorGains driveGains, motorGains azimuthGains, motionMagicGains driveMMGains) {}
 
     public final record gyroOffsets(double roll, double pitch, double yaw) {}
 
@@ -26,7 +26,7 @@ public class DriveConstants {
     public int kGyroID = 10;
 
     public moduleHardLimits kModuleHardLimits = new moduleHardLimits(0.0508d, 6.12d/1.0d, 150.0d/7.0d, 3.0d);
-    public moduleSoftlimits kModuleSoftLimits = new moduleSoftlimits(new moduleControllerLimits(0.05d, 2, 6.0d), 2.0d, 4.0d, 0.25d, true, true);
+    public moduleSoftlimits kModuleSoftLimits = new moduleSoftlimits(new moduleControllerLimits(0.05d, 2, 6.0d), 4.5d, 4.0d, 1.0d, true, true);
 
     public double sniperModeScalar = 0.2d;
 
@@ -37,12 +37,13 @@ public class DriveConstants {
 
     public gyroOffsets kGyroOffsets = new gyroOffsets(0.0d, 0.0d, 0.0d);
 
+    public String kCANBusName = "rio";
+
     // Recommended as default values for swerve by CTRE.
     public moduleGains kModuleGains = new moduleGains(
         new motorGains(0.75d, 0, 0, 0, 0.6, 0),
         new motorGains(30.0d, 0, 0.5d, 0.1d, 3.1d, 0.0d),
-        new motionMagicGains(14.1d, 9.0d),
-        new motionMagicGains(4d, 2.5d)
+        new motionMagicGains(14.1d, 9.0d)
     );
 
     public moduleCurrentLimits kModuleCurrentLimits = new moduleCurrentLimits(60, 80, 30, 45);
