@@ -1,5 +1,6 @@
 package frc.robot.Subsystems.Drive;
 
+import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.DoubleSupplier;
@@ -7,6 +8,7 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -51,6 +53,7 @@ public class Drive extends SubsystemBase {
     // Initialize swerve related tools
     private final SwerveDriveKinematics kKinematics;
     private final SwerveDriveOdometry kOdometry;
+    private final SwerveDrivePoseEstimator kPoseEstimator;
 
     @AutoLogOutput(key = "Drive/Swerve/Speeds")
     private ChassisSpeeds desiredSpeeds;
@@ -90,6 +93,11 @@ public class Drive extends SubsystemBase {
             new Rotation2d(0.0d), 
             getModulePositions()
         );
+
+        kPoseEstimator = new SwerveDrivePoseEstimator(kKinematics,
+            Rotation2d.fromRotations(kGyroInputs.yawRotations), 
+            getModulePositions(), 
+            kOdometry.getPoseMeters());
 
         for(int i = 0; i < kModules.length; ++i) {
             kModules[i].recalibrateAzimuth();

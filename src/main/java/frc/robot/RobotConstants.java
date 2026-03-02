@@ -7,6 +7,7 @@ import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants5411;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants9105;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants9492;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstantsSim;
+import frc.robot.Subsystems.Drive.Vision.CameraConstants;
 
 public class RobotConstants {
     private static RobotConstants instance = null;
@@ -23,6 +24,7 @@ public class RobotConstants {
     public final double kTimestep = 0.02d;
 
     private final DriveConstants kDriveConstants;
+    private final CameraConstants kCameraConstants;
 
     private RobotConstants() {
         kTeamNumber = RobotController.getTeamNumber();
@@ -37,24 +39,33 @@ public class RobotConstants {
         switch (kTeamNumber) {
             case 5411:
                 kDriveConstants = new DriveConstants5411();
+                kCameraConstants = new CameraConstants();
                 break;
             case 9105:
                 kDriveConstants = new DriveConstants9105();
+                kCameraConstants = new CameraConstants();
                 break;
             case 9492:
                 kDriveConstants = new DriveConstants9492();
+                kCameraConstants = new CameraConstants();
                 break;
             case 0:
                 kDriveConstants = new DriveConstantsSim();
+                kCameraConstants = new CameraConstants();
                 break;
             default:
                 kDriveConstants = new DriveConstants();
+                kCameraConstants = new CameraConstants();
                 break;
         }
     }
 
     public static DriveConstants DriveConstants() {
         return instance.kDriveConstants;
+    }
+
+    public static CameraConstants CameraConstants() {
+        return instance.kCameraConstants;
     }
 
     public static RobotConstants Instance() {

@@ -1,5 +1,7 @@
 package frc.robot.Subsystems.Drive.DriveConstants;
 
+import com.ctre.phoenix6.CANBus;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -37,7 +39,7 @@ public class DriveConstants {
 
     public gyroOffsets kGyroOffsets = new gyroOffsets(0.0d, 0.0d, 0.0d);
 
-    public String kCANBusName = "rio";
+    public CANBus kCANBusInstance = new CANBus("rio");
 
     // Recommended as default values for swerve by CTRE.
     public moduleGains kModuleGains = new moduleGains(

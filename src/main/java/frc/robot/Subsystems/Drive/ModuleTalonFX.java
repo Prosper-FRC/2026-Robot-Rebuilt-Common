@@ -1,6 +1,7 @@
 package frc.robot.Subsystems.Drive;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -59,7 +60,7 @@ public class ModuleTalonFX implements ModuleIO {
 
     private final Rotation2d kModuleOffset;
 
-    public ModuleTalonFX(moduleIDs ids, moduleOffsets offsets, moduleGains gains, String CANBus) {
+    public ModuleTalonFX(moduleIDs ids, moduleOffsets offsets, moduleGains gains, CANBus CANBus) {
         kDrive = new TalonFX(ids.driveID(), CANBus);
         kAzimuth = new TalonFX(ids.azimuthID(), CANBus);
         kCANcoder = new CANcoder(ids.CANcoderID(), CANBus);

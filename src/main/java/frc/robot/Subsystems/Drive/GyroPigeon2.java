@@ -1,6 +1,7 @@
 package frc.robot.Subsystems.Drive;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -20,7 +21,7 @@ public class GyroPigeon2 implements GyroIO {
     private final StatusSignal<Angle> kPitch;
     private final StatusSignal<Angle> kYaw;
 
-    public GyroPigeon2(int GyroID, gyroOffsets offsets, String CANBus) {
+    public GyroPigeon2(int GyroID, gyroOffsets offsets, CANBus CANBus) {
         kGyro = new Pigeon2(GyroID, CANBus);
 
         // Apply offsets the the gyroscope
