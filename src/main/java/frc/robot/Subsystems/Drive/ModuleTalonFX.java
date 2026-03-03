@@ -217,7 +217,7 @@ public class ModuleTalonFX implements ModuleIO {
     }
 
     @Override
-    public void recalibrateAzimuth() {
+    public void resetAzimuth() {
         double position = kCANcoder.getAbsolutePosition().getValueAsDouble() - kModuleOffset.getRotations();
         kAzimuth.setPosition(position);
     }

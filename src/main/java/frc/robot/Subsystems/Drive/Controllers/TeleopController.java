@@ -7,6 +7,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import frc.robot.RobotConstants;
 
 public class TeleopController {
@@ -63,7 +64,7 @@ public class TeleopController {
         // Convert proper controller inputs into desired speeds.
         double speedX = exponentiatedXInput * maxMPS;
         double speedY = exponentiatedYInput * maxMPS;
-        double speedOmega = exponentiatedAngleInput * maxRPS;
+        double speedOmega = Units.rotationsToRadians(exponentiatedAngleInput * maxRPS);
 
         // Apply an extra sniper mode scalar.
         if(isSniperMode) {

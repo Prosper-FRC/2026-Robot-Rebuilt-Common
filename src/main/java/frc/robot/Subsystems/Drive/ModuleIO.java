@@ -80,7 +80,7 @@ public interface ModuleIO {
     /**
      * Sets the azimuth's position to the CANCoders absolute raw reading
      */
-    default public void recalibrateAzimuth() {}
+    default public void resetAzimuth() {}
 
     /**
      * Stops the motor.

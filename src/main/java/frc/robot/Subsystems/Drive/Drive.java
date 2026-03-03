@@ -73,24 +73,24 @@ public class Drive extends SubsystemBase {
     // For SysId
     private final SysIdRoutine kRoutine;
 
-    public Drive(ModuleIO moduleFR, ModuleIO moduleFL, ModuleIO moduleBR, ModuleIO moduleBL, GyroIO gyro) {
+    public Drive(ModuleIO moduleFL, ModuleIO moduleFR, ModuleIO moduleBL, ModuleIO moduleBR, GyroIO gyro) {
         kModules = new ModuleIO[] {
-            moduleFR,
             moduleFL,
-            moduleBR,
-            moduleBL
+            moduleFR,
+            moduleBL,
+            moduleBR
         };
         kGyro = gyro;
 
         kKinematics = new SwerveDriveKinematics(
-            RobotConstants.DriveConstants().kFRModuleOffsets.translationalOffset(),
             RobotConstants.DriveConstants().kFLModuleOffsets.translationalOffset(),
-            RobotConstants.DriveConstants().kBRModuleOffsets.translationalOffset(),
-            RobotConstants.DriveConstants().kBLModuleOffsets.translationalOffset()
+            RobotConstants.DriveConstants().kFRModuleOffsets.translationalOffset(),
+            RobotConstants.DriveConstants().kBLModuleOffsets.translationalOffset(),
+            RobotConstants.DriveConstants().kBRModuleOffsets.translationalOffset()
         );
 
         kOdometry = new SwerveDriveOdometry(kKinematics, 
-            new Rotation2d(0.0d), 
+            Rotation2d.fromRotations(kGyroInputs.yawRotations), 
             getModulePositions()
         );
 
@@ -98,10 +98,6 @@ public class Drive extends SubsystemBase {
             Rotation2d.fromRotations(kGyroInputs.yawRotations), 
             getModulePositions(), 
             kOdometry.getPoseMeters());
-
-        for(int i = 0; i < kModules.length; ++i) {
-            kModules[i].recalibrateAzimuth();
-        }
 
         kRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(null, null, null, // Default values
@@ -120,6 +116,12 @@ public class Drive extends SubsystemBase {
     public void setDriveState(driveState driveState) { state = driveState; }
 
     public driveState getDriveState() { return state; }
+
+    public void resetAzimuths() {
+        for(var module : kModules) {
+            module.resetAzimuth();
+        }
+    }
     
     private SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
@@ -192,6 +194,12 @@ public class Drive extends SubsystemBase {
 
     @Override
     public void periodic() {
+        for(int i = 0; i < kModules.length; ++i) {
+            if(kModuleInputs[i].CANCoderOk) {
+                kModules[i].resetAzimuth();;
+            }
+        }
+
         // Update inputs for IO layers.
         for(int i = 0; i < kModuleInputs.length; ++i) {
             kModules[i].updateInputs(kModuleInputs[i]);
@@ -199,10 +207,10 @@ public class Drive extends SubsystemBase {
         kGyro.updateInputs(kGyroInputs);
 
         // Update AK Logging.
-        Logger.processInputs("Drive/ModuleFR", kModuleInputs[0]);
-        Logger.processInputs("Drive/ModuleFL", kModuleInputs[1]);
-        Logger.processInputs("Drive/ModuleBR", kModuleInputs[2]);
-        Logger.processInputs("Drive/ModuleBL", kModuleInputs[3]);
+        Logger.processInputs("Drive/ModuleFL", kModuleInputs[0]);
+        Logger.processInputs("Drive/ModuleFR", kModuleInputs[1]);
+        Logger.processInputs("Drive/ModuleBL", kModuleInputs[2]);
+        Logger.processInputs("Drive/ModuleBR", kModuleInputs[3]);
         Logger.processInputs("Drive/Gyro", kGyroInputs);
 
         // Update Odometry.
@@ -233,8 +241,8 @@ public class Drive extends SubsystemBase {
         };
 
         // Update the gyro (usually for sim purposes)
-        if(RobotConstants.Instance().kMode == RobotConstants.mode.SIM) {
-            kGyro.updateGyro(Units.radiansToRotations(kKinematics.toChassisSpeeds(realStates).omegaRadiansPerSecond * RobotConstants.Instance().kTimestep));
+        if(RobotConstants.Instance().kMode.equals(RobotConstants.mode.SIM)) {
+            kGyro.updateGyro(Units.radiansToRotations(kKinematics.toChassisSpeeds(realStates).omegaRadiansPerSecond) * RobotConstants.Instance().kTimestep);
         }
     }
 
@@ -246,7 +254,7 @@ public class Drive extends SubsystemBase {
 
         // Perform IK to get each indiviual module's goal setpoint and then desaturate to cap the speed.
         SwerveModuleState[] moduleStates = kKinematics.toSwerveModuleStates(discretizedSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, RobotConstants.DriveConstants().kModuleSoftLimits.maxLinearVelocityMPS());
+        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, RobotConstants.DriveConstants().kModuleSoftLimits.absoluteMaxDriveVelocityMPS());
 
         // Optimize the modules so they never rotate more than 90 degrees.
         optimizeModules(moduleStates);

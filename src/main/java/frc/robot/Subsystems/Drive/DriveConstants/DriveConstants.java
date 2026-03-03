@@ -6,13 +6,14 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 
 public class DriveConstants {
     public final record moduleIDs(int driveID, int azimuthID, int CANcoderID) {}
     public final record moduleOffsets(Translation2d translationalOffset, Rotation2d rotationalOffset) {}
     public final record moduleHardLimits(double wheelRadiusMeters, double driveGearRatio, double azimuthGearRatio, double trackDistanceMeters) {}
     public final record moduleControllerLimits(double controllerDeadband, int controllerInputExponent, double controllerInputRateLimiter) {}
-    public final record moduleSoftlimits(moduleControllerLimits controllerLimits, double maxLinearVelocityMPS, double maxLinearAccelerationMPS2, double maxAngularVelocityRPS, boolean isDriveBraked, boolean isAzimuthBraked) {}
+    public final record moduleSoftlimits(moduleControllerLimits controllerLimits, double maxLinearVelocityMPS, double maxLinearAccelerationMPS2, double maxAngularVelocityRPS, double absoluteMaxDriveVelocityMPS, boolean isDriveBraked, boolean isAzimuthBraked) {}
     public final record moduleCurrentLimits(double driveStatorCurrentLimit, double driveSupplyCurrentLimit, double azimuthStatorCurrentLimit, double azimuthSupplyCurrentLimit) {}
     public final record moduleVoltageLimits(double driveVoltagePeakRange, double azimuthVoltagePeakRange) {}
     public final record motorGains(double kP, double kI, double kD, double kS, double kV, double kA) {}
@@ -21,21 +22,21 @@ public class DriveConstants {
 
     public final record gyroOffsets(double roll, double pitch, double yaw) {}
 
-    public moduleIDs kFRModuleIDs = new moduleIDs(12, 22, 32);
     public moduleIDs kFLModuleIDs = new moduleIDs(11, 21, 31);
-    public moduleIDs kBRModuleIDs = new moduleIDs(14, 24, 34);
+    public moduleIDs kFRModuleIDs = new moduleIDs(12, 22, 32);
     public moduleIDs kBLModuleIDs = new moduleIDs(13, 23, 33);
+    public moduleIDs kBRModuleIDs = new moduleIDs(14, 24, 34);
     public int kGyroID = 10;
 
-    public moduleHardLimits kModuleHardLimits = new moduleHardLimits(0.0508d, 6.12d/1.0d, 150.0d/7.0d, 3.0d);
-    public moduleSoftlimits kModuleSoftLimits = new moduleSoftlimits(new moduleControllerLimits(0.05d, 2, 6.0d), 4.5d, 4.0d, 1.0d, true, true);
+    public moduleHardLimits kModuleHardLimits = new moduleHardLimits(0.0508d, 6.12d/1.0d, 150.0d/7.0d, Units.inchesToMeters(26.5d));
+    public moduleSoftlimits kModuleSoftLimits = new moduleSoftlimits(new moduleControllerLimits(0.05d, 2, 6.0d), 4.5d, 4.0d, 1.0d, 24.0, true, true);
 
     public double sniperModeScalar = 0.2d;
 
-    public moduleOffsets kFRModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters/2, kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(-0.413086d));
     public moduleOffsets kFLModuleOffsets = new moduleOffsets(new Translation2d(-kModuleHardLimits.trackDistanceMeters/2, kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(-0.090576d));
-    public moduleOffsets kBRModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters/2, -kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(0.486572d));
+    public moduleOffsets kFRModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters/2, kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(-0.413086d));
     public moduleOffsets kBLModuleOffsets = new moduleOffsets(new Translation2d(-kModuleHardLimits.trackDistanceMeters/2, -kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(0.462646d));
+    public moduleOffsets kBRModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters/2, -kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(0.486572d));
 
     public gyroOffsets kGyroOffsets = new gyroOffsets(0.0d, 0.0d, 0.0d);
 
