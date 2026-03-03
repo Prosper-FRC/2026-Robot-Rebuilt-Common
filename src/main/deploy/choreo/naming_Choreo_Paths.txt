@@ -1,5 +1,8 @@
-Files placed in this directory will be deployed to the RoboRIO into the
-'deploy' directory in the home folder. Use the 'Filesystem.getDeployDirectory' wpilib function
-to get a proper path relative to the deploy directory.
-
-Ragav please put the naming convention for choreo paths here pleaspelaspelapsle
+Hello future me. This is to document any BS that I cook up! Lets get into it. (Epic yt intro music plays)
+Alrighty this is the basic paths that will move the robot from one part of the field to another. (WOW REVOLUTIONARY!)
+For example "BL_CL" Stands for Blue left to Close Left to shoot, we will use Choreo lib in the Autonomous commands file to "Command scheduler Chain" 
+"FC" :  Far Center
+"CLL" : Climb Left
+The reason we are doing super simple paths is so we can easily chain it later!
+etc etc... 
+Next year we steal the moon! No jk jk. We are making a COMPLETELY dynamic auton (https://github.com/FRCTeam3044/Oxplorer/tree/main/.vscode) For reference...
