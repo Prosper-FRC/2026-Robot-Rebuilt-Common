@@ -2,6 +2,11 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.Subsystems.Vision.VisionConstants.VisionConstants;
+import frc.robot.Subsystems.Vision.VisionConstants.VisionConstants5411;
+import frc.robot.Subsystems.Vision.VisionConstants.VisionConstants9105;
+import frc.robot.Subsystems.Vision.VisionConstants.VisionConstants9492;
+import frc.robot.Subsystems.Vision.VisionConstants.VisionConstantsSim;
 
 public class RobotConstants {
     private static RobotConstants instance = null;
@@ -17,6 +22,8 @@ public class RobotConstants {
     public final mode kMode;
     public final int kDriveControllerPort = 0;
     public final double kTimestep = 0.02d;
+
+    private final VisionConstants kVisionConstants;
 
     // FALSE IT BEFORE COMPETITION
     public static final boolean kTuningMode = true;
@@ -37,17 +44,22 @@ public class RobotConstants {
         switch (kTeamNumber) {
             case 5411:
                 // Assign team specific constants.
+                kVisionConstants = new VisionConstants5411();
                 break;
             case 9105:
                 // Assign team specific constants.
+                kVisionConstants = new VisionConstants9105();
                 break;
             case 9492:
                 // Assign team specific constants.
+                kVisionConstants = new VisionConstants9492();
                 break;
             case 0:
                 // Assign sim constants
+                kVisionConstants = new VisionConstantsSim();
                 break;
             default:
+                kVisionConstants = new VisionConstants();
                 break;
         }
     }

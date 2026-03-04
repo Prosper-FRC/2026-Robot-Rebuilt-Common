@@ -1,5 +1,10 @@
 package frc.robot.Subsystems.Vision;
 
+import static frc.robot.Subsystems.Vision.VisionConstants.VisionConstants.KUseSingleTagTransform;
+import static frc.robot.Subsystems.Vision.VisionConstants.VisionConstants.kAmbiguityThreshold;
+import static frc.robot.Subsystems.Vision.VisionConstants.VisionConstants.kMultiStdDevs;
+import static frc.robot.Subsystems.Vision.VisionConstants.VisionConstants.kSingleStdDevs;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -11,11 +16,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.Subsystems.Vision.CameraIO.CameraIOInputs;
-import frc.robot.utils.debugging.LoggedTunableNumber; // Unsure how to add the utils folder, if it is any different from 2025 reefscape
-import static frc.robot.Subsystems.Vision.VisionConstants.kSingleStdDevs;
-import static frc.robot.Subsystems.Vision.VisionConstants.kMultiStdDevs;
-import static frc.robot.Subsystems.Vision.VisionConstants.KUseSingleTagTransform;
-import static frc.robot.Subsystems.Vision.VisionConstants.kAmbiguityThreshold;;
+import frc.robot.utils.debugging.LoggedTunableNumber; // Unsure how to add the utils folder, if it is any different from 2025 reefscape;
 
 
 public class Vision {

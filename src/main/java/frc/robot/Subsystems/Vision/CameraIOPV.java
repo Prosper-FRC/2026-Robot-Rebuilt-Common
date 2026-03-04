@@ -8,9 +8,9 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.RobotConstants;
 import frc.robot.RobotConstants.mode;
-import frc.robot.Subsystems.Vision.VisionConstants.Orientation;
+import frc.robot.Subsystems.Vision.VisionConstants.VisionConstants.Orientation;
 
-import static frc.robot.Subsystems.Vision.VisionConstants.kOV2311DiagonalCameraFOV;
+import static frc.robot.Subsystems.Vision.VisionConstants.VisionConstants.kOV2311DiagonalCameraFOV;
 
 import java.util.ArrayList;
 import java.util.List;

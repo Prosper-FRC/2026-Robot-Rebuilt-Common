@@ -1,5 +1,5 @@
 
-package frc.robot.Subsystems.Vision;
+package frc.robot.Subsystems.Vision.VisionConstants;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -52,4 +52,6 @@ public class VisionConstants {
         BACK,
         FRONT
     }
+
+    public VisionConstants() {}
 }
