@@ -39,21 +39,17 @@ public interface IndexerIO {
      * Updates the given inputs to the most recent values.
      * @param toUpdate The inputs to update.
      */
+    
     default public void updateInputs(IndexerInputs toUpdate) {}
     
     /**
-     * Sets the goal position of both indexer motors in rotations.
-     * @param volts The position in rotations for the motor to target.
-     */
-    
-    /**
-     * Sets the goal velocity of both indexer motors in rps.
+     * Sets the goal velocity of all of the motors in rps.
      * @param rps The rotations per second to target.
      */
     default public void setMotorVelocityRPS(double rps) {}
 
     /**
-     * Sets the voltage applied to the first indexer motor in volts.
+     * Sets the voltage applied to the each motor in volts.
      * @param voltage The voltage to apply to the motor.
      */
     default public void setIndexerMotor1Voltage(double voltage) {}
@@ -63,44 +59,32 @@ public interface IndexerIO {
     default public void setHopperMotor2Voltage(double voltage) {}
 
     default public void setHopperMotor3Voltage(double voltage) {}
-    /**
-     * Sets the voltage applied to the second indexer motor in volts.
-     * @param voltage The voltage to apply to the motor.
-     */
 
     /**
-     * Resets the relative encoder of the first indexer motor to 0.
+     * Resets the relative encoder of the motors to 0.
      */
     default public void resetHopperMotor1() {}
 
-    /**
-     * Resets the relative encoder of the second indexer motor to 0.
-     */
     default public void resetHopperMotor2() {}
 
-    /**
-     * Resets both relative encoders in both of the indexer motors to 0.
-     */
     default public void resetHopperMotor3() {}
 
     default public void resetIndexerMotor1() {}
 
+
     default public void resetMotor() {}
     /**
-     * Sets the first indexer motor to its current neutral mode.
+     * Sets the each motor to its current neutral mode.
      */
     default public void stopHopperMotor1() {}
 
-    /**
-     * Sets the second indexer motor to its current neutral mode.
-     */
     default public void stopHopperMotor2() {}
 
     default public void stopHopperMotor3() {}
 
     default public void stopIndexerMotor1() {}
     /**
-     * Sets both indexer motors to their current neutral modes.
+     * Sets all the motors to their current neutral modes at once.
      */
     default public void stopMotor() {}
 }
