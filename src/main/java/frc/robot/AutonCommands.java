@@ -4,7 +4,8 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
@@ -12,56 +13,59 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class AutonCommands {
 
-    private final HashMap<String, Command> kCommandHashMap;
-    private final ArrayList<Command> kQueuedCommands;
-
-    // We might need these?
-    private SendableChooser<Command> autoChooser;
-
-    /* someone please explain why we put m
-     * private Drive robotdrive;
-     * private Shooter mShooter;
-     * private Intake mIntake;
-     * private Indexer mIndexer;
-     * private Superstructure robotSuperstructure;
-     * 
-     */
+    public static HashMap<String, Command> commandHashMap;
+    private final ArrayList<Command> queuedCommands;
 
 
     public AutonCommands() 
     {
-        kCommandHashMap = new HashMap<String, Command>();
-        kQueuedCommands = new ArrayList<Command>();
-
-        autoChooser = new SendableChooser<>();
+        commandHashMap = new HashMap<String, Command>();
+        queuedCommands = new ArrayList<Command>();
     }
 
-    public void addCommandToQueue(String name) 
+    public Command getPath(String key) 
     {
-        kQueuedCommands.add(kCommandHashMap.get(name));
+        return commandHashMap.get(key);
     }
 
-    public void runQueue()
+    public Command getPath(String key, double wait) 
     {
-        
+        return commandHashMap.get(key);
+    }
+
+    public boolean isPathComplete() 
+    {
+        return false;
     }
 
     // Implement later
-    private Command getQueueAsSequentialCommand(ArrayList<Command> queue) { return new SequentialCommandGroup(null); }
+    public Command runQueue() 
+    { 
+        return new SequentialCommandGroup(); 
+    }
 
+    // This may change, depends on the will of king carter (swervesample?)
+    public Pose2d getPathPose() // take timestamp
+    {
+        return new Pose2d();
+    }
+
+    public ChassisSpeeds getPathSpeeds() // take timestamp
+    {
+        return new ChassisSpeeds();
+    }
+
+    //optional thingy idk i dont understand it
+
+    public void addCustomCommand(Command command)
+    {
+        queuedCommands.add(command);
+    }
 }
 
 // crazy coding skills
 /*
- * the drive subsystem does the actual trajectory followoing
- * in choreolib so we need carter to help on this
- * 
- * then uh theres stuff that needs to be done in robot container i think
- * im not sure choreo docs arent very good ok
- * 
- * then we can get to writing the actual file and use
- * uhh commented out code for everytime we need to use a subsystem
- * like //shooter.shoot(values);
- * 
- * man i just wanted to start coding very sad...
+ * ok so a lot of stuff needs to be actually implemented but im hungry
+ * also ragav i have no flippity flopping idea why the choreo folders are seperate ok
+ * please delete the folder on your side or something idk i can fix this hopefully
  */
