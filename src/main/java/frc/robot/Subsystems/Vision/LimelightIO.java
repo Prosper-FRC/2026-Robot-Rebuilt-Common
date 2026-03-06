@@ -2,130 +2,121 @@ package frc.robot.Subsystems.Vision;
 
 import java.util.ArrayList;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Subsystems.Vision.VisionConstants.Orientation;;
+import frc.robot.LimelightHelpers;
+import frc.robot.LimelightHelpers.RawFiducial;
 
 public class LimelightIO implements CameraIO{
 
     private String camName;
-    private Transform3d cameraTransform;
-    private Orientation orientation;
 
     private NetworkTable limelight;
-    private boolean pipelineIndex;
-    private double[] poseValues;
-    private Pose3d offset;
-    private double verticalDistance;
-    private double sidewaysDistance;
-    private double forwardDistance;
-    private double roll;
-    private double pitch;
+    private Translation3d offset;
     private double yaw;
 
-    ArrayList<Transform3d> tagTargets = new ArrayList<>();
-
-    public LimelightIO(String name, Pose3d offset, Transform3d cameraTransform, Orientation orientation) {
+    public LimelightIO(String name, Translation3d cameraOffset) {
         // Instantiate a Limelight and account for position of limelight on the robot
         camName = name;
-        this.cameraTransform = cameraTransform;
         limelight = NetworkTableInstance.getDefault().getTable(camName);
         // Set pipeline for image processing
-        limelight.getEntry("pipeline").setNumber(0);
-        this.offset = offset;
-        this.orientation = orientation;
+        LimelightHelpers.setPipelineIndex(camName, 0);
+        this.offset = cameraOffset;
+        LimelightHelpers.SetIMUAssistAlpha(camName, 0.001);
+        LimelightHelpers.setLEDMode_PipelineControl(camName);
+        LimelightHelpers.setCameraPose_RobotSpace(camName, offset.getX(), offset.getY(), offset.getZ(), 0,0,0);
     }
 
-    public double getYaw() {
-        return limelight.getEntry("tx").getDouble(0);
+    public void setTagFilters(int[] ids) {
+        LimelightHelpers.SetFiducialIDFiltersOverride(camName, ids);
     }
 
-    public double getPitch() {
-        return limelight.getEntry("ty").getDouble(0);
+    public void captureSnapshot() {
+        LimelightHelpers.triggerSnapshot(camName);
     }
 
-    public double getArea() {
-        return limelight.getEntry("ta").getDouble(0);
+    public void setRewindMode() {
+        LimelightHelpers.setRewindEnabled(camName, true);
     }
 
-    // Gets the target apriltag in front of limelight
-    public int getTargetID() {
-        return (int) limelight.getEntry("tid").getInteger(100);
+    public void captureSeconds(double seconds) {
+        LimelightHelpers.triggerRewindCapture(camName, seconds);
     }
 
-    // Check if limelight has a target
-    public boolean hasTarget() {
-        return (limelight.getEntry("tv").getDouble(0) == 1);
+    public void loadPipeline(int index) {
+        LimelightHelpers.setPipelineIndex(camName, index);
     }
 
+    public void setIMUModePrecalibration() {
+        LimelightHelpers.SetIMUMode(camName, 1);
+    }
+    
+    public void setIMUModeExternalOnly() {
+        LimelightHelpers.SetIMUMode(camName, 4);
+    }
 
-    public Pose3d getPose() {
-        // pose values of robot position relative to the blue driverstation
-        poseValues = limelight.getEntry("botpose_wpiblue").getDoubleArray(new double[10]);
+    public void setIMUModeAssist(double alphaLevel) {
+        LimelightHelpers.SetIMUAssistAlpha(camName, alphaLevel);
+    }
 
-        Translation3d translate = new Translation3d(poseValues[0], poseValues[1], poseValues[2]);
-        Rotation3d rotate = new Rotation3d(Math.toRadians(poseValues[3]), Math.toRadians(poseValues[4]), Math.toRadians(poseValues[5]));
+    public void setYaw(double yaw) {
+        this.yaw = yaw;
+    }
 
-        return new Pose3d(translate, rotate);
+    public void setLEDMode(LEDMode mode) {
+        if(mode == LEDMode.ON) {
+            LimelightHelpers.setLEDMode_ForceOn(camName);
+        } else if(mode == LEDMode.OFF) {
+            LimelightHelpers.setLEDMode_ForceOff(camName);
+        } else if(mode == LEDMode.BLINK) {
+            LimelightHelpers.setLEDMode_ForceBlink(camName);
+        } else if (mode == LEDMode.DEFAULT) {}
     }
 
     @Override
-    public void updateInputs(CameraIOInputs inputs, Pose2d lastRobotPose, Pose2d simOdomPose) {
-        // Get target by getting entry of the target (apriltag) and accounting for the offset of the limelights
-        poseValues = limelight.getEntry("targetpose_cameraspace").getDoubleArray(new double[6]);
-        // [2] Gets tz (forward horizontal distance), and [0] gets tx (sideways horizontal distance); tx is made 
-        // negative to fit into WPILib's coordinate system from Limelight Camera Space coordinate system (BOTH coordinate systems)
-        // Consider one same direction as two different signs
-        verticalDistance = -poseValues[1];
-        forwardDistance = poseValues[2];
-        sidewaysDistance = -poseValues[0];
-        pitch = Math.toRadians(poseValues[3]);
-        yaw = Math.toRadians(poseValues[4]);
-        roll = Math.toRadians(poseValues[5]);
-        Rotation3d rotation = new Rotation3d(roll, pitch, yaw);
-        Transform3d transform = new Transform3d(forwardDistance, sidewaysDistance, verticalDistance, rotation); 
-        
-        // Add cl and tl for total latency
-        inputs.latencySeconds = (limelight.getEntry("tl").getDouble(0) + limelight.getEntry("cl").getDouble(0));
-        inputs.cameraToApriltag = transform;
-        // Accounts for robot position
-        inputs.robotToApriltag = transform.plus(cameraTransform);
-        inputs.singleTagAprilTagID = getTargetID();
-        inputs.pitch = pitch;
-        inputs.yaw = yaw;
-        inputs.pitch = pitch;
-        inputs.area = getArea();
+    public void updateInputs(CameraIOInputs inputs) {
 
-        if (orientation.equals(Orientation.FRONT)) {
-            inputs.latestEstimatedRobotPose = getPose();
+        inputs.camName = camName;
+        inputs.isConnected = true; 
+
+        // Checks if camera is still connected
+        double newHeartbeat = LimelightHelpers.getHeartbeat(camName);
+        if (!(newHeartbeat > inputs.oldHeartbeat)) {
+            inputs.isConnected = false;
+            inputs.hasBeenUpdated = false;
         } else {
-            // Rotate pose by 180 degrees or PI radians
-            inputs.latestEstimatedRobotPose = getPose().transformBy(new Transform3d(new Translation3d(), new Rotation3d(0, 0, Math.PI)));
+            inputs.oldHeartbeat = newHeartbeat;
+            inputs.isConnected = true;
+            inputs.hasBeenUpdated = true;
         }
+    
+        // Get robot field pose with MegaTag2
+        // Might need to take in a SwerveDrivePoseEstimator
+        LimelightHelpers.SetRobotOrientation(camName, yaw, 0, 0, 0, 0, 0);
+        LimelightHelpers.PoseEstimate visionResult = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(camName);
+        inputs.latestEstimatedRobotPose = visionResult.pose;
+        
+        inputs.latestTimestamp = visionResult.timestampSeconds;
 
-        inputs.latestTimestamp = Timer.getFPGATimestamp() - inputs.latencySeconds;
+        inputs.fiducialData = visionResult.rawFiducials;
 
-        // Photon Vision code from Reefscape Common; planning to take the logic of the code below and adapt it for limelight
-
-    //     ArrayList<Transform3d> tagTs = new ArrayList<>();
-    //                     double[] ambiguities = new double[inputs.latestEstimatedRobotPose.get().targetsUsed.size()];
-    //                     if(inputs.latestEstimatedRobotPose.get().targetsUsed.size() > 0) {
-    //                         for(int i = 0; i < inputs.latestEstimatedRobotPose.get().targetsUsed.size(); i++) {
-    //                             tagTs.add(inputs.latestEstimatedRobotPose.get().targetsUsed.get(i).getBestCameraToTarget());
-    //                             ambiguities[i] = inputs.latestEstimatedRobotPose.get().targetsUsed.get(i).getPoseAmbiguity();
-    //                         }
-    //                     }
-   
-    // }
-
-
-}
+        // Check how many tags and their distances to camera & ambiguities
+        inputs.ambiguities =  new double[visionResult.rawFiducials.length];
+        inputs.tags = new int[visionResult.rawFiducials.length];
+        for (int i = 0; i < inputs.fiducialData.length; i++) {
+            inputs.ambiguities[i] = inputs.fiducialData[i].ambiguity;   
+            inputs.tags[i] = inputs.fiducialData[i].id;
+            inputs.distances[i] = inputs.fiducialData[i].distToCamera;
+        }
+    }
 }
