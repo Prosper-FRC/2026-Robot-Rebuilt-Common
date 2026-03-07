@@ -4,12 +4,70 @@
 
 package frc.robot;
 
-public class RobotContainer {
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Subsystems.Shooter.Shooter;
+import frc.robot.Subsystems.Shooter.FlywheelIOSim;
+import frc.robot.Subsystems.Shooter.HooderIOSim;
+import frc.robot.Subsystems.Shooter.ShooterConstants;
 
-    public RobotContainer() {
-        configureBindings();
+public class RobotContainer {
+  public final CommandXboxController kDriveController = new CommandXboxController(RobotConstants.getInstance().kDriveControllerPort);
+  public Shooter kShooter;
+
+  public RobotContainer() {
+    	switch (RobotConstants.getInstance().kMode) {
+          case REAL:
+                //STUFF
+                break;
+            case REPLAY:
+                break;
+            case SIM:
+                kShooter = new Shooter(
+                    new FlywheelIOSim(
+                        ShooterConstants.getInstance().kFlywheelGains
+                    ), 
+                    new HooderIOSim(
+                        ShooterConstants.getInstance().kHooderGains
+                    )
+                );
+                break;
+            default:
+                break;
+        }
+
+    	configureBindings();
+  	}
+
+	private void configureBindings() {
+        DriverStation.silenceJoystickConnectionWarning(true);
+		
+        // Hooder
+        kDriveController.rightBumper().onTrue(
+            Commands.runOnce(() -> kShooter.nextPosition(), kShooter)
+        );
+
+        kDriveController.leftBumper().onTrue(
+            Commands.runOnce(() -> kShooter.previousPosition(), kShooter)
+        );
+    
+        // Flywheel and Indexer
+        kDriveController.a().onTrue(
+            Commands.runOnce(() -> kShooter.flywheelOnOff(), kShooter)
+        );
+     
+        kDriveController.start().onTrue(
+            Commands.runOnce(() -> {
+                kShooter.stopFlywheel();
+                kShooter.stopHooder();
+            }, kShooter)
+        );
     }
 
-    private void configureBindings() {}
+    public Command getAutonomousCommand() {
+        return Commands.print("No autonomous command configured");
+    }
 
 }
