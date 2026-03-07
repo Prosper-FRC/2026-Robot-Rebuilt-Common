@@ -1,5 +1,7 @@
 package frc.robot.Subsystems.Shooter;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -10,24 +12,39 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.*;
 import frc.robot.Subsystems.Shooter.ShooterConstants;
+import frc.robot.Subsystems.Shooter.ShooterConstants.HooderGains;
+import edu.wpi.first.math.util.Units;
 
 public class HooderIOSparkMax implements HooderIO {
-    private final SparkMax kHoodMotor;
-    private final CANcoder kHoodCancoder;
+    private final SparkMax kHooderMotor;
+    private final CANcoder kHooderCancoder;
     private final CANcoderConfiguration kCancoderConfig = new CANcoderConfiguration();
-    private final StatusSignal<Angle> kHoodPosition;
+    private StatusSignal<Angle> kHooderPosition;
 
-    public HooderIOSparkMax() {
+    @AutoLogOutput(key = "Hooder/PositionRadians")
+    private double kHooderPositionRadians = 0.0;
+    
+    @AutoLogOutput(key = "Hooder/PositionGoalRadians")
+    private double kHooderPositionGoalRadians = 0.0;
+    
+    // Hooder feedforward and feedback declarations
+    private final ProfiledPIDController hooderPIDController;
+    private ArmFeedforward hooderFeedforward;
+
+    public HooderIOSparkMax(HooderGains hooderGains) {
         ShooterConstants constants = ShooterConstants.getInstance();
 
-        kHoodMotor = new SparkMax(constants.kHoodMotorId, MotorType.kBrushless);
-        kHoodCancoder = new CANcoder(constants.kHoodCancoderID);
+        kHooderMotor = new SparkMax(constants.kHooderMotorID, MotorType.kBrushless);
+        kHooderCancoder = new CANcoder(constants.kHooderCancoderID);
 
-        kHoodCancoder.getConfigurator().apply(kCancoderConfig);
-        kHoodPosition = kHoodCancoder.getPosition();
+        kHooderCancoder.getConfigurator().apply(kCancoderConfig);
+        kHooderPosition = kHooderCancoder.getPosition();
 
         SparkMaxConfig config = new SparkMaxConfig();
 
@@ -37,39 +54,65 @@ public class HooderIOSparkMax implements HooderIO {
         config.softLimit.reverseSoftLimit(0.01);
         config.softLimit.reverseSoftLimitEnabled(true);
 
-        
-        kHoodMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        kHooderMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+
+        // Hooder feedforward and feedback initialization
+        hooderPIDController = new ProfiledPIDController(
+            hooderGains.p(), 
+            hooderGains.i(),
+            hooderGains.d(),
+            new TrapezoidProfile.Constraints(hooderGains.maxVelocityRadiansPerSecond(), hooderGains.maxAccelerationRadiansPerSecondSquared())
+        );
+
+        hooderFeedforward = new ArmFeedforward(hooderGains.s(), hooderGains.g(), hooderGains.v(), hooderGains.a());
     }
 
-    @Override
-    public void updateInputs(HooderInputsAutoLogged toUpdate) {
-       
-        toUpdate.isHoodOk = BaseStatusSignal.refreshAll(kHoodPosition).isOK();
-        toUpdate.hoodPositionRotations = kHoodPosition.getValueAsDouble();
-        toUpdate.hoodVelocityRPM = 0.0;
-        toUpdate.hoodVoltage = kHoodMotor.getBusVoltage() * kHoodMotor.getAppliedOutput();
-        toUpdate.hoodStatorCurrent = kHoodMotor.getOutputCurrent();
-        toUpdate.hoodSupplyCurrent = kHoodMotor.getOutputCurrent();
+    public double calculateHooderVolts(double goalPositionRadians) {
+        double PIDVolts = hooderPIDController.calculate(kHooderPositionRadians, goalPositionRadians);
+        double setpointVelocity = hooderPIDController.getSetpoint().velocity;
+        double feedforwardVolts = hooderFeedforward.calculate(kHooderPositionRadians, setpointVelocity);
+
+        return (PIDVolts + feedforwardVolts);
     }
 
     @Override
     public void setHooderVoltage(double volts) {
-        kHoodMotor.setVoltage(volts);
+        kHooderMotor.setVoltage(volts);
+    }
+    
+    @Override
+    public void setHooderPositionRotationsGoal(Rotation2d newHoodPosition) {
+        kHooderPositionGoalRadians = newHoodPosition.getRadians();
+        hooderPIDController.setGoal(kHooderPositionGoalRadians);
     }
 
     @Override
-    public void setHooderPositionRotationsGoal(Rotation2d goal) {
-        double error = goal.getRotations() - kHoodPosition.getValueAsDouble();
-        kHoodMotor.setVoltage(error * 5.0);
+    public double getHooderPositionRadiansGoal() {
+        return kHooderPositionGoalRadians;
     }
 
     @Override
     public void stopHooder() {
-        kHoodMotor.stopMotor();
+        kHooderMotor.stopMotor();
     }
 
     @Override
     public void resetHooder() {
-        kHoodCancoder.setPosition(0.0);
+        kHooderCancoder.setPosition(0.0);
+    }
+
+    @Override
+    public void updateInputs(HooderInputs toUpdate) {
+        kHooderPosition = kHooderCancoder.getAbsolutePosition();
+        kHooderPositionRadians = Units.degreesToRadians(kHooderPosition.getValueAsDouble());
+
+        kHooderMotor.setVoltage(calculateHooderVolts(kHooderPositionGoalRadians));
+
+        toUpdate.hooderOk = BaseStatusSignal.refreshAll(kHooderPosition).isOK();
+        toUpdate.hooderAngleRads = kHooderPosition.getValueAsDouble();
+        toUpdate.hooderVelocityRPM = 0.0;
+        toUpdate.hooderVoltage = kHooderMotor.getBusVoltage() * kHooderMotor.getAppliedOutput();
+        toUpdate.hooderStatorCurrent = kHooderMotor.getOutputCurrent();
+        toUpdate.hooderSupplyCurrent = kHooderMotor.getOutputCurrent();
     }
 }

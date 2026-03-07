@@ -2,6 +2,8 @@ package frc.robot.Subsystems.Shooter;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix6.StatusCode;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public interface FlywheelIO {

@@ -1,4 +1,6 @@
 package frc.robot.Subsystems.Shooter;
+import frc.robot.Subsystems.Shooter.ShooterConstants;
+
 
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -8,10 +10,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
     private final FlywheelIO kFlywheel;
-    // private final FlywheelInputsAutoLogged kFlywheelInputs;
+    private final FlywheelInputsAutoLogged kFlywheelInputs;
 
     private final HooderIO kHooder;
-    // private final HooderInputsAutoLogged kHooderInputs;
+    private final HooderInputsAutoLogged kHooderInputs;
 
     public enum HooderPosition {
         kHoodPosition1(ShooterConstants.getInstance().kHoodPosition1),
@@ -35,19 +37,19 @@ public class Shooter extends SubsystemBase {
 
     public Shooter(FlywheelIO flywheelIO, HooderIO hooderIO) {
         kFlywheel = flywheelIO;
-        // kFlywheelInputs = new FlywheelInputsAutoLogged();
+        kFlywheelInputs = new FlywheelInputsAutoLogged();
 
         kHooder = hooderIO;
-        // kHooderInputs = new HooderInputsAutoLogged();
+        kHooderInputs = new HooderInputsAutoLogged();
     }
 
     @Override
     public void periodic() {
-        // kFlywheel.updateInputs(kFlywheelInputs);
-        // kHooder.updateInputs(kHooderInputs);
+        kFlywheel.updateInputs(kFlywheelInputs);
+        kHooder.updateInputs(kHooderInputs);
 
-        // Logger.processInputs("Flywheel", kFlywheelInputs);
-        // Logger.processInputs("Hooder", kHooderInputs);
+        Logger.processInputs("Flywheel", kFlywheelInputs);
+        Logger.processInputs("Hooder", kHooderInputs);
 
         Logger.recordOutput("Hooder/HooderPosition", currentHooderPosition);
     }

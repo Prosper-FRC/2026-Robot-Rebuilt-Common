@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Subsystems.Shooter.ShooterConstants.FlywheelGains;
-import frc.robot.Subsystems.Shooter.ShooterConstants.HooderGains;
+import frc.robot.Subsystems.Shooter.ShooterConstants;
 
 public class HooderIOSim implements HooderIO {
     private static final double kLoopPeriodSec = 0.02;
@@ -31,7 +31,7 @@ public class HooderIOSim implements HooderIO {
     private ArmFeedforward hooderFeedforward;
     private TrapezoidProfile hooderTrapezoidProfile;
 
-    public HooderIOSim(HooderGains hooderGains) {
+    public HooderIOSim(ShooterConstants.HooderGains hooderGains) {
         System.out.println(DCMotor.getKrakenX44Foc(1));
         kHooder = new SingleJointedArmSim(
             LinearSystemId.createSingleJointedArmSystem(DCMotor.getKrakenX44Foc(1), 0.001, 50.0), 

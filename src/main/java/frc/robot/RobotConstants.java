@@ -14,7 +14,7 @@ public class RobotConstants {
 
     // Declare and Assign general constants here.
     public final int kTeamNumber;
-    public final mode kMode;
+    public static final mode kCurrentMode = RobotBase.isReal() ? mode.REAL : mode.SIM;
     public final int kDriveControllerPort = 0;
     public final double kTimestep = 0.02d;
 
@@ -22,13 +22,6 @@ public class RobotConstants {
 
     private RobotConstants() {
         kTeamNumber = RobotController.getTeamNumber();
-        if(RobotBase.isReal()) {
-            kMode = mode.REAL;
-        } else if(RobotBase.isSimulation()) {
-            kMode = mode.SIM;
-        } else {
-            kMode = mode.REPLAY;
-        }
 
         switch (kTeamNumber) {
             case 5411:

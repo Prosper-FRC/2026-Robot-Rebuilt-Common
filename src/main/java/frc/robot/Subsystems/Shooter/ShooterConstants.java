@@ -8,7 +8,7 @@ public class ShooterConstants{
     public final int kTeamNumber = RobotConstants.getInstance().kTeamNumber;
 
     //Flywheel
-    public int kFlywheelmotorId;
+    public int kFlywheelMotorID;
 
     public record FlywheelGains(
         double p, 
@@ -25,8 +25,8 @@ public class ShooterConstants{
     public FlywheelGains kFlywheelGains;
 
     //Hood
-    public int kHoodMotorId;
-    public int kHoodCancoderId;
+    public int kHooderMotorID;
+    public int kHooderCancoderID;
     public double kHooderArmLengthMeters = 0.15;
     public Rotation2d kHooderMaxAngleRads = new Rotation2d(Units.degreesToRadians(360.0));
 
@@ -58,7 +58,53 @@ public class ShooterConstants{
 
     private ShooterConstants() {
         switch(kTeamNumber) {
-            case 9999:
+            case 5411:
+                kFlywheelGains = new FlywheelGains(
+                    0.0,
+                    0.0,
+                    0.0,
+                    Units.rotationsToRadians(2),
+                    Units.rotationsToRadians(5),
+                    0.0,
+                    1.0,
+                    1.0,
+                    0.0
+                );
+                kHooderGains = new HooderGains(
+                    0.0,
+                    0.0,
+                    0.0,
+                    Units.rotationsToRadians(1),
+                    Units.rotationsToRadians(3),
+                    0.0,
+                    5.0,
+                    1.0,
+                    0.0
+                );
+            case 9105:
+                kFlywheelGains = new FlywheelGains(
+                    0.0,
+                    0.0,
+                    0.0,
+                    Units.rotationsToRadians(2),
+                    Units.rotationsToRadians(5),
+                    0.0,
+                    1.0,
+                    1.0,
+                    0.0
+                );
+                kHooderGains = new HooderGains(
+                    0.0,
+                    0.0,
+                    0.0,
+                    Units.rotationsToRadians(1),
+                    Units.rotationsToRadians(3),
+                    0.0,
+                    5.0,
+                    1.0,
+                    0.0
+                );
+            case 9492:
                 kFlywheelGains = new FlywheelGains(
                     0.0,
                     0.0,
@@ -82,9 +128,9 @@ public class ShooterConstants{
                     0.0
                 );
             case 0:
-                kFlywheelmotorId = 1;
-                kHoodMotorId = 2;
-                kHoodCancoderId = 3;
+                kFlywheelMotorID = 1;
+                kHooderMotorID = 2;
+                kHooderCancoderID = 3;
 
                 kFlywheelGains = new FlywheelGains(
                     2.0,

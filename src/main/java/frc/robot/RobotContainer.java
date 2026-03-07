@@ -18,7 +18,7 @@ public class RobotContainer {
   public Shooter kShooter;
 
   public RobotContainer() {
-    	switch (RobotConstants.getInstance().kMode) {
+    	switch (RobotConstants.getInstance().kCurrentMode) {
           case REAL:
                 //STUFF
                 break;
@@ -53,7 +53,7 @@ public class RobotContainer {
             Commands.runOnce(() -> kShooter.previousPosition(), kShooter)
         );
     
-        // Flywheel and Indexer
+        // Flywheel
         kDriveController.a().onTrue(
             Commands.runOnce(() -> kShooter.flywheelOnOff(), kShooter)
         );

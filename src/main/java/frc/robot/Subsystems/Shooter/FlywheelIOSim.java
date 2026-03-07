@@ -14,9 +14,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Subsystems.Shooter.ShooterConstants.FlywheelGains;
-import frc.robot.Subsystems.Shooter.ShooterConstants.HooderGains;
+import frc.robot.Subsystems.Shooter.ShooterConstants;
 
 public class FlywheelIOSim implements FlywheelIO {
     private static final double kLoopPeriodSec = 0.02;
