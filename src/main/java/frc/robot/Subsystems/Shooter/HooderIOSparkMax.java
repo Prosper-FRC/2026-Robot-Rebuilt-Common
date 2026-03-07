@@ -1,69 +1,75 @@
-// package frc.robot.Subsystems.Shooter;
+package frc.robot.Subsystems.Shooter;
 
-// import com.ctre.phoenix6.BaseStatusSignal;
-// import com.ctre.phoenix6.StatusSignal;
-// import com.ctre.phoenix6.configs.CANcoderConfiguration;
-// import com.ctre.phoenix6.hardware.CANcoder;
-// import edu.wpi.first.math.geometry.Rotation2d;
-// import edu.wpi.first.units.measure.*;
-// import frc.robot.Subsystems.Shooter.ShooterConstants;
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
-// public class HooderIOSparkMax implements HooderIO {
-//     private final SparkMax kHoodMotor;
-//     private final CANcoder kHoodCancoder;
-//     private final CANcoderConfiguration kCancoderConfig = new CANcoderConfiguration();
-//     private final StatusSignal<Angle> kHoodPosition;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.*;
+import frc.robot.Subsystems.Shooter.ShooterConstants;
 
-//     public HooderIOSparkMax() {
-//         ShooterConstants constants = ShooterConstants.getInstance();
+public class HooderIOSparkMax implements HooderIO {
+    private final SparkMax kHoodMotor;
+    private final CANcoder kHoodCancoder;
+    private final CANcoderConfiguration kCancoderConfig = new CANcoderConfiguration();
+    private final StatusSignal<Angle> kHoodPosition;
 
-//         kHoodMotor = new SparkMax(constants.kHoodMotorId, MotorType.kBrushless);
-//         kHoodCancoder = new CANcoder(constants.kHoodCancoderID);
+    public HooderIOSparkMax() {
+        ShooterConstants constants = ShooterConstants.getInstance();
 
-//         kHoodCancoder.getConfigurator().apply(kCancoderConfig);
-//         kHoodPosition = kHoodCancoder.getPosition();
+        kHoodMotor = new SparkMax(constants.kHoodMotorId, MotorType.kBrushless);
+        kHoodCancoder = new CANcoder(constants.kHoodCancoderID);
 
-//         SparkMaxConfig config = new SparkMaxConfig();
+        kHoodCancoder.getConfigurator().apply(kCancoderConfig);
+        kHoodPosition = kHoodCancoder.getPosition();
 
-//         config.softLimit.forwardSoftLimit(0.25);
-//         config.softLimit.forwardSoftLimitEnabled(true);
+        SparkMaxConfig config = new SparkMaxConfig();
 
-//         config.softLimit.reverseSoftLimit(0.01);
-//         config.softLimit.reverseSoftLimitEnabled(true);
+        config.softLimit.forwardSoftLimit(0.25);
+        config.softLimit.forwardSoftLimitEnabled(true);
+
+        config.softLimit.reverseSoftLimit(0.01);
+        config.softLimit.reverseSoftLimitEnabled(true);
 
         
-//         kHoodMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
-//     }
+        kHoodMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    }
 
-//     @Override
-//     public void updateInputs(HooderInputsAutoLogged toUpdate) {
+    @Override
+    public void updateInputs(HooderInputsAutoLogged toUpdate) {
        
-//         toUpdate.isHoodOk = BaseStatusSignal.refreshAll(kHoodPosition).isOK();
-//         toUpdate.hoodPositionRotations = kHoodPosition.getValueAsDouble();
-//         toUpdate.hoodVelocityRPM = 0.0;
-//         toUpdate.hoodVoltage = kHoodMotor.getBusVoltage() * kHoodMotor.getAppliedOutput();
-//         toUpdate.hoodStatorCurrent = kHoodMotor.getOutputCurrent();
-//         toUpdate.hoodSupplyCurrent = kHoodMotor.getOutputCurrent();
-//     }
+        toUpdate.isHoodOk = BaseStatusSignal.refreshAll(kHoodPosition).isOK();
+        toUpdate.hoodPositionRotations = kHoodPosition.getValueAsDouble();
+        toUpdate.hoodVelocityRPM = 0.0;
+        toUpdate.hoodVoltage = kHoodMotor.getBusVoltage() * kHoodMotor.getAppliedOutput();
+        toUpdate.hoodStatorCurrent = kHoodMotor.getOutputCurrent();
+        toUpdate.hoodSupplyCurrent = kHoodMotor.getOutputCurrent();
+    }
 
-//     @Override
-//     public void setVoltage(double volts) {
-//         kHoodMotor.setVoltage(volts);
-//     }
+    @Override
+    public void setHooderVoltage(double volts) {
+        kHoodMotor.setVoltage(volts);
+    }
 
-//     @Override
-//     public void setHooderPositionRotationsGoal(Rotation2d goal) {
-//         double error = goal.getRotations() - kHoodPosition.getValueAsDouble();
-//         kHoodMotor.setVoltage(error * 5.0);
-//     }
+    @Override
+    public void setHooderPositionRotationsGoal(Rotation2d goal) {
+        double error = goal.getRotations() - kHoodPosition.getValueAsDouble();
+        kHoodMotor.setVoltage(error * 5.0);
+    }
 
-//     @Override
-//     public void stopHooder() {
-//         kHoodMotor.stopMotor();
-//     }
+    @Override
+    public void stopHooder() {
+        kHoodMotor.stopMotor();
+    }
 
-//     @Override
-//     public void resetHooder() {
-//         kHoodCancoder.setPosition(0.0);
-//     }
-// }
+    @Override
+    public void resetHooder() {
+        kHoodCancoder.setPosition(0.0);
+    }
+}
