@@ -1,4 +1,4 @@
-package frc.robot.Subsystems.Vision;
+package frc.robot.Subsystems.vision;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -26,7 +26,6 @@ public interface CameraIO {
         public double latestTimestamp = 0.0;
         public boolean hasBeenUpdated = false;
         public Pose2d latestEstimatedRobotPose = new Pose2d();
-        public RawFiducial[] fiducialData = new RawFiducial[0];
         public double[] ambiguities = new double[0];
         public int[] tags = new int[0];
         public double[] distances = new double[0];

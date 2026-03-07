@@ -1,4 +1,4 @@
-package frc.robot.Subsystems.Vision;
+package frc.robot.Subsystems.vision;
 
 import java.util.ArrayList;
 
@@ -22,10 +22,10 @@ public class LimelightIO implements CameraIO{
     private String camName;
 
     private NetworkTable limelight;
-    private Translation3d offset;
+    private Transform3d offset;
     private double yaw;
 
-    public LimelightIO(String name, Translation3d cameraOffset) {
+    public LimelightIO(String name, Transform3d cameraOffset) {
         // Instantiate a Limelight and account for position of limelight on the robot
         camName = name;
         limelight = NetworkTableInstance.getDefault().getTable(camName);
@@ -108,15 +108,15 @@ public class LimelightIO implements CameraIO{
         
         inputs.latestTimestamp = visionResult.timestampSeconds;
 
-        inputs.fiducialData = visionResult.rawFiducials;
+        RawFiducial[] fiducialData = visionResult.rawFiducials;
 
         // Check how many tags and their distances to camera & ambiguities
-        inputs.ambiguities =  new double[visionResult.rawFiducials.length];
-        inputs.tags = new int[visionResult.rawFiducials.length];
-        for (int i = 0; i < inputs.fiducialData.length; i++) {
-            inputs.ambiguities[i] = inputs.fiducialData[i].ambiguity;   
-            inputs.tags[i] = inputs.fiducialData[i].id;
-            inputs.distances[i] = inputs.fiducialData[i].distToCamera;
+        inputs.ambiguities =  new double[fiducialData.length];
+        inputs.tags = new int[fiducialData.length];
+        for (int i = 0; i < fiducialData.length; i++) {
+            inputs.ambiguities[i] = fiducialData[i].ambiguity;   
+            inputs.tags[i] = fiducialData[i].id;
+            inputs.distances[i] = fiducialData[i].distToCamera;
         }
     }
 }

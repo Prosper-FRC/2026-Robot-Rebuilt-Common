@@ -4,11 +4,27 @@
 
 package frc.robot;
 
-public class RobotContainer {
+import frc.robot.Subsystems.vision.CameraIO;
+import frc.robot.Subsystems.vision.LimelightIO;
+import frc.robot.Subsystems.vision.Vision;
+import frc.robot.Subsystems.vision.visionConstants.VisionConstants;
 
-    public RobotContainer() {
-        configureBindings();
-    }
+public class RobotContainer {
+    // private final Vision vision;
+
+    // public RobotContainer() {
+    //     configureBindings();
+    //     switch (RobotConstants.getInstance().kMode) {
+    //       case REAL:
+    //             break;
+    //         case REPLAY:
+    //             break;
+    //         case SIM:
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    // }
 
     private void configureBindings() {}
 
