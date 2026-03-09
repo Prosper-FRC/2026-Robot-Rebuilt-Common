@@ -3,12 +3,26 @@ Alrighty this is the basic paths that will move the robot from one part of the f
 For example "BL_CL" Stands for Blue left to Close Left to shoot, we will use Choreo lib in the Autonomous commands file to "Command scheduler Chain" 
 "FC" :  Far Center
 "CLL" : Climb Left
+"BL" : Blue left
+"BR" : Blue Right
+"BC": Blue Center
+"CLR": Climb Right
+"CLC": Climb Center
+"FL": Far Left
+"CL": Close Left
+"CR": Close Right
+"FR": Far Right
+"CC": Close Center
+
+Not doing red side cuz choreo goated by just letting us mirror path
+
 The reason we are doing super simple paths is so we can easily chain it later!
 etc etc... 
 
-can we name everything gng
-just make a list of every possible position and your shortcut that you use in path naming
+
 its called a DOCUMENTATION (and documentations are goated) - arnav
 
-Next year we steal the moon! No jk jk. We are making a COMPLETELY dynamic auton (https://github.com/FRCTeam3044/Oxplorer/tree/main/.vscode) For reference...
+
+
+Next year we steal the moon! No jk jk. We are making a COMPLETELY dynamic auton (https://github.com/FRCTeam3044/Oxplorer/tree/main/.vscode) For reference... -RK
 offseason projecrt frfr - arnav
