@@ -17,18 +17,7 @@ import frc.robot.Subsystems.vision.*;
 import frc.robot.utils.debugging.LoggedTunableNumber; // Unsure how to add the utils folder, if it is any different from 2025 reefscape;
 
 
-<<<<<<< Updated upstream
 import frc.robot.Subsystems.vision.CameraIOInputsAutoLogged;
-=======
-public class Vision {
-    private CameraIO cameras;
-    private CameraIOInputsAutoLogged camerasData;
-    
-    // FOR LIMELIGHTS ONLY
-    private boolean isLimelight = false;
-    private final CameraIOInputsAutoLogged inputsRight = new CameraIOInputsAutoLogged();
-    private final CameraIOInputsAutoLogged inputsLeft = new CameraIOInputsAutoLogged();
->>>>>>> Stashed changes
 
 import static frc.robot.Subsystems.vision.visionConstants.VisionConstants.kAmbiguityThreshold;
 import frc.robot.Subsystems.vision.CameraIO.CameraIOInputs;
@@ -39,22 +28,6 @@ public class Vision {
 
     private final AprilTagFieldLayout k2026Field = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
-<<<<<<< Updated upstream
-    public Vision(CameraIO camera) {
-        // Logger.recordOutput("Vision/UseSingleTagTransform", KUseSingleTagTransform);
-        this.camera = camera;
-        cameraData = new CameraIOInputsAutoLogged();
-    }
-
-    public void periodic() {
-            camera.updateInputs(cameraData);
-            Logger.processInputs("Vision/"+cameraData.camName, cameraData);
-            Logger.recordOutput("Vision/"+cameraData.camName+"/Pose", cameraData.latestEstimatedRobotPose);
-            Logger.recordOutput("Vision/"+cameraData.camName+"/Connected", cameraData.isConnected);
-            Logger.recordOutput("Vision/"+cameraData.camName+"/VisibleTags", cameraData.tags);
-            Logger.recordOutput("Vision/"+cameraData.camName+"/TagDistances", cameraData.distances);
-    }
-=======
     // PhotonVision
     public Vision(CameraIO cameras) {
         Logger.recordOutput("Vision/UseSingleTagTransform", KUseSingleTagTransform);
@@ -72,44 +45,10 @@ public class Vision {
             // Logger.recordOutput("Vision/"+camerasData[i].camName+"/Y", camerasData[i].latestEstimatedRobotPose.getRotation().getY());
             // Logger.recordOutput("Vision/"+camerasData[i].camName+"/Z", camerasData[i].latestEstimatedRobotPose.getRotation().getZ());
         }
->>>>>>> Stashed changes
 
 
     // Check reliability of vision
     public VisionObservation getVisionObservations() {
-<<<<<<< Updated upstream
-        VisionObservation observation = new VisionObservation(false, false, null, 0);
-        if (cameraData.tags.length == 0) {
-            observation = new VisionObservation(
-                true, 
-                true,
-                cameraData.latestEstimatedRobotPose,
-                cameraData.latestTimestamp
-            );
-        }
-        else if (cameraData.tags.length == 1) {
-            if (cameraData.ambiguities[0] > kAmbiguityThreshold) {
-                observation = new VisionObservation(
-                    true, 
-                    true,
-                    cameraData.latestEstimatedRobotPose, 
-                    cameraData.latestTimestamp
-                );
-            }
-        } else if (cameraData.tags.length > 1) {
-            for (int i = 0; i < cameraData.tags.length; i++) {
-                if (cameraData.ambiguities[i] > kAmbiguityThreshold) {
-                    observation = new VisionObservation(
-                        true, 
-                        false,
-                        cameraData.latestEstimatedRobotPose, 
-                        cameraData.latestTimestamp
-                    );
-                }
-            }
-        }
-        return observation;
-=======
         // Just to make sure there is something returned
         VisionObservation observations = null;
         // STANDARD DEVIATION CALCULATIONS \\
@@ -206,10 +145,9 @@ public class Vision {
                 camerasData.latestTimestamp, camerasData.camName);
         }
     return observations;
->>>>>>> Stashed changes
     }
     
 
     public record VisionObservation(boolean hasObserved, boolean isRejected, Pose2d pose, double timeStamp) {}
-}
+
 
