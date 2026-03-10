@@ -1,6 +1,5 @@
 package frc.robot.Subsystems.Drive;
 
-import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.DoubleSupplier;
@@ -18,6 +17,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -66,6 +66,9 @@ public class Drive extends SubsystemBase {
 
     @AutoLogOutput(key = "Drive/Swerve/RealStates")
     private SwerveModuleState[] realStates;
+
+    @AutoLogOutput(key = "Drive/Swerve/AreOffsetsApplied")
+    public static boolean hasUpdated = false;
 
     // For teleop control
     private final TeleopController kTeleopController = new TeleopController();
@@ -178,6 +181,10 @@ public class Drive extends SubsystemBase {
         );
     }
 
+    public Command resetGyro() {
+        return new InstantCommand(() -> kGyro.resetGyro());
+    }
+
     private void optimizeModules(SwerveModuleState[] states) {
         for(int i = 0; i < states.length; ++i) {
             states[i].optimize(Rotation2d.fromRotations(kModuleInputs[i].azimuthPositionRotations));
@@ -195,8 +202,9 @@ public class Drive extends SubsystemBase {
     @Override
     public void periodic() {
         for(int i = 0; i < kModules.length; ++i) {
-            if(kModuleInputs[i].CANCoderOk) {
-                kModules[i].resetAzimuth();;
+            if(kModuleInputs[i].CANCoderOk && !hasUpdated) {
+                kModules[i].resetAzimuth();
+                hasUpdated = true;
             }
         }
 

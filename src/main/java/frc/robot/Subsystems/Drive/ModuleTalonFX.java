@@ -12,6 +12,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
@@ -83,6 +84,7 @@ public class ModuleTalonFX implements ModuleIO {
         kDriveConfiguration.Voltage.PeakForwardVoltage = RobotConstants.DriveConstants().kModuleVoltageLimits.driveVoltagePeakRange();
         kDriveConfiguration.Voltage.PeakReverseVoltage = -RobotConstants.DriveConstants().kModuleVoltageLimits.driveVoltagePeakRange();
         kDriveConfiguration.Feedback.SensorToMechanismRatio = RobotConstants.DriveConstants().kModuleHardLimits.driveGearRatio();
+        kDriveConfiguration.MotorOutput.Inverted = offsets.isInverted() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
 
         ///// AZIMUTH MOTOR /////
         // Azimuth Gains

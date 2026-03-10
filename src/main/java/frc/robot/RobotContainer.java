@@ -8,11 +8,7 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Subsystems.Drive.Drive;
-import frc.robot.Subsystems.Drive.GyroPigeon2;
-import frc.robot.Subsystems.Drive.GyroSim;
-import frc.robot.Subsystems.Drive.ModuleSim;
-import frc.robot.Subsystems.Drive.ModuleTalonFX;
+import frc.robot.Subsystems.Drive.*;
 
 // This whole file is currently really scuffed, I intend to fix it later.
 public class RobotContainer {
@@ -62,5 +58,8 @@ public class RobotContainer {
         kDriveController.a().debounce(0.25d, DebounceType.kRising)
             .onTrue(new InstantCommand(() -> kDrive.setDriveState(Drive.driveState.SYSID)).andThen(kDrive.getSysIdCommand()))
             .onFalse(kDrive.getDefaultCommand());
+
+        kDriveController.y().debounce(0.1d, DebounceType.kRising)
+            .onTrue(kDrive.resetGyro());
     }
 }
