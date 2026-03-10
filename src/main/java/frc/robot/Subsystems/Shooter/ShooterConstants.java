@@ -52,10 +52,12 @@ public class ShooterConstants{
     public final double kIndexerVelocityOnRadiansPerSec = Units.rotationsPerMinuteToRadiansPerSecond(800);
     public final double kIndexerVelocityOffRadiansPerSec = 0;
 
-    public final Rotation2d kHoodPosition1 = Rotation2d.fromDegrees(0.0);
-    public final Rotation2d kHoodPosition2 = Rotation2d.fromDegrees(30.0);
-    public final Rotation2d kHoodPosition3 = Rotation2d.fromDegrees(60.0);
+    public final Rotation2d kHoodPositionDefault = Rotation2d.fromDegrees(00);
+    public final Rotation2d kHoodPosition1 = Rotation2d.fromDegrees(30.0);
+    public final Rotation2d kHoodPosition2 = Rotation2d.fromDegrees(60.0);
+    public final Rotation2d kHoodPosition3 = Rotation2d.fromDegrees(90.0);
     public final Rotation2d kHoodPositionAuto = Rotation2d.fromDegrees(30.0);
+
 
     private ShooterConstants() {
         switch(kTeamNumber) {
@@ -153,7 +155,7 @@ public class ShooterConstants{
                     0.0,
                     1.0,
                     1.0,
-                    0.1
+                    9.81
                 );
                 break;
         }

@@ -22,7 +22,9 @@ public class Shooter extends SubsystemBase {
         kHoodPosition1(() -> ShooterConstants.getInstance().kHoodPosition1),
         kHoodPosition2(() -> ShooterConstants.getInstance().kHoodPosition2),
         kHoodPosition3(() -> ShooterConstants.getInstance().kHoodPosition3),
-        kHoodPositionAuto(() -> ShooterConstants.getInstance().kHoodPositionAuto);
+        kHoodPositionAuto(() -> ShooterConstants.getInstance().kHoodPositionAuto),
+        kHoodPositionDefault(() -> ShooterConstants.getInstance().kHoodPositionDefault);
+
 
         public Supplier<Rotation2d> goalPosition;
 
@@ -36,7 +38,7 @@ public class Shooter extends SubsystemBase {
 
         public void setGoalPosition(Supplier<Rotation2d> goalPosition) {
             this.goalPosition = goalPosition;
-            System.out.println(goalPosition);
+            System.out.println(this.goalPosition.get().getRadians());
         }
     }
 
@@ -80,11 +82,13 @@ public class Shooter extends SubsystemBase {
             case kHoodPositionAuto:
                 setHooderPositionRotationsGoal(state.getGoalPosition());
                 break;
+            case kHoodPositionDefault:
+                setHooderPositionRotationsGoal(state.getGoalPosition());
+                break;
             default:
                 stopFlywheel();
                 stopHooder();
                 break;
-
         }
         
         if (DriverStation.isDisabled()) {

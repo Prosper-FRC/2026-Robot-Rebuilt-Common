@@ -47,7 +47,11 @@ public class RobotContainer {
         // Hooder
         kDriveController.b().onTrue(
             Commands.runOnce(() -> kShooter.state.setGoalPosition(() -> ShooterConstants.getInstance().kHoodPosition1), kShooter)
-);
+        );
+
+        kDriveController.y().onTrue(
+            Commands.runOnce(() -> kShooter.state.setGoalPosition(() -> ShooterConstants.getInstance().kHoodPosition2), kShooter)
+        );
     
         // Flywheel
         kDriveController.a().onTrue(
