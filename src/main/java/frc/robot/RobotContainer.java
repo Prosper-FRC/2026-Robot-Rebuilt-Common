@@ -45,12 +45,12 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 		
         // Hooder
-        kDriveController.rightBumper().onTrue(
-            Commands.runOnce(() -> kShooter.nextPosition(), kShooter)
+        kDriveController.b().onTrue(
+            Commands.runOnce(() -> kShooter.state.setGoalPosition(() -> ShooterConstants.getInstance().kHoodPosition1), kShooter)
         );
 
-        kDriveController.leftBumper().onTrue(
-            Commands.runOnce(() -> kShooter.previousPosition(), kShooter)
+        kDriveController.y().onTrue(
+            Commands.runOnce(() -> kShooter.state.setGoalPosition(() -> ShooterConstants.getInstance().kHoodPosition2), kShooter)
         );
     
         // Flywheel

@@ -103,8 +103,8 @@ public class HooderIOSparkMax implements HooderIO {
 
     @Override
     public void updateInputs(HooderInputs toUpdate) {
-        kHooderPosition = kHooderCancoder.getAbsolutePosition();
-        kHooderPositionRadians = Units.degreesToRadians(kHooderPosition.getValueAsDouble());
+        kHooderPosition = kHooderCancoder.getAbsolutePosition();    
+        kHooderPositionRadians = Units.rotationsToRadians(kHooderPosition.getValueAsDouble());
 
         kHooderMotor.setVoltage(calculateHooderVolts(kHooderPositionGoalRadians));
 

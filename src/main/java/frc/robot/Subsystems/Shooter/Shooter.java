@@ -1,11 +1,14 @@
 package frc.robot.Subsystems.Shooter;
 import frc.robot.Subsystems.Shooter.ShooterConstants;
 
+import java.lang.Thread.State;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
@@ -16,14 +19,26 @@ public class Shooter extends SubsystemBase {
     private final HooderInputsAutoLogged kHooderInputs;
 
     public enum HooderPosition {
-        kHoodPosition1(ShooterConstants.getInstance().kHoodPosition1),
-        kHoodPosition2(ShooterConstants.getInstance().kHoodPosition2),
-        kHoodPosition3(ShooterConstants.getInstance().kHoodPosition3);
+        kHoodPosition1(() -> ShooterConstants.getInstance().kHoodPosition1),
+        kHoodPosition2(() -> ShooterConstants.getInstance().kHoodPosition2),
+        kHoodPosition3(() -> ShooterConstants.getInstance().kHoodPosition3),
+        kHoodPositionAuto(() -> ShooterConstants.getInstance().kHoodPositionAuto),
+        kHoodPositionDefault(() -> ShooterConstants.getInstance().kHoodPositionDefault);
 
-        public final Rotation2d angle;
 
-        HooderPosition(Rotation2d angle) {
-            this.angle = angle;
+        public Supplier<Rotation2d> goalPosition;
+
+        HooderPosition(Supplier<Rotation2d> goalPosition) {
+            this.goalPosition = goalPosition;
+        }
+
+        public Rotation2d getGoalPosition() {
+            return this.goalPosition.get();
+        }
+
+        public void setGoalPosition(Supplier<Rotation2d> goalPosition) {
+            this.goalPosition = goalPosition;
+            System.out.println(this.goalPosition.get().getRadians());
         }
     }
 
@@ -33,7 +48,8 @@ public class Shooter extends SubsystemBase {
     @AutoLogOutput(key = "Flywheel/FlywheelGoalRPM")
     private double flywheelGoalRPM = 0.0;
 
-    private HooderPosition currentHooderPosition = HooderPosition.kHoodPosition1;
+    @AutoLogOutput(key = "Hooder/State")
+    public HooderPosition state = HooderPosition.kHoodPosition1;
 
     public Shooter(FlywheelIO flywheelIO, HooderIO hooderIO) {
         kFlywheel = flywheelIO;
@@ -51,7 +67,34 @@ public class Shooter extends SubsystemBase {
         Logger.processInputs("Flywheel", kFlywheelInputs);
         Logger.processInputs("Hooder", kHooderInputs);
 
-        Logger.recordOutput("Hooder/HooderPosition", currentHooderPosition);
+        Logger.recordOutput("Hooder/HooderPosition", state);
+
+        switch(state) {
+            case kHoodPosition1:
+                setHooderPositionRotationsGoal(state.getGoalPosition());
+                break;
+            case kHoodPosition2:
+                setHooderPositionRotationsGoal(state.getGoalPosition());
+                break;
+            case kHoodPosition3:
+                setHooderPositionRotationsGoal(state.getGoalPosition());
+                break;
+            case kHoodPositionAuto:
+                setHooderPositionRotationsGoal(state.getGoalPosition());
+                break;
+            case kHoodPositionDefault:
+                setHooderPositionRotationsGoal(state.getGoalPosition());
+                break;
+            default:
+                stopFlywheel();
+                stopHooder();
+                break;
+        }
+        
+        if (DriverStation.isDisabled()) {
+            stopHooder();
+            stopFlywheel();
+        }
     }
 
     // Flywheel IO Functions
@@ -94,24 +137,30 @@ public class Shooter extends SubsystemBase {
     }
 
     // Hood
-    public void nextPosition() {
-        int newIndex = currentHooderPosition.ordinal() + 1;
-        HooderPosition[] values = HooderPosition.values();
+    // public void nextPosition() {
+    //     int newIndex = state.ordinal() + 1;
+    //     HooderPosition[] values = HooderPosition.values();
         
-        if (newIndex < values.length) {setHoodPosition(values[newIndex]);}
-    }
+    //     if (newIndex < values.length) {setHoodPosition(values[newIndex]);}
+    // }
 
-    public void previousPosition() {
-        int newIndex = currentHooderPosition.ordinal() - 1;
-        HooderPosition[] values = HooderPosition.values();
+    // public void previousPosition() {
+    //     int newIndex = state.ordinal() - 1;
+    //     HooderPosition[] values = HooderPosition.values();
         
-        if (newIndex >= 0) {setHoodPosition(values[newIndex]);}
-    }
-
+    //     if (newIndex >= 0) {setHoodPosition(values[newIndex]);}
+    // }
+    //Add stuff to RoboContainer
+    /* 
     public void setHoodPosition(HooderPosition newPos) {
-        currentHooderPosition = newPos;
-        setHooderPositionRotationsGoal(newPos.angle);
+        state = newPos;
+        setHooderPositionRotationsGoal(newPos.goalPosition);
     }
+    */
+
+    public void setHoodPosition(HooderPosition newPosition) {
+        this.state = newPosition;
+}
 
     public void flywheelOnOff() {
         if (flywheelOn) {
