@@ -2,65 +2,52 @@
 package frc.robot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Subsystems.Drive.Drive;
+import choreo.auto.AutoFactory;
+import choreo.auto.AutoRoutine;
+import choreo.auto.AutoTrajectory;
 
 // imports
 
 public class AutonCommands {
 
-    public static HashMap<String, Command> commandHashMap;
-    private final ArrayList<Command> queuedCommands;
+    private final AutoFactory autoFactory;
 
+    public AutonCommands(Drive drive) {
 
-    public AutonCommands() 
+        autoFactory = new AutoFactory(
+            drive::getPose, // A function that returns the current robot pose
+            drive::resetOdometry, // A function that resets the current robot pose to the provided Pose2d
+            drive::followTrajectory, // The drive subsystem trajectory follower 
+            true, // If alliance flipping should be enabled 
+            drive // The drive subsystem
+        );
+    }
+    
+    public AutoRoutine testRoutine() 
     {
-        commandHashMap = new HashMap<String, Command>();
-        queuedCommands = new ArrayList<Command>();
+        AutoRoutine routine = autoFactory.newRoutine("Test Routine");
+
+        AutoTrajectory testPath = routine.trajectory("TestPath");
+        AutoTrajectory testPath2 = routine.trajectory("TestPath2");
+
+        routine.active().onTrue(
+            new SequentialCommandGroup(
+                testPath.resetOdometry(),
+                testPath.cmd()
+            )
+        );
+
+        testPath.done().onTrue(testPath2.cmd());
+
+        return routine;
     }
 
-    public Command getPath(String key) 
-    {
-        return commandHashMap.get(key);
-    }
-
-    public Command getPath(String key, double wait) 
-    {
-        return commandHashMap.get(key);
-    }
-
-    public boolean isPathComplete() 
-    {
-        return false;
-    }
-
-    // Implement later
-    public Command runQueue() 
-    { 
-        return new SequentialCommandGroup(); 
-    }
-
-    // This may change, depends on the will of king carter (swervesample?)
-    public Pose2d getPathPose() // take timestamp
-    {
-        return new Pose2d();
-    }
-
-    public ChassisSpeeds getPathSpeeds() // take timestamp
-    {
-        return new ChassisSpeeds();
-    }
-
-    //optional thingy idk i dont understand it
-
-    public void addCustomCommand(Command command)
-    {
-        queuedCommands.add(command);
-    }
 }
 
 // crazy coding skills

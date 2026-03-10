@@ -11,13 +11,17 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Subsystems.Drive.Drive;
 
 public class Robot extends LoggedRobot {
-    private Command m_autonomousCommand;
+    private final Drive drive = new Drive();
 
-    private final RobotContainer m_robotContainer;
+    private Command mAutonomousCommand;
+
+    private final RobotContainer mRobotContainer;
 
     public Robot() {
         // Sets up logging.
@@ -39,9 +43,11 @@ public class Robot extends LoggedRobot {
                 break;
         }
 
+        
+
         Logger.start();
 
-        m_robotContainer = new RobotContainer();
+        mRobotContainer = new RobotContainer();
     }
 
     @Override
@@ -60,6 +66,11 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
+        mAutonomousCommand = mRobotContainer.getAutonomousCommand();
+
+        if (mAutonomousCommand != null) {
+            mAutonomousCommand.schedule();
+        }
     }
 
     @Override
@@ -70,8 +81,8 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
-        if (m_autonomousCommand != null) {
-            m_autonomousCommand.cancel();
+        if (mAutonomousCommand != null) {
+            mAutonomousCommand.cancel();
         }
     }
 
