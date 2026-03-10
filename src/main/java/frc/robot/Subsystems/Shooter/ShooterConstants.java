@@ -55,6 +55,7 @@ public class ShooterConstants{
     public final Rotation2d kHoodPosition1 = Rotation2d.fromDegrees(0.0);
     public final Rotation2d kHoodPosition2 = Rotation2d.fromDegrees(30.0);
     public final Rotation2d kHoodPosition3 = Rotation2d.fromDegrees(60.0);
+    public final Rotation2d kHoodPositionAuto = Rotation2d.fromDegrees(30.0);
 
     private ShooterConstants() {
         switch(kTeamNumber) {
