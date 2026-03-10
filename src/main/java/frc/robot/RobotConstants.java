@@ -53,6 +53,9 @@ public class RobotConstants {
                 kDriveConstants = new DriveConstantsSim();
                 kCameraConstants = new CameraConstants();
                 break;
+            case 0:
+                // Assign sim constants
+                break;
             default:
                 kDriveConstants = new DriveConstants();
                 kCameraConstants = new CameraConstants();
