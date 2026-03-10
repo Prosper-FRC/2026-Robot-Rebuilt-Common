@@ -2,6 +2,7 @@ package frc.robot.Subsystems.Indexer;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -9,9 +10,15 @@ import edu.wpi.first.wpilibj.DriverStation;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj2.command.Command;
+
 public class Indexer extends SubsystemBase {
 
     private final IndexerIO indexerIO;
+
+    public Indexer(IndexerIO indexerIO) {
+        this.indexerIO = indexerIO;
+    }
 
     public static enum IndexerState {
         // what states are a part of the indexer?
@@ -36,10 +43,6 @@ public class Indexer extends SubsystemBase {
 
     @AutoLogOutput(key = "Indexer/State")
     public IndexerState state = IndexerState.Idle;
-
-    public Indexer(IndexerIO indexerIO) {
-        this.indexerIO = indexerIO;
-    }
 
     public void setIndexerState(IndexerState state) {
         this.state = state;
@@ -71,55 +74,60 @@ public class Indexer extends SubsystemBase {
 
 // Below are all the methods identified earlier, not sure if we may need them later
 
-//    public Indexer(IndexerIO indexerIO) {
-//     this.indexerIO = indexerIO;
-//    }
+   public void setIndexerMotor1Voltage(double volts) {
+    indexerIO.setIndexerMotor1Voltage(volts);
+   }
 
-//    public void setIndexerMotor1Voltage(double volts) {
-//     indexerIO.setIndexerMotor1Voltage(volts);
-//    }
 
-//    public void stopIndexerMotor1() {
-//     indexerIO.stopIndexerMotor1();
-//    }
+   public void stopIndexerMotor1() {
+    indexerIO.stopIndexerMotor1();
+   }
 
-//    public void setHopperMotor1Voltage(double volts) {
-//     indexerIO.setHopperMotor1Voltage(volts);
-//    }
+   public void setHopperMotor1Voltage(double volts) {
+    indexerIO.setHopperMotor1Voltage(volts);
+   }
 
-//    public void stopHopperMotor1Voltage(double volts) {
-//     indexerIO.stopHopperMotor1();
-//    }
+   public void stopHopperMotor1Voltage(double volts) {
+    indexerIO.stopHopperMotor1();
+   }
 
-//    public void setHopperMotor2Voltage(double volts) {
-//     indexerIO.setHopperMotor2Voltage(volts);
-//    }
+   public void setHopperMotor2Voltage(double volts) {
+    indexerIO.setHopperMotor2Voltage(volts);
+   }
 
-//    public void stopHopperMotor2() {
-//     indexerIO.stopHopperMotor1();
-//    }
+   public void stopHopperMotor2() {
+    indexerIO.stopHopperMotor2();
+   }
 
-//    public void setHopperMotor3Voltage(double volts) {
-//     indexerIO.setHopperMotor3Voltage(volts);
-//    }
+   public void setHopperMotor3Voltage(double volts) {
+    indexerIO.setHopperMotor3Voltage(volts);
+   }
 
-//    public void stopHopperMotor3() {
-//     indexerIO.stopHopperMotor3();
-//    }
+   public void stopHopperMotor3() {
+    indexerIO.stopHopperMotor3();
+   }
 
-//    public double getIndexerMotor1VelocityRPS() {
-//     return inputs.kIndexerMotor1VelocityRPS;
-//    }
+   public double getIndexerMotor1VelocityRPS() {
+    return inputs.kIndexMotor1VelocityRPS;
+   }
 
-//    public double getHopperMotor1VelocityRPS() {
-//     return inputs.kHopperMotor1VelocityRPS;
-//    }
+   public double getHopperMotor1VelocityRPS() {
+    return inputs.kHopperMotor1VelocityRPS;
+   }
 
-//    public double getHopperMotor2VelocityRPS() {
-//     return inputs.kHopperMotor2VelocityRPS;
-//    }
+   public double getHopperMotor2VelocityRPS() {
+    return inputs.kHopperMotor2VelocityRPS;
+   }
 
-//    public double getHopperMotor3VelocityRPS() {
-//     return inputs.kHopperMotor3VelocityRPS;
-//    }
+   public double getHopperMotor3VelocityRPS() {
+    return inputs.kHopperMotor3VelocityRPS;
+   }
+
+   public Command setIndexerStateCommand(IndexerState state) {
+    return runOnce(() -> setIndexerState(state));
+   }
+
+   public Command setIndexerMotorsCommand(double rps) {
+    return runOnce(() -> indexerIO.setMotorsVelocityRPS(rps));
+   }
 }
