@@ -46,7 +46,7 @@ public interface IndexerIO {
      * Sets the goal velocity of all of the motors in rps.
      * @param rps The rotations per second to target.
      */
-    default public void setMotorVelocityRPS(double rps) {}
+    default public void setMotorsVelocityRPS(double rps) {}
 
     /**
      * Sets the voltage applied to the each motor in volts.
@@ -86,5 +86,5 @@ public interface IndexerIO {
     /**
      * Sets all the motors to their current neutral modes at once.
      */
-    default public void stopMotor() {}
+    default public void stopMotors() {}
 }

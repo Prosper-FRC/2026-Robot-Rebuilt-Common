@@ -12,6 +12,10 @@ public class RobotConstants {
         SIM
     };
 
+    public static final mode kCurrentMode = RobotBase.isReal() ? mode.REAL : mode.SIM;
+
+    public static final boolean kTuningMode = true;
+
     // Declare and Assign general constants here.
     public final int kTeamNumber;
     public final mode kMode;

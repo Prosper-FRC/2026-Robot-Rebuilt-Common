@@ -6,18 +6,13 @@ import com.ctre.phoenix6.BaseStatusSignal;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.controls.*;
 
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.Subsystems.Indexer.IndexerConstants.IndexerConstants;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.*;
-
-import com.ctre.phoenix6.hardware.CANcoder;
 
 public class IndexerTalonFX implements IndexerIO {
 
@@ -174,7 +169,7 @@ public class IndexerTalonFX implements IndexerIO {
 
     // Motor Velocity RPS
     @Override
-    public void setMotorVelocityRPS(double rps) {
+    public void setMotorsVelocityRPS(double rps) {
         // Need to check over this!!
         kHopperMotor1.setControl(kVelocityControl.withVelocity(rps).withSlot(0));
         kHopperMotor2.setControl(kVelocityControl.withVelocity(rps).withSlot(1));
@@ -205,7 +200,7 @@ public class IndexerTalonFX implements IndexerIO {
 
     // Stop all the motors at once
     @Override
-    public void stopMotor() {
+    public void stopMotors() {
         kHopperMotor1.setControl(kNeutralOut);
         kHopperMotor2.setControl(kNeutralOut);
         kHopperMotor3.setControl(kNeutralOut);

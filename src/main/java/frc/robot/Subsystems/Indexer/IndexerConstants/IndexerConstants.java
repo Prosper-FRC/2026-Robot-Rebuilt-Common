@@ -1,15 +1,8 @@
 package frc.robot.Subsystems.Indexer.IndexerConstants;
 
-import frc.robot.RobotConstants;
+import frc.robot.Subsystems.Indexer.IndexerConstants.IndexerConstants;
 
-import com.ctre.phoenix6.signals.NeutralModeValue;
-
-import edu.wpi.first.wpilibj.RobotController;
-
-public class IndexerConstants {
-
-    public static IndexerConstants instance = null;
-   
+public class IndexerConstants {   
 
     // Motor IDs
     public int kHopperMotor1ID;
@@ -17,7 +10,7 @@ public class IndexerConstants {
     public int kHopperMotor3ID;
     public int kIndexerMotor1ID;
 
-    public static IndexerConstants instants = null;
+    public static IndexerConstants instance = null;
 
     public record IndexerTalonFXConfiguration(
         boolean invert,
@@ -90,13 +83,6 @@ public class IndexerConstants {
     double s, 
     double v, 
     double a){}
-
-
-
-
-
-
-    
 
     public static IndexerConstants getInstance() {
         if (instance == null) {
