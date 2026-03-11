@@ -22,6 +22,16 @@ etc etc...
 
 its called a DOCUMENTATION (and documentations are goated) - arnav
 
+arnav part rahh
+
+when it starts with z its the basic paths i made for farmersvill that carter will hopefully use
+BL, BM, BR - Starting positions of the robot, Blue Left is the start pose next to depot, Blue Middle is next to hub and Blue Right is next to outpost
+BLS, BMS, BRS - Shooting positions that correspond to all starting positions
+
+The two "out of the way" options right now are BL and BR
+So its BL > BLS > BL (same for right)
+and BM > BMS > BR/BL
+
 
 
 Next year we steal the moon! No jk jk. We are making a COMPLETELY dynamic auton (https://github.com/FRCTeam3044/Oxplorer/tree/main/.vscode) For reference... -RK
