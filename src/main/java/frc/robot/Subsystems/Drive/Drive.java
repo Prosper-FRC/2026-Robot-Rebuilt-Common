@@ -33,6 +33,9 @@ public class Drive extends SubsystemBase {
         SYSID
     }
 
+    @AutoLogOutput(key = "Drive/CANCoder statuses")
+    private static final boolean[] kEncoderStatuses = {false, false, false, false};
+
     @AutoLogOutput(key = "Drive/DriveState")
     private driveState state = driveState.TELEOP;
 
@@ -201,10 +204,11 @@ public class Drive extends SubsystemBase {
 
     @Override
     public void periodic() {
+        // This isn't very optimized since it runs 50 times a second, but I don't really think it matters since we're not constantly resetting the azimuth.
         for(int i = 0; i < kModules.length; ++i) {
-            if(kModuleInputs[i].CANCoderOk && modulesUpdated < 4) {
+            if(kModuleInputs[i].CANCoderOk && kEncoderStatuses[i] != true) {
+                kEncoderStatuses[i] = true;
                 kModules[i].resetAzimuth();
-                modulesUpdated++;
             }
         }
 
