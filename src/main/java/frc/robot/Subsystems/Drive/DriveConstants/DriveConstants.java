@@ -40,7 +40,7 @@ public class DriveConstants {
 
     public gyroOffsets kGyroOffsets = new gyroOffsets(0.0d, 0.0d, 0.0d);
 
-    public CANBus kCANBusInstance = new CANBus("rio");
+    public CANBus kCANBusInstance = new CANBus("drivebase");
 
     // Recommended as default values for swerve by CTRE.
     public moduleGains kModuleGains = new moduleGains(

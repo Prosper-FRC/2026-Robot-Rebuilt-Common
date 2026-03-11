@@ -68,7 +68,7 @@ public class Drive extends SubsystemBase {
     private SwerveModuleState[] realStates;
 
     @AutoLogOutput(key = "Drive/Swerve/AreOffsetsApplied")
-    public static boolean hasUpdated = false;
+    public static int modulesUpdated = 0;
 
     // For teleop control
     private final TeleopController kTeleopController = new TeleopController();
@@ -202,9 +202,9 @@ public class Drive extends SubsystemBase {
     @Override
     public void periodic() {
         for(int i = 0; i < kModules.length; ++i) {
-            if(kModuleInputs[i].CANCoderOk && !hasUpdated) {
+            if(kModuleInputs[i].CANCoderOk && modulesUpdated < 4) {
                 kModules[i].resetAzimuth();
-                hasUpdated = true;
+                modulesUpdated++;
             }
         }
 
