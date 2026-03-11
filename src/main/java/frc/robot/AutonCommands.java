@@ -1,10 +1,7 @@
 
 package frc.robot;
 
-import java.util.ArrayList;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Subsystems.Drive.Drive;
 import choreo.auto.AutoFactory;
@@ -28,7 +25,7 @@ public class AutonCommands {
         );
     }
     
-    public AutoRoutine testRoutine() 
+    public AutoRoutine testRoutine() // A test auto routine that moves the robot forward 1 meter and left 1 meter
     {
         AutoRoutine routine = autoFactory.newRoutine("Test Routine");
 
@@ -48,10 +45,3 @@ public class AutonCommands {
     }
 
 }
-
-// crazy coding skills
-/*
- * ok so a lot of stuff needs to be actually implemented but im hungry
- * also ragav i have no flippity flopping idea why the choreo folders are seperate ok
- * please delete the folder on your side or something idk i can fix this hopefully
- */

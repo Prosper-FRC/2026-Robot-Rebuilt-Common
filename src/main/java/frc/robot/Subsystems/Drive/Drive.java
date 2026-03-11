@@ -14,10 +14,10 @@ public class Drive extends SubsystemBase {
 
     public Drive() {odometeryPose = new Pose2d();}
 
-    public Pose2d getPose() {return new Pose2d();}
+    public Pose2d getPose() {return odometeryPose;} // Gets the current odometery code
 
-    public void resetOdometry(Pose2d pose) {odometeryPose = pose;}
+    public void resetOdometry(Pose2d pose) {odometeryPose = pose;} // Resets the odometery pose to the given pose
 
-    public void followTrajectory(SwerveSample swerveSample) {} // trajectory following code rahh
+    public void followTrajectory(SwerveSample swerveSample) {} // Method that is used by Choreo to follow trajectories
 
 }
