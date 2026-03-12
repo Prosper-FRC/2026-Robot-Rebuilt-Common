@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -33,7 +34,7 @@ public class Drive extends SubsystemBase {
         SYSID
     }
 
-    @AutoLogOutput(key = "Drive/CANCoder statuses")
+    @AutoLogOutput(key = "Drive/CANCoderStatuses")
     private static final boolean[] kEncoderStatuses = {false, false, false, false};
 
     @AutoLogOutput(key = "Drive/DriveState")
@@ -55,8 +56,6 @@ public class Drive extends SubsystemBase {
 
     // Initialize swerve related tools
     private final SwerveDriveKinematics kKinematics;
-    private final SwerveDriveOdometry kOdometry;
-    private final SwerveDrivePoseEstimator kPoseEstimator;
 
     @AutoLogOutput(key = "Drive/Swerve/Speeds")
     private ChassisSpeeds desiredSpeeds;
@@ -64,14 +63,18 @@ public class Drive extends SubsystemBase {
     @AutoLogOutput(key = "Drive/OdometryPose")
     private Pose2d odometryPose = new Pose2d();
 
+    @AutoLogOutput(key = "Drive/PoseEstimator")
+    private Pose2d poseEstimator = new Pose2d();
+
+    private final SwerveDriveOdometry kOdometry;
+
+    private final SwerveDrivePoseEstimator kPoseEstimator;
+
     @AutoLogOutput(key = "Drive/Swerve/States")
     private SwerveModuleState[] states;
 
     @AutoLogOutput(key = "Drive/Swerve/RealStates")
     private SwerveModuleState[] realStates;
-
-    @AutoLogOutput(key = "Drive/Swerve/AreOffsetsApplied")
-    public static int modulesUpdated = 0;
 
     // For teleop control
     private final TeleopController kTeleopController = new TeleopController();
@@ -100,6 +103,7 @@ public class Drive extends SubsystemBase {
             getModulePositions()
         );
 
+        // Creating the pose estimator
         kPoseEstimator = new SwerveDrivePoseEstimator(kKinematics,
             Rotation2d.fromRotations(kGyroInputs.yawRotations), 
             getModulePositions(), 
@@ -123,10 +127,10 @@ public class Drive extends SubsystemBase {
 
     public driveState getDriveState() { return state; }
 
-    public void resetAzimuths() {
-        for(var module : kModules) {
+    public Command resetAzimuths() {
+        return new InstantCommand(() -> {for(var module : kModules) {
             module.resetAzimuth();
-        }
+        }});
     }
     
     private SwerveModulePosition[] getModulePositions() {
@@ -204,13 +208,7 @@ public class Drive extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // This isn't very optimized since it runs 50 times a second, but I don't really think it matters since we're not constantly resetting the azimuth.
-        for(int i = 0; i < kModules.length; ++i) {
-            if(kModuleInputs[i].CANCoderOk && kEncoderStatuses[i] != true) {
-                kEncoderStatuses[i] = true;
-                kModules[i].resetAzimuth();
-            }
-        }
+        // This isn't very optimized since it runs 50 times a second, but I don't really think it matters since we're not constantly resetting the azimuth
 
         // Update inputs for IO layers.
         for(int i = 0; i < kModuleInputs.length; ++i) {
@@ -225,8 +223,9 @@ public class Drive extends SubsystemBase {
         Logger.processInputs("Drive/ModuleBR", kModuleInputs[3]);
         Logger.processInputs("Drive/Gyro", kGyroInputs);
 
-        // Update Odometry.
+        // Update Odometry and pose estimation.
         odometryPose = kOdometry.update(new Rotation2d(Units.rotationsToRadians(kGyroInputs.yawRotations)), getModulePositions());
+        updatePoseEstimation();
 
         // Internal State Handling.
         switch(state) {
@@ -256,6 +255,14 @@ public class Drive extends SubsystemBase {
         if(RobotConstants.Instance().kMode.equals(RobotConstants.mode.SIM)) {
             kGyro.updateGyro(Units.radiansToRotations(kKinematics.toChassisSpeeds(realStates).omegaRadiansPerSecond) * RobotConstants.Instance().kTimestep);
         }
+    }
+
+    // Updates the pose estimator based on vision and swerve odometry readings
+    private void updatePoseEstimation() {
+        // for(var visionEstimation : visionEstimations) {
+        //     kPoseEstimator.addVisionMeasurement(visionEstimation.pose, visionEstimation.timestamp);
+        // }
+        poseEstimator = kPoseEstimator.update(Rotation2d.fromRotations(kGyroInputs.yawRotations), getModulePositions());
     }
 
     /******** STATE UPDATES ********/

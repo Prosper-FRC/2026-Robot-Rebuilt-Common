@@ -23,6 +23,7 @@ public interface ModuleIO {
 
         public boolean CANCoderOk = false;
         public double CANCoderPositionAbs = 0.0d;
+        public double CANCoderPositionOffset = 0.0d;
     }
 
     default public void updateInputs(moduleInputs toUpdate) {}

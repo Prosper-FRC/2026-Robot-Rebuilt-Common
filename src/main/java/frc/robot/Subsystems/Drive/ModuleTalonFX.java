@@ -20,6 +20,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.RobotConstants;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants.moduleGains;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants.moduleIDs;
@@ -65,6 +66,10 @@ public class ModuleTalonFX implements ModuleIO {
         kDrive = new TalonFX(ids.driveID(), CANBus);
         kAzimuth = new TalonFX(ids.azimuthID(), CANBus);
         kCANcoder = new CANcoder(ids.CANcoderID(), CANBus);
+
+        kCANcoder.optimizeBusUtilization();
+        kAzimuth.optimizeBusUtilization();
+        kDrive.optimizeBusUtilization();
         
         // TODO: Reconfigure the motors with premium feature once we've activated the licenses
         ///// DRIVE MOTOR /////
@@ -174,6 +179,7 @@ public class ModuleTalonFX implements ModuleIO {
         toUpdate.azimuthSupplyVoltage = kAzimuthSupplyVoltage.getValueAsDouble();
     
         toUpdate.CANCoderPositionAbs = kCANcoderPosition.getValueAsDouble();
+        toUpdate.CANCoderPositionOffset = toUpdate.CANCoderPositionAbs - kModuleOffset.getRotations();
     }
 
     // Drive specific methods
@@ -220,8 +226,8 @@ public class ModuleTalonFX implements ModuleIO {
 
     @Override
     public void resetAzimuth() {
-        double position = kCANcoder.getAbsolutePosition().getValueAsDouble() - kModuleOffset.getRotations();
-        kAzimuth.setPosition(position);
+        double position = (kCANcoder.getAbsolutePosition().getValueAsDouble() - kModuleOffset.getRotations()) + 0.5d;
+        kAzimuth.setPosition(position, 2);
     }
 
     @Override
