@@ -6,7 +6,6 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 
 
 
@@ -15,7 +14,7 @@ public class Vision {
     private CameraIOInputsAutoLogged cameraData;
 
     private final AprilTagFieldLayout k2026Field = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-
+    
     public Vision(CameraIO camera) {
         this.camera = camera;
         cameraData = new CameraIOInputsAutoLogged();
@@ -34,8 +33,6 @@ public class Vision {
     // Check reliability of vision
     public VisionObservation getVisionObservation() {
 
-        double hasAmbiguity = 0;
-
         VisionObservation observation = new VisionObservation(false, null, 0, false);
         if (cameraData.tags.length == 0) {
             observation = new VisionObservation(
@@ -44,7 +41,6 @@ public class Vision {
                 cameraData.latestTimestamp, 
                 false
             );
-            hasAmbiguity++;
         }
 
         // Get scale factor to multiply with kXYStdDevs for actual standard deviation (not using STDDEVS, so comment out)
@@ -65,7 +61,6 @@ public class Vision {
                     cameraData.latestTimestamp,
                     false
                 );
-                hasAmbiguity++;
             }
         } 
         
@@ -78,28 +73,16 @@ public class Vision {
                         cameraData.latestTimestamp,
                         false
                     );
-                    hasAmbiguity++;
+                    break;
                 } 
             }
-        }
-
-
-
-        if (!(hasAmbiguity > 0)) {
+        } 
+        else {
             observation = new VisionObservation(
             true, 
             cameraData.latestEstimatedRobotPose, 
             cameraData.latestTimestamp,
             true
-            );
-        }
-
-        if (cameraData.latestEstimatedRobotPose.getRotation().equals(new Rotation2d(Double.MAX_VALUE))) {
-            observation = new VisionObservation(
-            true, 
-            cameraData.latestEstimatedRobotPose, 
-            cameraData.latestTimestamp,
-            false
             );
         }
         return observation;
