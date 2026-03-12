@@ -1,6 +1,7 @@
 package frc.robot.Subsystems.vision;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -14,26 +15,20 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
-<<<<<<< Updated upstream
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.RawFiducial;
-=======
-import frc.robot.Subsystems.Vision.VisionConstants.VisionConstants.Orientation;;
->>>>>>> Stashed changes
 
 public class LimelightIO implements CameraIO{
 
     private String camName;
 
-    private NetworkTable limelight;
     private Transform3d offset;
     private double yaw;
 
     public LimelightIO(String name, Transform3d cameraOffset) {
         // Instantiate a Limelight and account for position of limelight on the robot
         camName = name;
-        limelight = NetworkTableInstance.getDefault().getTable(camName);
-        // Set pipeline for image processing
+        // Set pipeline and other default settings for image processing
         LimelightHelpers.setPipelineIndex(camName, 0);
         this.offset = cameraOffset;
         LimelightHelpers.SetIMUAssistAlpha(camName, 0.001);
@@ -77,6 +72,12 @@ public class LimelightIO implements CameraIO{
         this.yaw = yaw;
     }
 
+    public Optional<Pose2d> estimateBotPose(Pose2d position) {
+        
+        Optional<Pose2d> pose = Optional.ofNullable(position);
+        return pose;
+    }
+
     public void setLEDMode(LEDMode mode) {
         if(mode == LEDMode.ON) {
             LimelightHelpers.setLEDMode_ForceOn(camName);
@@ -106,21 +107,33 @@ public class LimelightIO implements CameraIO{
     
         // Get robot field pose with MegaTag2
         // Might need to take in a SwerveDrivePoseEstimator
+
+        // Get pose estimate
         LimelightHelpers.SetRobotOrientation(camName, yaw, 0, 0, 0, 0, 0);
         LimelightHelpers.PoseEstimate visionResult = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(camName);
-        inputs.latestEstimatedRobotPose = visionResult.pose;
-        
+
+        // Get an Optional Pose2d to handle potential null values
+        Optional<Pose2d> estPose = estimateBotPose(visionResult.pose);
+        inputs.latestEstimatedRobotPose = estPose.orElse(new Pose2d(new Translation2d(9999,9999), new Rotation2d(9999)));
         inputs.latestTimestamp = visionResult.timestampSeconds;
 
-        RawFiducial[] fiducialData = visionResult.rawFiducials;
+        if (inputs.latestEstimatedRobotPose.getX() != 9999) {
+            RawFiducial[] fiducialData = visionResult.rawFiducials;
 
-        // Check how many tags and their distances to camera & ambiguities
-        inputs.ambiguities =  new double[fiducialData.length];
-        inputs.tags = new int[fiducialData.length];
-        for (int i = 0; i < fiducialData.length; i++) {
-            inputs.ambiguities[i] = fiducialData[i].ambiguity;   
-            inputs.tags[i] = fiducialData[i].id;
-            inputs.distances[i] = fiducialData[i].distToCamera;
+            // Check how many tags and their distances to camera & ambiguities
+            inputs.ambiguities =  new double[fiducialData.length];
+            inputs.tags = new int[fiducialData.length];
+            inputs.distances = new double[fiducialData.length];
+            for (int i = 0; i < fiducialData.length; i++) {
+                inputs.ambiguities[i] = fiducialData[i].ambiguity;   
+                inputs.tags[i] = fiducialData[i].id;
+                inputs.distances[i] = fiducialData[i].distToCamera;
+            }
+        } else {
+            RawFiducial[] fiducialData = visionResult.rawFiducials;
+            inputs.ambiguities =  new double[0];
+            inputs.tags = new int[0];
+            inputs.distances = new double[0];
         }
     }
 }

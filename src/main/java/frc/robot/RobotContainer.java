@@ -4,27 +4,34 @@
 
 package frc.robot;
 
+import static frc.robot.Subsystems.vision.visionConstants.VisionConstants.kCamName;
+import static frc.robot.Subsystems.vision.visionConstants.VisionConstants.kCamTransform;
+
 import frc.robot.Subsystems.vision.CameraIO;
 import frc.robot.Subsystems.vision.LimelightIO;
 import frc.robot.Subsystems.vision.Vision;
 import frc.robot.Subsystems.vision.visionConstants.VisionConstants;
 
 public class RobotContainer {
-    // private final Vision vision;
+    private final Vision vision;
 
-    // public RobotContainer() {
-    //     configureBindings();
-    //     switch (RobotConstants.getInstance().kMode) {
-    //       case REAL:
-    //             break;
-    //         case REPLAY:
-    //             break;
-    //         case SIM:
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    // }
+    public RobotContainer() {
+        configureBindings();
+        switch (RobotConstants.getInstance().kMode) {
+           case REAL:
+                vision = new Vision(new LimelightIO(kCamName, kCamTransform));
+                break;
+            case REPLAY:
+                vision = new Vision(new LimelightIO(kCamName, kCamTransform));
+                break;
+            case SIM:
+                vision = new Vision(new LimelightIO(kCamName, kCamTransform));
+                break;
+            default:
+                vision = new Vision(new LimelightIO(kCamName, kCamTransform));
+                break;
+        }
+    }
 
     private void configureBindings() {}
 

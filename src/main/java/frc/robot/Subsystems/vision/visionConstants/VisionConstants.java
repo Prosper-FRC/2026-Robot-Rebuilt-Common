@@ -15,17 +15,15 @@ import edu.wpi.first.wpilibj.RobotBase;
 public class VisionConstants {
     
     // From CAD and decided by you in configuration
-    public static final String kCamName = "CAM_5411";
+    public static final String kCamName = "CAM_DEFAULT";
 
     public static final Transform3d kCamTransform = new Transform3d(
-        new Translation3d(0.3, 0.3, 0.0),
+        new Translation3d(0.3, 0.0, 0.0),
         // Accounts for cameras being on back
         new Rotation3d(0.0, 0.0, 0.0)
     );
 
     public static final double kAmbiguityThreshold = (RobotBase.isReal()) ? 0.2 : 1.0;
-
-    public static final Rotation2d kOV2311DiagonalCameraFOV = Rotation2d.fromDegrees(95.0);
 
     public VisionConstants() {}
 }

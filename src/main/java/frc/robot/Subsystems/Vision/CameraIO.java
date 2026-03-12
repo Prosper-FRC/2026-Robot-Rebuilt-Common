@@ -7,6 +7,8 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.LimelightHelpers.RawFiducial;
 
+import java.util.Optional;
+
 import org.littletonrobotics.junction.AutoLog;
 
 public interface CameraIO {
@@ -25,7 +27,7 @@ public interface CameraIO {
 
         public double latestTimestamp = 0.0;
         public boolean hasBeenUpdated = false;
-        public Pose2d latestEstimatedRobotPose = new Pose2d();
+        public Pose2d latestEstimatedRobotPose;
         public double[] ambiguities = new double[0];
         public int[] tags = new int[0];
         public double[] distances = new double[0];
