@@ -2,21 +2,12 @@ package frc.robot.Subsystems.vision;
 
 import static frc.robot.Subsystems.vision.visionConstants.VisionConstants.kAmbiguityThreshold;
 
-import java.util.Optional;
-
 import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.Vector; 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.numbers.N3;
-import frc.robot.Subsystems.vision.*;
-import frc.robot.utils.debugging.LoggedTunableNumber; 
+
 
 
 public class Vision {
@@ -103,7 +94,7 @@ public class Vision {
             );
         }
 
-        if (cameraData.latestEstimatedRobotPose.getRotation().equals(new Rotation2d(9999))) {
+        if (cameraData.latestEstimatedRobotPose.getRotation().equals(new Rotation2d(Double.MAX_VALUE))) {
             observation = new VisionObservation(
             true, 
             cameraData.latestEstimatedRobotPose, 

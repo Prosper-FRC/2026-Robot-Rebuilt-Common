@@ -1,20 +1,11 @@
 package frc.robot.Subsystems.vision;
 
-import java.util.ArrayList;
-import java.util.Optional;
 
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import java.util.Optional;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.RawFiducial;
 
@@ -130,7 +121,6 @@ public class LimelightIO implements CameraIO{
                 inputs.distances[i] = fiducialData[i].distToCamera;
             }
         } else {
-            RawFiducial[] fiducialData = visionResult.rawFiducials;
             inputs.ambiguities =  new double[0];
             inputs.tags = new int[0];
             inputs.distances = new double[0];

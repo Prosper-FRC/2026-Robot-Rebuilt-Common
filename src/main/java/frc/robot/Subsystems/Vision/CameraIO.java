@@ -1,14 +1,7 @@
 package frc.robot.Subsystems.vision;
 
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Transform3d;
-import frc.robot.LimelightHelpers.RawFiducial;
-
-import java.util.Optional;
-
 import org.littletonrobotics.junction.AutoLog;
 
 public interface CameraIO {
