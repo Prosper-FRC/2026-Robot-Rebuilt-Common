@@ -11,13 +11,19 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import choreo.auto.AutoChooser;
+import choreo.auto.AutoFactory;
+import choreo.auto.AutoRoutine;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 
 public class Robot extends LoggedRobot {
 
     private Command mAutonomousCommand;
-
+    private final AutoChooser autoChooser;
+    private final AutoFactory autoFactory;
     private final RobotContainer mRobotContainer;
 
     public Robot() {
@@ -45,8 +51,22 @@ public class Robot extends LoggedRobot {
         Logger.start();
 
         mRobotContainer = new RobotContainer();
-    }
 
+        autoChooser = new AutoChooser();
+        autoChooser.addCmd(null, null);
+        autoChooser.addRoutine(null, null);
+
+        SmartDashboard.putData(autoChooser);
+        
+        RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+    }
+    private AutoRoutine exampleRoutine(){
+
+    }
+    private exampleAutoCommand(){
+
+        
+    }
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
