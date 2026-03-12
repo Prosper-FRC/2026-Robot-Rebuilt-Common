@@ -17,6 +17,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -69,6 +70,9 @@ public class Drive extends SubsystemBase {
     private final SwerveDriveOdometry kOdometry;
 
     private final SwerveDrivePoseEstimator kPoseEstimator;
+
+    @AutoLogOutput(key = "Drive/Field")
+    private final Field2d field = new Field2d();
 
     @AutoLogOutput(key = "Drive/Swerve/States")
     private SwerveModuleState[] states;
@@ -226,6 +230,7 @@ public class Drive extends SubsystemBase {
         // Update Odometry and pose estimation.
         odometryPose = kOdometry.update(new Rotation2d(Units.rotationsToRadians(kGyroInputs.yawRotations)), getModulePositions());
         updatePoseEstimation();
+        field.setRobotPose(poseEstimator);
 
         // Internal State Handling.
         switch(state) {
