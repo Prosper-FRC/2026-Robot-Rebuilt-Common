@@ -1,4 +1,5 @@
 package frc.robot.Subsystems.Shooter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.RobotConstants;
@@ -57,6 +58,9 @@ public class ShooterConstants{
     public final Rotation2d kHoodPosition2 = Rotation2d.fromDegrees(60.0);
     public final Rotation2d kHoodPosition3 = Rotation2d.fromDegrees(90.0);
 
+    // Pose Estimates of Hubs
+    public final Pose2d kBlueHubPose = new Pose2d(4.6, 4, new Rotation2d(0));
+    public final Pose2d kRedHubPose = new Pose2d(11.9, 4, new Rotation2d(0));
 
     private ShooterConstants() {
         switch(kTeamNumber) {

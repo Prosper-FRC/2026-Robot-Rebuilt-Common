@@ -4,9 +4,14 @@
 
 package frc.robot;
 
+import java.util.function.Supplier;
+
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Subsystems.Shooter.Shooter;
 import frc.robot.Subsystems.Shooter.FlywheelIOSim;
@@ -14,10 +19,12 @@ import frc.robot.Subsystems.Shooter.HooderIOSim;
 import frc.robot.Subsystems.Shooter.ShooterConstants;
 
 public class RobotContainer {
-  public final CommandXboxController kDriveController = new CommandXboxController(RobotConstants.getInstance().kDriveControllerPort);
-  public Shooter kShooter;
+    public final CommandXboxController kDriveController = new CommandXboxController(RobotConstants.getInstance().kDriveControllerPort);
+    public Shooter kShooter;
 
-  public RobotContainer() {
+    public static Supplier<Pose2d> getPoseEstimate;
+
+    public RobotContainer() {
     	switch (RobotConstants.getInstance().kCurrentMode) {
           case REAL:
                 //STUFF
@@ -33,6 +40,12 @@ public class RobotContainer {
                         ShooterConstants.getInstance().kHooderGains
                     )
                 );
+
+                // TESTING POSE
+                getPoseEstimate = () -> { return new Pose2d(); };
+
+                // UNCOMMENT FOR DRIVE SIM
+                // getPoseEstimate = () -> { return kDrive.getOdometryPose().get(); };
                 break;
             default:
                 break;
@@ -43,7 +56,7 @@ public class RobotContainer {
 
 	private void configureBindings() {
         DriverStation.silenceJoystickConnectionWarning(true);
-		
+        
         // Hooder
         kDriveController.a().onTrue(
             Commands.runOnce(() -> kShooter.hoodAutoOn = !kShooter.hoodAutoOn, kShooter)

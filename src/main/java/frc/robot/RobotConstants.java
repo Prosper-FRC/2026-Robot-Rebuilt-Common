@@ -25,20 +25,23 @@ public class RobotConstants {
 
         switch (kTeamNumber) {
             case 5411:
-                // Assign team specific constants.
                 break;
             case 9105:
-                // Assign team specific constants.
                 break;
             case 9492:
-                // Assign team specific constants.
                 break;
             case 0:
-                // Assign sim constants
                 break;
             default:
                 break;
         }
+    }
+    public static RobotConstants Instance() {
+        // Using a null check so that the instance is created at the proper time.
+        if (instance == null) {
+            instance = new RobotConstants();
+        }
+        return instance;
     }
 
     public static RobotConstants getInstance() {

@@ -1,7 +1,9 @@
 package frc.robot.Subsystems.Shooter;
+import frc.robot.RobotContainer;
 import frc.robot.Subsystems.Shooter.ShooterConstants;
 import static edu.wpi.first.units.Units.Rotation;
 
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -12,6 +14,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -22,7 +25,7 @@ public class Shooter extends SubsystemBase {
 
     private final static AprilTagFieldLayout kField = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
     
-    private DoubleSupplier kDistanceFromTarget;    
+    private DoubleSupplier kDistanceFromTarget;
 
     // public void ShooterTreeMap() 
     static
@@ -33,26 +36,31 @@ public class Shooter extends SubsystemBase {
         distanceToAngleMap.put(30.0, 90.0);
     }
 
-    //Dummy estimate 
-    public static final Supplier<Pose2d> getPoseEstimate = () -> { return new Pose2d(); };
-
     //To get distance from hub
     public static double getDistanceFromHub() {
+        Optional<Alliance> team = DriverStation.getAlliance();
+        
+        // CHANGE THE WAY POSE IS GOTTEN ONCE SUPERSTRUCTURE IS DONE
+        Translation2d robotPosition = RobotContainer.getPoseEstimate.get().getTranslation();
+        Translation2d blueHub = ShooterConstants.getInstance().kBlueHubPose.getTranslation();
+        Translation2d redHub = ShooterConstants.getInstance().kRedHubPose.getTranslation();
+        
         // Distance from blue hub
-        if (DriverStation.getAlliance().equals(Alliance.valueOf("Blue"))) {
-            
+        if (team.equals(Alliance.valueOf("Blue"))) {
+            return robotPosition.getDistance(blueHub);
         } 
         // Distance from red hub
-        else if (DriverStation.getAlliance().equals(Alliance.valueOf("Red"))) {
-            
+        else if (team.equals(Alliance.valueOf("Red"))) {
+            return robotPosition.getDistance(redHub);
         } 
         // Distance from either hub (SIM)
         else {
-            System.out.println(getPoseEstimate.get().getTranslation());
+            double distanceToBlueHub = robotPosition.getDistance(blueHub);
+            double distanceToRedHub = robotPosition.getDistance(redHub);
+            double closestDistance = distanceToBlueHub < distanceToRedHub ? distanceToBlueHub : distanceToRedHub;
+
+            return closestDistance;
         }
-        
-        // For testing purposes
-        return 30;
     }
 
     public static Rotation2d getAngle()
