@@ -45,16 +45,12 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 		
         // Hooder
-        kDriveController.b().onTrue(
-            Commands.runOnce(() -> kShooter.state.setGoalPosition(() -> ShooterConstants.getInstance().kHoodPosition1), kShooter)
-        );
-
-        kDriveController.y().onTrue(
-            Commands.runOnce(() -> kShooter.state.setGoalPosition(() -> ShooterConstants.getInstance().kHoodPosition2), kShooter)
+        kDriveController.a().onTrue(
+            Commands.runOnce(() -> kShooter.hoodAutoOn = !kShooter.hoodAutoOn, kShooter)
         );
     
         // Flywheel
-        kDriveController.a().onTrue(
+        kDriveController.b().onTrue(
             Commands.runOnce(() -> kShooter.flywheelOnOff(), kShooter)
         );
      
@@ -69,5 +65,4 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return Commands.print("No autonomous command configured");
     }
-
 }

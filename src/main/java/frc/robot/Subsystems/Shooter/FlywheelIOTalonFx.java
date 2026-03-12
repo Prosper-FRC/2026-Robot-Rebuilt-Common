@@ -3,6 +3,7 @@ package frc.robot.Subsystems.Shooter;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
@@ -45,7 +46,7 @@ public class FlywheelIOTalonFx<HoodHardware> implements FlywheelIO {
     private double kFlywheelVelocityGoalRotationsPerSec = 0.0;
 
     public FlywheelIOTalonFx(String canbus, HoodHardware hardware, FlywheelGains flywheelGains, double statusSignalUpdateFrequency) {
-        kFlywheelMotor = new TalonFX(ShooterConstants.getInstance().kFlywheelMotorID, canbus);
+        kFlywheelMotor = new TalonFX(ShooterConstants.getInstance().kFlywheelMotorID, new CANBus(canbus));
         ShooterConstants constants = ShooterConstants.getInstance();
 
         // Flywheel signals

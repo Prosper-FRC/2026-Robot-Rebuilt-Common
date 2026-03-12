@@ -1,72 +1,17 @@
 package frc.robot.Subsystems.Shooter;
 import frc.robot.Subsystems.Shooter.ShooterConstants;
-import static edu.wpi.first.units.Units.Rotation;
 
-import java.util.function.DoubleSupplier;
+import java.lang.Thread.State;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Shooter extends SubsystemBase {
-    public final static InterpolatingDoubleTreeMap distanceToAngleMap = new InterpolatingDoubleTreeMap();
-
-    private final static AprilTagFieldLayout kField = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-    
-    private DoubleSupplier kDistanceFromTarget;    
-
-    // public void ShooterTreeMap() 
-    static
-    {
-        distanceToAngleMap.put(0.0 , 0.0);
-        distanceToAngleMap.put(10.0, 30.0);
-        distanceToAngleMap.put(20.0, 60.0);
-        distanceToAngleMap.put(30.0, 90.0);
-    }
-
-    //Dummy estimate 
-    public static final Supplier<Pose2d> getPoseEstimate = () -> { return new Pose2d(); };
-
-    //To get distance from hub
-    public static double getDistanceFromHub() {
-        // Distance from blue hub
-        if (DriverStation.getAlliance().equals(Alliance.valueOf("Blue"))) {
-            
-        } 
-        // Distance from red hub
-        else if (DriverStation.getAlliance().equals(Alliance.valueOf("Red"))) {
-            
-        } 
-        // Distance from either hub (SIM)
-        else {
-            System.out.println(getPoseEstimate.get().getTranslation());
-        }
-        
-        // For testing purposes
-        return 30;
-    }
-
-    public static Rotation2d getAngle()
-    {
-        return Rotation2d.fromDegrees(distanceToAngleMap.get(getDistanceFromHub()));
-        //return Rotation2d.fromDegrees(distanceToAngleMap.get(getPoseEstimate.get().getRotation().getDegrees()));
-    }
-
-    public static Rotation2d getAngle(double distance)
-    {
-        double interpolatedAngle = distanceToAngleMap.get(distance);
-        return Rotation2d.fromDegrees(interpolatedAngle);
-    }
-
+public class ShooterOld extends SubsystemBase {
     private final FlywheelIO kFlywheel;
     private final FlywheelInputsAutoLogged kFlywheelInputs;
 
@@ -78,7 +23,8 @@ public class Shooter extends SubsystemBase {
         kHoodPosition2(() -> ShooterConstants.getInstance().kHoodPosition2),
         kHoodPosition3(() -> ShooterConstants.getInstance().kHoodPosition3),
         kHoodPositionDefault(() -> ShooterConstants.getInstance().kHoodPositionDefault),
-        kHoodPositionAuto(() -> getAngle(getDistanceFromHub()));
+        kHoodPositionAuto(() -> new Rotation2d(0.0));
+
 
         public Supplier<Rotation2d> goalPosition;
 
@@ -92,22 +38,20 @@ public class Shooter extends SubsystemBase {
 
         public void setGoalPosition(Supplier<Rotation2d> goalPosition) {
             this.goalPosition = goalPosition;
+            System.out.println(this.goalPosition.get().getRadians());
         }
     }
 
     @AutoLogOutput(key = "Flywheel/FlywheelOn")
     private boolean flywheelOn = false;
-    
+
     @AutoLogOutput(key = "Flywheel/FlywheelGoalRPM")
     private double flywheelGoalRPM = 0.0;
 
     @AutoLogOutput(key = "Hooder/State")
-    public HooderPosition state = HooderPosition.kHoodPositionAuto;
+    public HooderPosition state = HooderPosition.kHoodPosition1;
 
-    @AutoLogOutput(key = "Hooder/HoodAutoOn")
-    public boolean hoodAutoOn = false;
-
-    public Shooter(FlywheelIO flywheelIO, HooderIO hooderIO) {
+    public ShooterOld(FlywheelIO flywheelIO, HooderIO hooderIO) {
         kFlywheel = flywheelIO;
         kFlywheelInputs = new FlywheelInputsAutoLogged();
 
@@ -136,9 +80,7 @@ public class Shooter extends SubsystemBase {
                 setHooderPositionRotationsGoal(state.getGoalPosition());
                 break;
             case kHoodPositionAuto:
-                if (hoodAutoOn) {
-                    setHooderPositionRotationsGoal(state.getGoalPosition());
-                }
+                setHooderPositionRotationsGoal(state.getGoalPosition());
                 break;
             case kHoodPositionDefault:
                 setHooderPositionRotationsGoal(state.getGoalPosition());
@@ -173,6 +115,7 @@ public class Shooter extends SubsystemBase {
     }
 
     // Hood IO Functions
+
     public void setHooderVoltage(double volts) {
         kHooder.setHooderVoltage(volts);
     }
@@ -195,23 +138,25 @@ public class Shooter extends SubsystemBase {
 
     // Hood
     // public void nextPosition() {
-    //     int newIndex = currentHooderPosition.ordinal() + 1;
+    //     int newIndex = state.ordinal() + 1;
     //     HooderPosition[] values = HooderPosition.values();
         
     //     if (newIndex < values.length) {setHoodPosition(values[newIndex]);}
     // }
 
     // public void previousPosition() {
-    //     int newIndex = currentHooderPosition.ordinal() - 1;
+    //     int newIndex = state.ordinal() - 1;
     //     HooderPosition[] values = HooderPosition.values();
         
     //     if (newIndex >= 0) {setHoodPosition(values[newIndex]);}
     // }
-
-    // public void setHoodPosition(HooderPosition newPos) {
-    //     currentHooderPosition = newPos;
-    //     setHooderPositionRotationsGoal(newPos.angle);
-    // }
+    //Add stuff to RoboContainer
+    /* 
+    public void setHoodPosition(HooderPosition newPos) {
+        state = newPos;
+        setHooderPositionRotationsGoal(newPos.goalPosition);
+    }
+    */
 
     public void setHoodPosition(HooderPosition newPosition) {
         this.state = newPosition;
