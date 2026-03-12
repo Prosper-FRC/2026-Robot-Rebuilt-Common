@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -71,7 +72,6 @@ public class Drive extends SubsystemBase {
 
     private final SwerveDrivePoseEstimator kPoseEstimator;
 
-    @AutoLogOutput(key = "Drive/Field")
     private final Field2d field = new Field2d();
 
     @AutoLogOutput(key = "Drive/Swerve/States")
@@ -112,6 +112,8 @@ public class Drive extends SubsystemBase {
             Rotation2d.fromRotations(kGyroInputs.yawRotations), 
             getModulePositions(), 
             kOdometry.getPoseMeters());
+
+        SmartDashboard.putData("Field", field); // Field widget for dashboard
 
         kRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(null, null, null, // Default values
