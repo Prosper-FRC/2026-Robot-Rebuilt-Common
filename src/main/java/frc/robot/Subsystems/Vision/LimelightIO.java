@@ -114,10 +114,10 @@ public class LimelightIO implements CameraIO{
 
         // Get an Optional Pose2d to handle potential null values
         Optional<Pose2d> estPose = estimateBotPose(visionResult.pose);
-        inputs.latestEstimatedRobotPose = estPose.orElse(new Pose2d(new Translation2d(9999,9999), new Rotation2d(9999)));
+        inputs.latestEstimatedRobotPose = estPose.orElse(new Pose2d(new Translation2d(9999,9999), new Rotation2d(Double.MAX_VALUE)));
         inputs.latestTimestamp = visionResult.timestampSeconds;
 
-        if (inputs.latestEstimatedRobotPose.getX() != 9999) {
+        if (inputs.latestEstimatedRobotPose.getX() != Double.MAX_VALUE) {
             RawFiducial[] fiducialData = visionResult.rawFiducials;
 
             // Check how many tags and their distances to camera & ambiguities

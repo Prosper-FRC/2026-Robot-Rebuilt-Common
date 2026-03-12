@@ -11,6 +11,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector; 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N3;
@@ -65,7 +66,7 @@ public class Vision {
         // double xyScalar = Math.pow(avgDistMeters, 2) / (cameraData.tags.length);
         
 
-        if (cameraData.tags.length == 1) {
+        else if (cameraData.tags.length == 1) {
             if (cameraData.ambiguities[0] > kAmbiguityThreshold) {
                 observation = new VisionObservation(
                     true, 
@@ -75,7 +76,9 @@ public class Vision {
                 );
                 hasAmbiguity++;
             }
-        } else if (cameraData.tags.length > 1) {
+        } 
+        
+        else if (cameraData.tags.length > 1) {
             for (int i = 0; i < cameraData.tags.length; i++) {
                 if (cameraData.ambiguities[i] > kAmbiguityThreshold) {
                     observation = new VisionObservation(
@@ -90,12 +93,22 @@ public class Vision {
         }
 
 
+
         if (!(hasAmbiguity > 0)) {
             observation = new VisionObservation(
             true, 
             cameraData.latestEstimatedRobotPose, 
             cameraData.latestTimestamp,
             true
+            );
+        }
+
+        if (cameraData.latestEstimatedRobotPose.getRotation().equals(new Rotation2d(9999))) {
+            observation = new VisionObservation(
+            true, 
+            cameraData.latestEstimatedRobotPose, 
+            cameraData.latestTimestamp,
+            false
             );
         }
         return observation;
