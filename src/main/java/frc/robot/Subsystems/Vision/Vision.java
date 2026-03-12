@@ -32,6 +32,7 @@ public class Vision {
      public void periodic() {
             camera.updateInputs(cameraData);
             Logger.processInputs("Vision/"+cameraData.camName, cameraData);
+            Logger.recordOutput("Vision/"+cameraData.camName+"/Observation", getVisionObservation());
             Logger.recordOutput("Vision/"+cameraData.camName+"/Pose", cameraData.latestEstimatedRobotPose);
             Logger.recordOutput("Vision/"+cameraData.camName+"/Connected", cameraData.isConnected);
             Logger.recordOutput("Vision/"+cameraData.camName+"/VisibleTags", cameraData.tags);
@@ -39,7 +40,7 @@ public class Vision {
     }
 
     // Check reliability of vision
-    public VisionObservation getVisionObservations() {
+    public VisionObservation getVisionObservation() {
 
         double hasAmbiguity = 0;
 
