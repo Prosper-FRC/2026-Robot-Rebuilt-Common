@@ -27,6 +27,11 @@ public class Robot extends LoggedRobot {
     private final RobotContainer mRobotContainer;
 
     public Robot() {
+        autoFactory = new AutoFactory(null,
+        null,
+        null,
+        isAutonomous(),
+        null);
         // Sets up logging.
         switch(RobotConstants.getInstance().kMode) {
             case REAL:
