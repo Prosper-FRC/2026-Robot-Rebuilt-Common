@@ -112,6 +112,7 @@ public class ModuleTalonFX implements ModuleIO {
         // Extra Azimuth Configuration
         kAzimuthConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor; // TODO: Replace with fused version of Azimuth CANcoder Encoder reading.
         kAzimuthConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
+        kAzimuthConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         // Applying the configurations
         kDrive.getConfigurator().apply(kDriveConfiguration);
