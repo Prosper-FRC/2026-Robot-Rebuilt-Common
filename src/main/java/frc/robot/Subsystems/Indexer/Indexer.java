@@ -1,6 +1,7 @@
 package frc.robot.Subsystems.Indexer;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,20 +20,18 @@ public class Indexer extends SubsystemBase {
     }
 
     public static enum IndexerState {
-        // what states are a part of the indexer?
-        // idle, active, eject --> we don't have more complex states
-        Idle(() -> 0.0),
-        Active(() -> 5.0), //dummy value
-        Eject(() -> -5.0); //dummy value (volts)
+        Idle(() -> new double[]{0.0, 0.0, 0.0}),
+        Active(() -> new double[]{5.0, 5.0, 5.0}),
+        Eject(() -> new double[]{-5.0, -5.0, -5.0});
 
-        private final DoubleSupplier goalVoltage;
+        private final Supplier<double[]> goalVoltage;
 
-        private IndexerState(DoubleSupplier goalVoltage) {
+        private IndexerState(Supplier<double[]> goalVoltage) {
             this.goalVoltage = goalVoltage;
         }
 
-        public double getGoalVoltage() {
-            return goalVoltage.getAsDouble();
+        public double[] getGoalVoltage() {
+            return goalVoltage.get();
         }
     }
 
@@ -57,10 +56,15 @@ public class Indexer extends SubsystemBase {
                 indexerIO.stopMotors();
                 break;
             case Active:
-                indexerIO.setHopperMotor3Voltage(state.getGoalVoltage());
+                indexerIO.setHopperMotor1Voltage(state.getGoalVoltage()[0]);
+                indexerIO.setHopperMotor2Voltage(state.getGoalVoltage()[1]);
+                indexerIO.setHopperMotor3Voltage(state.getGoalVoltage()[2]);
                 break;
             case Eject:
-                indexerIO.setHopperMotor3Voltage(state.getGoalVoltage());
+                indexerIO.setHopperMotor1Voltage(state.getGoalVoltage()[0]);
+                indexerIO.setHopperMotor2Voltage(state.getGoalVoltage()[1]);
+                indexerIO.setHopperMotor3Voltage(state.getGoalVoltage()[2]);
+                break;
             default:
                 break;
         }
