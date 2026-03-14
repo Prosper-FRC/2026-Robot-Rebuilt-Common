@@ -10,8 +10,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.wpilibj2.command.Command;
-
 public class Indexer extends SubsystemBase {
 
     private final IndexerIO indexerIO;

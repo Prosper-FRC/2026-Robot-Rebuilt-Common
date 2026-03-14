@@ -11,7 +11,7 @@ import com.ctre.phoenix6.controls.*;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.Subsystems.Indexer.IndexerConstants.IndexerConstants;
+import frc.robot.Subsystems.Indexer.IndexerConstantsMain.IndexerConstants;
 
 
 public class IndexerTalonFX implements IndexerIO {
@@ -56,12 +56,10 @@ public class IndexerTalonFX implements IndexerIO {
 
     public IndexerTalonFX() {
 
-        IndexerConstants constants = IndexerConstants.getInstance();
-
-        kHopperMotor1 = new TalonFX(constants.kHopperMotor1ID);
-        kHopperMotor2 = new TalonFX(constants.kHopperMotor2ID);
-        kHopperMotor3 = new TalonFX(constants.kHopperMotor3ID);
-        kIndexerMotor1 = new TalonFX(constants.kIndexerMotor1ID);
+        kHopperMotor1 = new TalonFX(IndexerConstants.kHopperMotor1ID);
+        kHopperMotor2 = new TalonFX(IndexerConstants.kHopperMotor2ID);
+        kHopperMotor3 = new TalonFX(IndexerConstants.kHopperMotor3ID);
+        kIndexerMotor1 = new TalonFX(IndexerConstants.kIndexerMotor1ID);
 
         // Apply configs (PID, limits, inversion, etc.)
         kHopperMotor1.getConfigurator().apply(kHopperMotor1Config);
