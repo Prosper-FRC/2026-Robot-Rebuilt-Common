@@ -53,7 +53,7 @@ public class RobotContainer {
 
         kDrive.setDefaultCommand(new InstantCommand(() -> kDrive.setDriveState(Drive.driveState.TELEOP), kDrive));
 
-        kDrive.supplyControllerInputs(() -> kDriveController.getLeftX(), () -> -kDriveController.getLeftY(), () -> -kDriveController.getRightX());
+        kDrive.supplyControllerInputs(() -> -kDriveController.getLeftX(), () -> -kDriveController.getLeftY(), () -> -kDriveController.getRightX());
     
         kDriveController.a().debounce(0.25d, DebounceType.kRising)
             .onTrue(new InstantCommand(() -> kDrive.setDriveState(Drive.driveState.SYSID)).andThen(kDrive.getSysIdCommand()))
