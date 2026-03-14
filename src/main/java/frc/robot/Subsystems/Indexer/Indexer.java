@@ -23,16 +23,16 @@ public class Indexer extends SubsystemBase {
         // idle, active, eject --> we don't have more complex states
         Idle(() -> 0.0),
         Active(() -> 5.0), //dummy value
-        Eject(() -> -5.00); //dummy value (RPS)
+        Eject(() -> -5.0); //dummy value (volts)
 
-        private final DoubleSupplier goalVelocity;
+        private final DoubleSupplier goalVoltage;
 
-        private IndexerState(DoubleSupplier goalVelocity) {
-            this.goalVelocity = goalVelocity;
+        private IndexerState(DoubleSupplier goalVoltage) {
+            this.goalVoltage = goalVoltage;
         }
 
-        public double getGoalVelocity() {
-            return goalVelocity.getAsDouble();
+        public double getGoalVoltage() {
+            return goalVoltage.getAsDouble();
         }
     }
 
@@ -57,10 +57,10 @@ public class Indexer extends SubsystemBase {
                 indexerIO.stopMotors();
                 break;
             case Active:
-                indexerIO.setMotorsVelocityRPS(state.getGoalVelocity());
+                indexerIO.setHopperMotor3Voltage(state.getGoalVoltage());
                 break;
             case Eject:
-                indexerIO.setMotorsVelocityRPS(state.getGoalVelocity());
+                indexerIO.setHopperMotor3Voltage(state.getGoalVoltage());
             default:
                 break;
         }

@@ -21,17 +21,16 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        driver.a().onTrue(
-            
-        indexer.setIndexerStateCommand(Indexer.IndexerState.Active)
-    );
+        driver.a().onTrue(  
+            indexer.setIndexerStateCommand(Indexer.IndexerState.Active)
+        );
 
         driver.b().onTrue(
-        indexer.setIndexerStateCommand(Indexer.IndexerState.Idle)
-    );
+            indexer.setIndexerStateCommand(Indexer.IndexerState.Idle)
+        );
 
         driver.x().onTrue(
-        indexer.setIndexerStateCommand(Indexer.IndexerState.Eject)
-    );
+            indexer.setIndexerStateCommand(Indexer.IndexerState.Eject)
+        );
     }
 }

@@ -56,10 +56,10 @@ public class IndexerTalonFX implements IndexerIO {
 
     public IndexerTalonFX() {
 
-        kHopperMotor1 = new TalonFX(IndexerConstants.kHopperMotor1ID);
-        kHopperMotor2 = new TalonFX(IndexerConstants.kHopperMotor2ID);
-        kHopperMotor3 = new TalonFX(IndexerConstants.kHopperMotor3ID);
-        kIndexerMotor1 = new TalonFX(IndexerConstants.kIndexerMotor1ID);
+        kHopperMotor1 = new TalonFX(IndexerConstants.kHopperMotor1ID, new CANBus());
+        kHopperMotor2 = new TalonFX(IndexerConstants.kHopperMotor2ID, new CANBus());
+        kHopperMotor3 = new TalonFX(IndexerConstants.kHopperMotor3ID, new CANBus());
+        kIndexerMotor1 = new TalonFX(IndexerConstants.kIndexerMotor1ID, new CANBus());
 
         // Apply configs (PID, limits, inversion, etc.)
         kHopperMotor1.getConfigurator().apply(kHopperMotor1Config);
@@ -168,15 +168,10 @@ public class IndexerTalonFX implements IndexerIO {
     // Motor Velocity RPS
     @Override
     public void setMotorsVelocityRPS(double rps) {
-        // Need to check over this!!
-        System.out.println("Volt");
-        //kHopperMotor3.setVoltage(2);
-        kHopperMotor2.setVoltage(-8);
-        //kHopperMotor1.setVoltage(2);
+        // THIS DIDN'T WORK DURING TESTING, SO WE SWITCHED TO USING VOLTAGE
         // kHopperMotor1.setControl(kVelocityControl.withVelocity(rps).withSlot(0));
         // kHopperMotor2.setControl(kVelocityControl.withVelocity(rps).withSlot(1));
         // kHopperMotor3.setControl(kVelocityControl.withVelocity(rps).withSlot(2));
-        // kIndexerMotor1.setControl(kVelocityControl.withVelocity(rps).withSlot(3));
     }
 
     // Stop the motors individually
