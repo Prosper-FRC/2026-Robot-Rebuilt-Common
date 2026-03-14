@@ -8,7 +8,7 @@ public class IndexerConstants {
 
     // Motor IDs
     public static int kHopperMotor1ID = 1;
-    public static int kHopperMotor2ID = 2;
+    public static int kHopperMotor2ID = 2; 
     public static int kHopperMotor3ID = 3;
     public static int kIndexerMotor1ID = 4;
 

@@ -22,6 +22,7 @@ public class RobotContainer {
 
     private void configureBindings() {
         driver.a().onTrue(
+            
         indexer.setIndexerStateCommand(Indexer.IndexerState.Active)
     );
 

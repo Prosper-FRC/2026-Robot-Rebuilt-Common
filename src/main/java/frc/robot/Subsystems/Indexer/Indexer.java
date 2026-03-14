@@ -85,6 +85,8 @@ public class Indexer extends SubsystemBase {
     indexerIO.setHopperMotor1Voltage(volts);
    }
 
+   
+
    public void stopHopperMotor1Voltage(double volts) {
     indexerIO.stopHopperMotor1();
    }
