@@ -33,10 +33,17 @@ public class DriveConstants {
 
     public double sniperModeScalar = 0.2d;
 
-    public moduleOffsets kFLModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters/2, kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(0.43359375), true);
-    public moduleOffsets kFRModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters/2, -kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(-0.42333984375), false);
+    // 9105
+    public moduleOffsets kFLModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters/2, kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(0.479004), true);
+    public moduleOffsets kFRModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters/2, -kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(-0.395752), false);
     public moduleOffsets kBLModuleOffsets = new moduleOffsets(new Translation2d(-kModuleHardLimits.trackDistanceMeters/2, kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(0.255615234375), true);
     public moduleOffsets kBRModuleOffsets = new moduleOffsets(new Translation2d(-kModuleHardLimits.trackDistanceMeters/2, -kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(-0.412841796875), false);
+
+    // 9492
+    // public moduleOffsets kFLModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters/2, kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(-0.237549), true);
+    // public moduleOffsets kFRModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters/2, -kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(0.221191), false);
+    // public moduleOffsets kBLModuleOffsets = new moduleOffsets(new Translation2d(-kModuleHardLimits.trackDistanceMeters/2, kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(-0.261963), true);
+    // public moduleOffsets kBRModuleOffsets = new moduleOffsets(new Translation2d(-kModuleHardLimits.trackDistanceMeters/2, -kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(-0.405273), false);
 
     public gyroOffsets kGyroOffsets = new gyroOffsets(0.0d, 0.0d, 0.0d);
 
