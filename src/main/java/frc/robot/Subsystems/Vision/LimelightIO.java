@@ -105,7 +105,8 @@ public class LimelightIO implements CameraIO{
 
         // Get an Optional Pose2d to handle potential null values
         Optional<Pose2d> estPose = estimateBotPose(visionResult.pose);
-        inputs.latestEstimatedRobotPose = estPose.orElse(new Pose2d(new Translation2d(9999,9999), new Rotation2d(Double.MAX_VALUE)));
+        inputs.latestEstimatedRobotPose = estPose.orElse(new Pose2d(new Translation2d(Double.MAX_VALUE, Double.MAX_VALUE), new Rotation2d(Double.MAX_VALUE)));
+        inputs.yaw = inputs.latestEstimatedRobotPose.getRotation().getRadians();
         inputs.latestTimestamp = visionResult.timestampSeconds;
 
         if (inputs.latestEstimatedRobotPose.getX() != Double.MAX_VALUE) {
@@ -114,16 +115,16 @@ public class LimelightIO implements CameraIO{
             // Check how many tags and their distances to camera & ambiguities
             inputs.ambiguities =  new double[fiducialData.length];
             inputs.tags = new int[fiducialData.length];
-            inputs.distances = new double[fiducialData.length];
+            // inputs.distances = new double[fiducialData.length];
             for (int i = 0; i < fiducialData.length; i++) {
                 inputs.ambiguities[i] = fiducialData[i].ambiguity;   
                 inputs.tags[i] = fiducialData[i].id;
-                inputs.distances[i] = fiducialData[i].distToCamera;
+                // inputs.distances[i] = fiducialData[i].distToCamera;
             }
         } else {
             inputs.ambiguities =  new double[0];
             inputs.tags = new int[0];
-            inputs.distances = new double[0];
+            // inputs.distances = new double[0];
         }
     }
 }

@@ -13,7 +13,6 @@ public interface CameraIO {
         public String camName = "";
         public boolean isConnected = false;
         public double yaw = 0.0;
-        public double pitch = 0.0;
         public double latencySeconds = 0.0;
         public double oldHeartbeat = 0.0;
         public boolean hasTarget = false;
