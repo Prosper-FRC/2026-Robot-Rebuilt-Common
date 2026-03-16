@@ -133,29 +133,41 @@ public class Shooter extends SubsystemBase {
 
         Logger.recordOutput("Hooder/HooderPosition", state);
 
-        switch(state) {
-            case kHoodPosition1:
+        if (state == HooderPosition.kHoodPositionAuto) {
+            if(hoodAutoOn) {
                 setHooderPositionRotationsGoal(state.getGoalPosition());
-                break;
-            case kHoodPosition2:
-                setHooderPositionRotationsGoal(state.getGoalPosition());
-                break;
-            case kHoodPosition3:
-                setHooderPositionRotationsGoal(state.getGoalPosition());
-                break;
-            case kHoodPositionAuto:
-                if (hoodAutoOn) {
-                    setHooderPositionRotationsGoal(state.getGoalPosition());
-                }
-                break;
-            case kHoodPositionDefault:
-                setHooderPositionRotationsGoal(state.getGoalPosition());
-                break;
-            default:
-                stopFlywheel();
-                stopHooder();
-                break;
-        }
+            }      
+        } else if (state == HooderPosition.kHoodPosition1 ||
+                   state == HooderPosition.kHoodPosition2 ||
+                   state == HooderPosition.kHoodPosition3 ||
+                   state == HooderPosition.kHoodPositionDefault) {
+
+            setHooderPositionRotationsGoal(state.getGoalPosition());   
+                   }
+
+        // switch(state) {
+        //     case kHoodPosition1:
+        //         setHooderPositionRotationsGoal(state.getGoalPosition());
+        //         break;
+        //     case kHoodPosition2:
+        //         setHooderPositionRotationsGoal(state.getGoalPosition());
+        //         break;
+        //     case kHoodPosition3:
+        //         setHooderPositionRotationsGoal(state.getGoalPosition());
+        //         break;
+        //     case kHoodPositionAuto:
+        //         if (hoodAutoOn) {
+        //             setHooderPositionRotationsGoal(state.getGoalPosition());
+        //         }
+        //         break;
+        //     case kHoodPositionDefault:
+        //         setHooderPositionRotationsGoal(state.getGoalPosition());
+        //         break;
+        //     default:
+        //         stopFlywheel();
+        //         stopHooder();
+        //         break;
+        // }
         
         if (DriverStation.isDisabled()) {
             stopHooder();
