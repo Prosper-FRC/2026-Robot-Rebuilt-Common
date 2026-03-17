@@ -22,28 +22,21 @@ public class DriveConstants {
 
     public final record gyroOffsets(double roll, double pitch, double yaw) {}
 
-    public moduleIDs kFLModuleIDs = new moduleIDs(11, 21, 31);
-    public moduleIDs kFRModuleIDs = new moduleIDs(12, 22, 32);
-    public moduleIDs kBLModuleIDs = new moduleIDs(13, 23, 33);
-    public moduleIDs kBRModuleIDs = new moduleIDs(14, 24, 34);
+    public moduleIDs kFLModuleIDs;
+    public moduleIDs kFRModuleIDs;
+    public moduleIDs kBLModuleIDs;
+    public moduleIDs kBRModuleIDs;
     public int kGyroID = 10;
 
-    public moduleHardLimits kModuleHardLimits = new moduleHardLimits(0.0508d, 6.12d/1.0d, 150.0d/7.0d, Units.inchesToMeters(26.5d));
-    public moduleSoftlimits kModuleSoftLimits = new moduleSoftlimits(new moduleControllerLimits(0.05d, 2, 6.0d), 4.5d, 4.0d, 1.0d, 24.0, true, true);
+    public moduleHardLimits kModuleHardLimits;
+    public moduleSoftlimits kModuleSoftLimits;
 
     public double sniperModeScalar = 0.2d;
-
-    // 9105
-    public moduleOffsets kFLModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters/2, kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(0.479004), true);
-    public moduleOffsets kFRModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters/2, -kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(-0.395752), false);
-    public moduleOffsets kBLModuleOffsets = new moduleOffsets(new Translation2d(-kModuleHardLimits.trackDistanceMeters/2, kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(0.255615234375), true);
-    public moduleOffsets kBRModuleOffsets = new moduleOffsets(new Translation2d(-kModuleHardLimits.trackDistanceMeters/2, -kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(-0.412841796875), false);
-
-    // 9492
-    // public moduleOffsets kFLModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters/2, kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(-0.237549), true);
-    // public moduleOffsets kFRModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters/2, -kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(0.221191), false);
-    // public moduleOffsets kBLModuleOffsets = new moduleOffsets(new Translation2d(-kModuleHardLimits.trackDistanceMeters/2, kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(-0.261963), true);
-    // public moduleOffsets kBRModuleOffsets = new moduleOffsets(new Translation2d(-kModuleHardLimits.trackDistanceMeters/2, -kModuleHardLimits.trackDistanceMeters/2), Rotation2d.fromRotations(-0.405273), false);
+    
+    public moduleOffsets kFLModuleOffsets;
+    public moduleOffsets kFRModuleOffsets;    
+    public moduleOffsets kBLModuleOffsets;
+    public moduleOffsets kBRModuleOffsets;
 
     public gyroOffsets kGyroOffsets = new gyroOffsets(0.0d, 0.0d, 0.0d);
 
