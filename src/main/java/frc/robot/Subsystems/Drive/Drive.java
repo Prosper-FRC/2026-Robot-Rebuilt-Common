@@ -87,6 +87,11 @@ public class Drive extends SubsystemBase {
     private final SysIdRoutine kRoutine;
 
     public Drive(ModuleIO moduleFL, ModuleIO moduleFR, ModuleIO moduleBL, ModuleIO moduleBR, GyroIO gyro) {
+        System.out.println(RobotConstants.DriveConstants().kFLModuleOffsets.rotationalOffset().getRotations());
+        System.out.println(RobotConstants.DriveConstants().kFRModuleOffsets.rotationalOffset().getRotations());
+        System.out.println(RobotConstants.DriveConstants().kBLModuleOffsets.rotationalOffset().getRotations());
+        System.out.println(RobotConstants.DriveConstants().kBRModuleOffsets.rotationalOffset().getRotations());
+
         kModules = new ModuleIO[] {
             moduleFL,
             moduleFR,

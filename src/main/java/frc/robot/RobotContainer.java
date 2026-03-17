@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Subsystems.Drive.*;
@@ -53,7 +54,13 @@ public class RobotContainer {
 
         kDrive.setDefaultCommand(new InstantCommand(() -> kDrive.setDriveState(Drive.driveState.TELEOP), kDrive));
 
-        kDrive.supplyControllerInputs(() -> -kDriveController.getLeftX(), () -> -kDriveController.getLeftY(), () -> kDriveController.getRightX());
+        if (RobotController.getTeamNumber() == 9105) {
+            System.out.println("9105");
+            kDrive.supplyControllerInputs(() -> -kDriveController.getLeftX(), () -> -kDriveController.getLeftY(), () -> kDriveController.getRightX());
+        } else {
+            System.out.println("5411, 9492");
+            kDrive.supplyControllerInputs(() -> kDriveController.getLeftX(), () -> kDriveController.getLeftY(), () -> kDriveController.getRightX());
+        }
     
         kDriveController.a().debounce(0.25d, DebounceType.kRising)
             .onTrue(new InstantCommand(() -> kDrive.setDriveState(Drive.driveState.SYSID)).andThen(kDrive.getSysIdCommand()))
