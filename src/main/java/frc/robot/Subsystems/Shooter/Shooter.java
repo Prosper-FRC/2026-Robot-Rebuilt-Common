@@ -243,6 +243,18 @@ public class Shooter extends SubsystemBase {
         this.state = newPosition;
     }
 
+    // To set a certain set point based off distance
+    public void setHoodSetpoint() {
+        double distance = getDistanceFromHub();
+        if ((distance > 0) && (distance <= 2)) {
+            this.state = state.kHoodPosition1;
+        } else if ((distance > 2) && (distance <= 4)) {
+            this.state = state.kHoodPosition2;
+        } else {
+            this.state = state.kHoodPosition3;
+        }
+    }
+
     public void flywheelOnOff() {
         if (flywheelOn) {
             kFlywheel.stopFlywheel();

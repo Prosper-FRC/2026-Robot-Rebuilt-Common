@@ -62,6 +62,10 @@ public class RobotContainer {
         kDriveController.a().onTrue(
             Commands.runOnce(() -> kShooter.hoodAutoOn = !kShooter.hoodAutoOn, kShooter)
         );
+
+        kDriveController.x().onTrue(
+            Commands.runOnce(() -> kShooter.setHoodSetpoint(), kShooter)
+        );
     
         // Flywheel
         kDriveController.b().onTrue(
