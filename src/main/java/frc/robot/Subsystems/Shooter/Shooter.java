@@ -23,56 +23,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Shooter extends SubsystemBase {
     public final static InterpolatingDoubleTreeMap distanceToAngleMap = new InterpolatingDoubleTreeMap();
 
-    private final static AprilTagFieldLayout kField = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-    
-    private DoubleSupplier kDistanceFromTarget;
-
     // public void ShooterTreeMap() 
     static
     {
+        distanceToAngleMap.put(-30.0, 90.0);
+        distanceToAngleMap.put(-20.0, 60.0);
+        distanceToAngleMap.put(-10.0, 30.0);
         distanceToAngleMap.put(0.0 , 0.0);
         distanceToAngleMap.put(10.0, 30.0);
         distanceToAngleMap.put(20.0, 60.0);
         distanceToAngleMap.put(30.0, 90.0);
-    }
-
-    //To get distance from hub
-    public static double getDistanceFromHub() {
-        Optional<Alliance> team = DriverStation.getAlliance();
-        
-        // CHANGE THE WAY POSE IS GOTTEN ONCE SUPERSTRUCTURE IS DONE
-        Translation2d robotPosition = RobotContainer.getPoseEstimate.get().getTranslation();
-        Translation2d blueHub = ShooterConstants.getInstance().kBlueHubPose.getTranslation();
-        Translation2d redHub = ShooterConstants.getInstance().kRedHubPose.getTranslation();
-        
-        // Distance from blue hub
-        if (team.equals(Alliance.valueOf("Blue"))) {
-            return robotPosition.getDistance(blueHub);
-        } 
-        // Distance from red hub
-        else if (team.equals(Alliance.valueOf("Red"))) {
-            return robotPosition.getDistance(redHub);
-        } 
-        // Distance from either hub (SIM)
-        else {
-            double distanceToBlueHub = robotPosition.getDistance(blueHub);
-            double distanceToRedHub = robotPosition.getDistance(redHub);
-            double closestDistance = distanceToBlueHub < distanceToRedHub ? distanceToBlueHub : distanceToRedHub;
-
-            return closestDistance;
-        }
-    }
-
-    public static Rotation2d getAngle()
-    {
-        return Rotation2d.fromDegrees(distanceToAngleMap.get(getDistanceFromHub()));
-        //return Rotation2d.fromDegrees(distanceToAngleMap.get(getPoseEstimate.get().getRotation().getDegrees()));
-    }
-
-    public static Rotation2d getAngle(double distance)
-    {
-        double interpolatedAngle = distanceToAngleMap.get(distance);
-        return Rotation2d.fromDegrees(interpolatedAngle);
     }
 
     private final FlywheelIO kFlywheel;
@@ -111,6 +71,9 @@ public class Shooter extends SubsystemBase {
 
     @AutoLogOutput(key = "Hooder/State")
     public HooderPosition state = HooderPosition.kHoodPositionAuto;
+    
+    @AutoLogOutput(key = "Hooder/DistanceFromTarget")
+    private DoubleSupplier kDistanceFromTarget = () -> getDistanceFromHub();
 
     @AutoLogOutput(key = "Hooder/HoodAutoOn")
     public boolean hoodAutoOn = false;
@@ -125,6 +88,8 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
+        System.out.println(kDistanceFromTarget.getAsDouble());
+
         kFlywheel.updateInputs(kFlywheelInputs);
         kHooder.updateInputs(kHooderInputs);
 
@@ -137,13 +102,9 @@ public class Shooter extends SubsystemBase {
             if(hoodAutoOn) {
                 setHooderPositionRotationsGoal(state.getGoalPosition());
             }      
-        } else if (state == HooderPosition.kHoodPosition1 ||
-                   state == HooderPosition.kHoodPosition2 ||
-                   state == HooderPosition.kHoodPosition3 ||
-                   state == HooderPosition.kHoodPositionDefault) {
-
+        } else if (state == HooderPosition.kHoodPosition1 || state == HooderPosition.kHoodPosition2 || state == HooderPosition.kHoodPosition3 || state == HooderPosition.kHoodPositionDefault) {
             setHooderPositionRotationsGoal(state.getGoalPosition());   
-                   }
+        }
 
         // switch(state) {
         //     case kHoodPosition1:
@@ -232,6 +193,51 @@ public class Shooter extends SubsystemBase {
     //     currentHooderPosition = newPos;
     //     setHooderPositionRotationsGoal(newPos.angle);
     // }
+
+    // Get distance from hub
+    public static double getDistanceFromHub() {
+        Optional<Alliance> team = DriverStation.getAlliance();
+        
+        // TODO: CHANGE THE WAY POSE IS GOTTEN ONCE SUPERSTRUCTURE IS DONE
+        Translation2d robotPosition = RobotContainer.getPoseEstimate.get().getTranslation();
+
+        Translation2d blueHub = ShooterConstants.getInstance().kBlueHubPose.getTranslation();
+        Translation2d redHub = ShooterConstants.getInstance().kRedHubPose.getTranslation();
+        
+        // Distance from blue hub
+        if (team.equals(Alliance.valueOf("Blue"))) {
+            if (robotPosition.getX() > blueHub.getX()) {
+                return (-robotPosition.getDistance(blueHub));
+            } else {
+                return robotPosition.getDistance(blueHub);
+            }
+        } 
+        // Distance from red hub
+        else if (team.equals(Alliance.valueOf("Red"))) {
+            if (robotPosition.getX() < redHub.getX()) {
+                return (-robotPosition.getDistance(redHub));
+            } else {
+                return robotPosition.getDistance(redHub);
+            }
+        } 
+        // Distance from either hub (SIM)
+        else {
+            double distanceToBlueHub = robotPosition.getDistance(blueHub);
+            double distanceToRedHub = robotPosition.getDistance(redHub);
+            double closestDistance = distanceToBlueHub < distanceToRedHub ? distanceToBlueHub : distanceToRedHub;
+
+            if ((robotPosition.getX() < redHub.getX()) && (robotPosition.getX() > blueHub.getX())) {
+                return -closestDistance;
+            } else {
+                return closestDistance;
+            }
+        }
+    }
+
+    public static Rotation2d getAngle(double distance)
+    {
+        return Rotation2d.fromDegrees(distanceToAngleMap.get(distance));
+    }
 
     public void setHoodPosition(HooderPosition newPosition) {
         this.state = newPosition;

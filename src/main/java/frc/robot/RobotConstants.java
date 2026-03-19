@@ -36,6 +36,7 @@ public class RobotConstants {
                 break;
         }
     }
+
     public static RobotConstants Instance() {
         // Using a null check so that the instance is created at the proper time.
         if (instance == null) {
