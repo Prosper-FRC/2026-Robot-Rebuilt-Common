@@ -1,5 +1,9 @@
 package frc.robot.Subsystems.Drive;
 
+import java.util.Optional;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+
 public class GyroSim implements GyroIO {
 
     public GyroSim() {}
@@ -18,5 +22,9 @@ public class GyroSim implements GyroIO {
     public void updateGyro(double yaw) {
         this.yaw += yaw;
     }
-
+    
+    @Override
+    public Optional<Rotation2d> getGyroAngle() {
+        return Optional.ofNullable(Rotation2d.fromRotations(yaw));
+    }
 }

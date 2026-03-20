@@ -1,12 +1,16 @@
 package frc.robot.Subsystems.Drive;
 
+import java.util.Optional;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
+import frc.robot.RobotConstants;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants.gyroOffsets;
 
 public class GyroPigeon2 implements GyroIO {
@@ -58,6 +62,16 @@ public class GyroPigeon2 implements GyroIO {
 
     @Override
     public void resetGyro() {
-        kGyro.setYaw(0.0d);
+        // TODO Verify if these values need to be flipped to operate properly
+        if(RobotConstants.Instance().kIsBlueAlliance) {
+            kGyro.setYaw(0.0d);
+        } else {
+            kGyro.setYaw(180); // In degrees
+        }
+    }
+
+    @Override
+    public Optional<Rotation2d> getGyroAngle() {
+        return Optional.ofNullable(Rotation2d.fromDegrees(kGyro.getYaw().getValueAsDouble()));
     }
 }

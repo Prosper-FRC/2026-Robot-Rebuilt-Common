@@ -12,6 +12,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Subsystems.Drive.Drive;
 
 public class Robot extends LoggedRobot {
     private final RobotContainer m_robotContainer;
@@ -47,7 +48,9 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void disabledInit() {}
+    public void disabledInit() {
+        m_robotContainer.kDrive.setDriveState(Drive.driveState.DISABLED);
+    }
 
     @Override
     public void disabledPeriodic() {}
@@ -56,7 +59,9 @@ public class Robot extends LoggedRobot {
     public void disabledExit() {}
 
     @Override
-    public void autonomousInit() {}
+    public void autonomousInit() {
+        m_robotContainer.kDrive.setDefaultCommand(m_robotContainer.kDrive.setDriveStateCommand(Drive.driveState.AUTON));
+    }
 
     @Override
     public void autonomousPeriodic() {}
@@ -65,7 +70,9 @@ public class Robot extends LoggedRobot {
     public void autonomousExit() {}
 
     @Override
-    public void teleopInit() {}
+    public void teleopInit() {
+        m_robotContainer.kDrive.setDefaultCommand(m_robotContainer.kDrive.setDriveStateCommand(Drive.driveState.TELEOP));
+    }
 
     @Override
     public void teleopPeriodic() {}

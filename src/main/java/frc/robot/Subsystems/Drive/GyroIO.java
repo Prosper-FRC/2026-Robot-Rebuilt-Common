@@ -1,6 +1,10 @@
 package frc.robot.Subsystems.Drive;
 
+import java.util.Optional;
+
 import org.littletonrobotics.junction.AutoLog;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public interface GyroIO {
     @AutoLog
@@ -33,4 +37,8 @@ public interface GyroIO {
      * Resets the gyro reading on the z-axis (the yaw)
      */
     default public void resetGyro() {}
+
+    default public Optional<Rotation2d> getGyroAngle() {
+        return Optional.empty();
+    }
 }

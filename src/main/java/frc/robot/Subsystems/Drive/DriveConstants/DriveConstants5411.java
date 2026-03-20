@@ -1,7 +1,9 @@
 package frc.robot.Subsystems.Drive.DriveConstants;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
 public class DriveConstants5411 extends DriveConstants {
@@ -19,5 +21,12 @@ public class DriveConstants5411 extends DriveConstants {
         kFRModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters()/2, -kModuleHardLimits.trackDistanceMeters()/2), Rotation2d.fromRotations(0.355957), false);
         kBLModuleOffsets = new moduleOffsets(new Translation2d(-kModuleHardLimits.trackDistanceMeters()/2, kModuleHardLimits.trackDistanceMeters()/2), Rotation2d.fromRotations(-0.245605), true);
         kBRModuleOffsets = new moduleOffsets(new Translation2d(-kModuleHardLimits.trackDistanceMeters()/2, -kModuleHardLimits.trackDistanceMeters()/2), Rotation2d.fromRotations(0.240967), false);
+    
+        kXTranslationalConstraints = new TrapezoidProfile.Constraints(kModuleSoftLimits.absoluteMaxDriveVelocityMPS(), kModuleSoftLimits.maxLinearAccelerationMPS2());
+        kXTranslationalController = new ProfiledPIDController(0.0d, 0.0d, 0.0d, kXTranslationalConstraints);
+        kYTranslationalConstraints = new TrapezoidProfile.Constraints(kModuleSoftLimits.absoluteMaxDriveVelocityMPS(), kModuleSoftLimits.maxLinearAccelerationMPS2());
+        kYTranslationalController = new ProfiledPIDController(0.0d, 0.0d, 0.0d, kYTranslationalConstraints);
+        kHeadingConstraints = new TrapezoidProfile.Constraints(kModuleSoftLimits.absoluteMaxDriveVelocityMPS(), kModuleSoftLimits.maxLinearAccelerationMPS2());
+        kHeadingController = new ProfiledPIDController(0.0d, 0.0d, 0.0d, kHeadingConstraints);
     }
 }

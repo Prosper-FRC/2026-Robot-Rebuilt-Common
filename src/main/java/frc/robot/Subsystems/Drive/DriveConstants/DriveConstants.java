@@ -3,9 +3,11 @@ package frc.robot.Subsystems.Drive.DriveConstants;
 import com.ctre.phoenix6.CANBus;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
 public class DriveConstants {
@@ -55,6 +57,13 @@ public class DriveConstants {
     public PIDController kSimDrivePID = new PIDController(0.5d, 0.0d, 0.0d);
     public SimpleMotorFeedforward kSimDriveFeedforward = new SimpleMotorFeedforward(0.0d, 0.75d);
     public PIDController kSimAzimuthPID = new PIDController(37.5d, 0.0d, 0.5d);
+
+    public TrapezoidProfile.Constraints kXTranslationalConstraints;
+    public ProfiledPIDController kXTranslationalController;
+    public TrapezoidProfile.Constraints kYTranslationalConstraints;
+    public ProfiledPIDController kYTranslationalController;
+    public TrapezoidProfile.Constraints kHeadingConstraints;
+    public ProfiledPIDController kHeadingController;
 
     public DriveConstants() {}
 }

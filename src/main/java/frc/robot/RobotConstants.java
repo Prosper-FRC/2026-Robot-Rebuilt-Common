@@ -1,7 +1,9 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants5411;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants9105;
@@ -20,6 +22,7 @@ public class RobotConstants {
 
     public final int kTeamNumber;
     public final mode kMode;
+    public final boolean kIsBlueAlliance;
     public final int kDriveControllerPort = 0;
     public final double kTimestep = 0.02d;
 
@@ -35,6 +38,7 @@ public class RobotConstants {
         } else {
             kMode = mode.REPLAY;
         }
+        kIsBlueAlliance = DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue;
 
         switch (kTeamNumber) {
             case 5411:

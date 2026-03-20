@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -50,26 +51,32 @@ public class RobotContainer {
 
     // Bind buttons to hardware.
     private void configureBindings() {
+        kDrive.setDefaultCommand(kDrive.setDriveStateCommand(Drive.driveState.DISABLED));
         DriverStation.silenceJoystickConnectionWarning(true);
 
-        kDrive.setDefaultCommand(new InstantCommand(() -> kDrive.setDriveState(Drive.driveState.TELEOP), kDrive));
+        // I'm not even going to ask why this was pushed to remote.
+        // if (RobotController.getTeamNumber() == 9105) {
+        //     System.out.println("9105");
+        //     kDrive.supplyControllerInputs(() -> -kDriveController.getLeftX(), () -> -kDriveController.getLeftY(), () -> kDriveController.getRightX());
+        // } else {
+        //     System.out.println("5411, 9492");
+        //     kDrive.supplyControllerInputs(() -> kDriveController.getLeftX(), () -> kDriveController.getLeftY(), () -> kDriveController.getRightX());
+        // }
 
-        if (RobotController.getTeamNumber() == 9105) {
-            System.out.println("9105");
-            kDrive.supplyControllerInputs(() -> -kDriveController.getLeftX(), () -> -kDriveController.getLeftY(), () -> kDriveController.getRightX());
-        } else {
-            System.out.println("5411, 9492");
-            kDrive.supplyControllerInputs(() -> kDriveController.getLeftX(), () -> kDriveController.getLeftY(), () -> kDriveController.getRightX());
-        }
+        kDrive.supplyControllerInputs(() -> kDriveController.getLeftX(), () -> kDriveController.getLeftY(), () -> kDriveController.getRightX());
+
+        kDriveController.b().debounce(0.25, DebounceType.kRising)
+            .onTrue(kDrive.overrideTeleopHeadingCommand(Rotation2d.kZero))
+            .onFalse(kDrive.releaseTeleopHeadingCommand());
     
         kDriveController.a().debounce(0.25d, DebounceType.kRising)
             .onTrue(new InstantCommand(() -> kDrive.setDriveState(Drive.driveState.SYSID)).andThen(kDrive.getSysIdCommand()))
             .onFalse(kDrive.getDefaultCommand());
 
         kDriveController.y().debounce(0.1d, DebounceType.kRising)
-            .onTrue(kDrive.resetGyro());
+            .onTrue(kDrive.resetGyroCommand());
 
         kDriveController.x().debounce(0.1d, DebounceType.kRising)
-            .onTrue(kDrive.resetAzimuths());
+            .onTrue(kDrive.resetAzimuthsCommand());
     }
 }
