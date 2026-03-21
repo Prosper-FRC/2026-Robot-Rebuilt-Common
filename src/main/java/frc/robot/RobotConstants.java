@@ -2,11 +2,11 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.Subsystems.vision.visionConstants.VisionConstants;
-import frc.robot.Subsystems.vision.visionConstants.VisionConstants5411;
-import frc.robot.Subsystems.vision.visionConstants.VisionConstants9105;
-import frc.robot.Subsystems.vision.visionConstants.VisionConstants9492;
-import frc.robot.Subsystems.vision.visionConstants.VisionConstantsSim;
+import frc.robot.Subsystems.Vision.visionConstants.VisionConstants;
+import frc.robot.Subsystems.Vision.visionConstants.VisionConstants5411;
+import frc.robot.Subsystems.Vision.visionConstants.VisionConstants9105;
+import frc.robot.Subsystems.Vision.visionConstants.VisionConstants9492;
+import frc.robot.Subsystems.Vision.visionConstants.VisionConstantsSim;
 
 public class RobotConstants {
     private static RobotConstants instance = null;

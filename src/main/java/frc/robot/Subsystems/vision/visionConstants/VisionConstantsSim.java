@@ -1,4 +1,4 @@
-package frc.robot.Subsystems.vision.visionConstants;
+package frc.robot.Subsystems.Vision.visionConstants;
 
 public class VisionConstantsSim extends VisionConstants{
     public VisionConstantsSim() {}

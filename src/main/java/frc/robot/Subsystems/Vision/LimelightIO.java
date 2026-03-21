@@ -1,4 +1,4 @@
-package frc.robot.Subsystems.vision;
+package frc.robot.Subsystems.Vision;
 
 
 import java.util.Optional;

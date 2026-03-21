@@ -1,6 +1,6 @@
-package frc.robot.Subsystems.vision;
+package frc.robot.Subsystems.Vision;
 
-import static frc.robot.Subsystems.vision.visionConstants.VisionConstants.kAmbiguityThreshold;
+import static frc.robot.Subsystems.Vision.visionConstants.VisionConstants.kAmbiguityThreshold;
 
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -20,9 +20,9 @@ public class Vision {
         cameraData = new CameraIOInputsAutoLogged();
     }
     
-     public void periodic() {
-            Logger.processInputs("Vision/"+cameraData.camName, cameraData);
-            camera.updateInputs(cameraData);   
+     public void periodic() {     
+            camera.updateInputs(cameraData); 
+            Logger.processInputs("Vision/"+cameraData.camName, cameraData);  
             Logger.recordOutput("Vision/"+cameraData.camName+"/Observation", getVisionObservation());
             Logger.recordOutput("Vision/"+cameraData.camName+"/Pose", cameraData.latestEstimatedRobotPose);
             Logger.recordOutput("Vision/"+cameraData.camName+"/Connected", cameraData.isConnected);

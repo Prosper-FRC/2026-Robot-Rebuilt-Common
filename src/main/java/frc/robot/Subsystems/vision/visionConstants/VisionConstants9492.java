@@ -1,4 +1,4 @@
-package frc.robot.Subsystems.vision.visionConstants;
+package frc.robot.Subsystems.Vision.visionConstants;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public class VisionConstants9492 extends VisionConstants{
-    public static final String kCamName = "limelight_lady";
+    public static final String kCamName = "limelight-lady";
 
     public static final Transform3d kCamTransform = new Transform3d(
         new Translation3d(0.3, 0.0, 0.0),

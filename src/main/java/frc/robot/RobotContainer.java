@@ -4,13 +4,13 @@
 
 package frc.robot;
 
-import static frc.robot.Subsystems.vision.visionConstants.VisionConstants.kCamName;
-import static frc.robot.Subsystems.vision.visionConstants.VisionConstants.kCamTransform;
+import static frc.robot.Subsystems.Vision.visionConstants.VisionConstants.kCamName;
+import static frc.robot.Subsystems.Vision.visionConstants.VisionConstants.kCamTransform;
 
-import frc.robot.Subsystems.vision.CameraIO;
-import frc.robot.Subsystems.vision.LimelightIO;
-import frc.robot.Subsystems.vision.Vision;
-import frc.robot.Subsystems.vision.visionConstants.VisionConstants;
+import frc.robot.Subsystems.Vision.CameraIO;
+import frc.robot.Subsystems.Vision.LimelightIO;
+import frc.robot.Subsystems.Vision.Vision;
+import frc.robot.Subsystems.Vision.visionConstants.VisionConstants;
 
 public class RobotContainer {
     private final Vision vision;
