@@ -13,6 +13,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
@@ -90,6 +91,7 @@ public class ModuleTalonFX implements ModuleIO {
         kDriveConfiguration.Voltage.PeakReverseVoltage = -RobotConstants.DriveConstants().kModuleVoltageLimits.driveVoltagePeakRange();
         kDriveConfiguration.Feedback.SensorToMechanismRatio = RobotConstants.DriveConstants().kModuleHardLimits.driveGearRatio();
         kDriveConfiguration.MotorOutput.Inverted = offsets.isInverted() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        kDriveConfiguration.MotorOutput.NeutralMode = RobotConstants.DriveConstants().kModuleSoftLimits.isDriveBraked() ? NeutralModeValue.Brake : NeutralModeValue.Coast;
 
         ///// AZIMUTH MOTOR /////
         // Azimuth Gains
@@ -108,6 +110,8 @@ public class ModuleTalonFX implements ModuleIO {
         kAzimuthConfiguration.Voltage.PeakForwardVoltage = RobotConstants.DriveConstants().kModuleVoltageLimits.azimuthVoltagePeakRange();
         kAzimuthConfiguration.Voltage.PeakReverseVoltage = -RobotConstants.DriveConstants().kModuleVoltageLimits.azimuthVoltagePeakRange();
         kAzimuthConfiguration.Feedback.SensorToMechanismRatio = RobotConstants.DriveConstants().kModuleHardLimits.azimuthGearRatio();
+        kAzimuthConfiguration.MotorOutput.NeutralMode = RobotConstants.DriveConstants().kModuleSoftLimits.isAzimuthBraked() ? NeutralModeValue.Brake : NeutralModeValue.Coast;
+
 
         // Extra Azimuth Configuration
         kAzimuthConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor; // TODO: Replace with fused version of Azimuth CANcoder Encoder reading.
@@ -228,7 +232,7 @@ public class ModuleTalonFX implements ModuleIO {
     @Override
     public void resetAzimuth() {
         double position = (kCANcoder.getAbsolutePosition().getValueAsDouble() - kModuleOffset.getRotations()); // + 0.5d;
-        kAzimuth.setPosition(position, 2);
+        kAzimuth.setPosition(position);
     }
 
     @Override

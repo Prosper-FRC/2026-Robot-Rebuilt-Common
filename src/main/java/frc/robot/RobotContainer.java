@@ -75,8 +75,5 @@ public class RobotContainer {
 
         kDriveController.y().debounce(0.1d, DebounceType.kRising)
             .onTrue(kDrive.resetGyroCommand());
-
-        kDriveController.x().debounce(0.1d, DebounceType.kRising)
-            .onTrue(kDrive.resetAzimuthsCommand());
     }
 }

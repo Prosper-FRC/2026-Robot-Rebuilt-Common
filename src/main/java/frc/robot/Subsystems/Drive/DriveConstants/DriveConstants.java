@@ -28,7 +28,7 @@ public class DriveConstants {
     public moduleIDs kFRModuleIDs;
     public moduleIDs kBLModuleIDs;
     public moduleIDs kBRModuleIDs;
-    public int kGyroID = 10;
+    public int kGyroID = 40;
 
     public moduleHardLimits kModuleHardLimits;
     public moduleSoftlimits kModuleSoftLimits;

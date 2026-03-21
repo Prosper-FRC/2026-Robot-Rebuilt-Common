@@ -129,6 +129,14 @@ public class Drive extends SubsystemBase {
 
     public Command setDriveStateCommand(driveState driveState) { return new InstantCommand(() -> setDriveState(driveState), this); }
 
+    public Command stopAzimuthsCommand() {
+        return new InstantCommand(() -> stopAzimuths());
+    }
+
+    public Command stopDrivesCommand() {
+        return new InstantCommand(() -> stopDrives());
+    }
+
     /******** COMMAND METHODS ********/
     public void resetGyro() {
         kGyro.resetGyro();
@@ -147,6 +155,19 @@ public class Drive extends SubsystemBase {
             module.resetAzimuth();
         };
     }
+
+    public void stopAzimuths() {
+        for(var module : kModules) {
+            module.stopAzimuth();
+        }
+    }
+
+    public void stopDrives() {
+        for(var module : kModules) {
+            module.stopDrive();
+        }
+    }
+
     // Constructor for the drive subsystem
     public Drive(ModuleIO moduleFL, ModuleIO moduleFR, ModuleIO moduleBL, ModuleIO moduleBR, GyroIO gyro) {
         // What are we even doing guys...
@@ -193,6 +214,8 @@ public class Drive extends SubsystemBase {
         );
 
         kHeadingController.supplyGyroAngle(() -> kGyro.getGyroAngle().orElse(Rotation2d.kZero));
+    
+        resetAzimuths();
     }
 
     public void supplyControllerInputs(DoubleSupplier xInputs, DoubleSupplier yInput, DoubleSupplier angleInput) {
@@ -216,8 +239,8 @@ public class Drive extends SubsystemBase {
         // Schedule the tests.
         return new SequentialCommandGroup(
             lockAzimuthsSysIdCommand(),
-            dynamicForward.andThen(new WaitCommand(1.0d)), dynamicReverse.andThen(new WaitCommand(1.0d)),
-            quasistaticForward.andThen(new WaitCommand(1.0d)), quasistaticReverse.andThen(new WaitCommand(1.0d))
+            dynamicForward.andThen(new WaitCommand(2.5d)), dynamicReverse.andThen(stopDrivesCommand().andThen(new WaitCommand(1.0d))),
+            quasistaticForward.andThen(stopDrivesCommand().andThen(new WaitCommand(1.0d))), quasistaticReverse.andThen(stopDrivesCommand())
         );
     }
 
@@ -297,10 +320,7 @@ public class Drive extends SubsystemBase {
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(desiredSpeeds, kGyro.getGyroAngle().orElse(Rotation2d.kZero));
         // Offset the desired angle in the heading controller, then compute the true omega value
 
-        if(teleopHeadingOverride.isEmpty()) {
-            kHeadingController.offsetHeading(Rotation2d.fromRadians(robotRelativeSpeeds.omegaRadiansPerSecond));
-            robotRelativeSpeeds.omegaRadiansPerSecond = kHeadingController.getOmega().getRadians();
-        } else {
+        if(teleopHeadingOverride.isPresent()) {
             kHeadingController.setHeading(teleopHeadingOverride.get());
             robotRelativeSpeeds.omegaRadiansPerSecond = kHeadingController.getOmega().getRadians();
         }
