@@ -7,15 +7,11 @@ import org.littletonrobotics.junction.AutoLog;
 public interface CameraIO {
     @AutoLog
     public static class CameraIOInputs {
-       
-        public Pose2d cameraToTarget = new Pose2d();
 
         public String camName = "";
         public boolean isConnected = false;
         public double yaw = 0.0;
-        public double latencySeconds = 0.0;
         public double oldHeartbeat = 0.0;
-        public boolean hasTarget = false;
 
         public double latestTimestamp = 0.0;
         public boolean hasBeenUpdated = false;
