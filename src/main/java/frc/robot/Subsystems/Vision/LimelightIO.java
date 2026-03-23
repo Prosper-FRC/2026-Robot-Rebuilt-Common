@@ -1,11 +1,13 @@
 package frc.robot.Subsystems.Vision;
 
+import static frc.robot.Subsystems.Vision.visionConstants.VisionConstants.kCamTiltDegrees;
 
 import java.util.Optional;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.RawFiducial;
 
@@ -14,6 +16,7 @@ public class LimelightIO implements CameraIO{
     private String camName;
 
     private Transform3d offset;
+    // In Degrees
     private double yaw;
 
     public LimelightIO(String name, Transform3d cameraOffset) {
@@ -24,7 +27,7 @@ public class LimelightIO implements CameraIO{
         this.offset = cameraOffset;
         LimelightHelpers.SetIMUAssistAlpha(camName, 0.001);
         LimelightHelpers.setLEDMode_PipelineControl(camName);
-        LimelightHelpers.setCameraPose_RobotSpace(camName, offset.getX(), offset.getY(), offset.getZ(), 0,0,0);
+        LimelightHelpers.setCameraPose_RobotSpace(camName, offset.getX(), offset.getY(), offset.getZ(), 0, kCamTiltDegrees, 0);
     }
 
     public void setTagFilters(int[] ids) {
@@ -59,6 +62,7 @@ public class LimelightIO implements CameraIO{
         LimelightHelpers.SetIMUAssistAlpha(camName, alphaLevel);
     }
 
+    // Yaw in degrees
     public void setYaw(double yaw) {
         this.yaw = yaw;
     }
