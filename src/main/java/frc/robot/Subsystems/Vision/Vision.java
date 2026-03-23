@@ -115,10 +115,10 @@ public class Vision {
 
     public record VisionObservation(boolean hasObserved, Pose2d pose, double timeStamp, boolean isValid) {}
 
-    // public void logVisionObservation(VisionObservation observation) {
-    //     Logger.recordOutput("Vision/Observation/hasObserved", observation.hasObserved());
-    //     Logger.recordOutput("Vision/Observation/pose", observation.pose());
-    //     Logger.recordOutput("Vision/Observation/timeStamp", observation.timeStamp());
-    //     Logger.recordOutput("Vision/Observation/isValid", observation.isValid());
-    // }
+    public void logVisionObservation(VisionObservation observation) {
+        Logger.recordOutput("Vision/Observation/hasObserved", observation.hasObserved());
+        Logger.recordOutput("Vision/Observation/pose", observation.pose());
+        Logger.recordOutput("Vision/Observation/timeStamp", observation.timeStamp());
+        Logger.recordOutput("Vision/Observation/isValid", observation.isValid());
+    }
 }
