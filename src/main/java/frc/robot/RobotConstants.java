@@ -64,6 +64,10 @@ public class RobotConstants {
         }
     }
 
+    public VisionConstants getVisionConstants() {
+        return kVisionConstants;
+    }
+
     public static RobotConstants getInstance() {
         // Using a null check so that the instance is created at the proper time.
         if (instance == null) {
