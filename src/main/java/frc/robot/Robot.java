@@ -4,91 +4,107 @@
 
 package frc.robot;
 
-import org.littletonrobotics.junction.LogFileUtil;
-import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGReader;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import java.io.Console;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 
-public class Robot extends LoggedRobot {
-    private Command m_autonomousCommand;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-    private final RobotContainer m_robotContainer;
+/**
+ * The methods in this class are called automatically corresponding to each mode, as described in
+ * the TimedRobot documentation. If you change the name of this class or the package after creating
+ * this project, you must also update the Main.java file in the project.
+ */
+public class Robot extends TimedRobot {
+  private final TalonFX kShooterMotor = new TalonFX(0);
+  private final TalonFX kIndexerMotor = new TalonFX(1);
+  private final SparkMax kHood = new SparkMax(2, MotorType.kBrushless);
 
-    public Robot() {
-        // Sets up logging.
-        switch(RobotConstants.getInstance().kMode) {
-            case REAL:
-                Logger.addDataReceiver(new WPILOGWriter());
-                Logger.addDataReceiver(new NT4Publisher());
-                break;
-            case SIM:
-                Logger.addDataReceiver(new NT4Publisher());
-                break;
-            case REPLAY:
-                setUseTiming(false);
-                String logPath = LogFileUtil.findReplayLog();
-                Logger.setReplaySource(new WPILOGReader(logPath));
-                Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
-                break;
-            default:
-                break;
-        }
+  private final double kVoltage = 9.0d;
+  private double kShooterRPM = 30.0d;
+  private double kDesiredAngle = 0.0d;
+  private final boolean kUseDesiredAngle = false;
 
-        Logger.start();
+  private final XboxController kController = new XboxController(0);
 
-        m_robotContainer = new RobotContainer();
+  /**
+   * This function is run when the robot is first started up and should be used for any
+   * initialization code.
+   */
+  public Robot() {
+    SparkBaseConfig config = new SparkFlexConfig();
+    config.closedLoop.p(0.5);
+    kHood.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+  }
+
+  @Override
+  public void robotPeriodic() {
+    // Logging to smart dashboard
+    SmartDashboard.putNumber("HoodPose", kHood.getEncoder().getPosition());
+    SmartDashboard.putNumber("ShooterOutputVoltage", kShooterMotor.getMotorVoltage(true).getValueAsDouble());
+    if(kUseDesiredAngle) {
+      kHood.getClosedLoopController().setSetpoint(kDesiredAngle, ControlType.kPosition);
+    
+      if(kController.getAButton()){
+        kDesiredAngle -= 0.01d;
+      } else if(kController.getYButton()) {
+        kDesiredAngle += 0.01d;
+      }
+
+      if(kController.getXButton()) {
+        kShooterRPM += 0.05d;
+      } else if (kController.getBButton()) {
+        kShooterRPM -= 0.05d;
+      }
     }
+  }
 
-    @Override
-    public void robotPeriodic() {
-        CommandScheduler.getInstance().run();
-    }
+  @Override
+  public void autonomousInit() {}
 
-    @Override
-    public void disabledInit() {}
+  @Override
+  public void autonomousPeriodic() {}
 
-    @Override
-    public void disabledPeriodic() {}
+  @Override
+  public void teleopInit() {
+    kShooterMotor.setControl(new VelocityVoltage(kVoltage));
+    kIndexerMotor.setControl(new VoltageOut(-kVoltage));
+  }
 
-    @Override
-    public void disabledExit() {}
+  @Override
+  public void teleopPeriodic() {}
 
-    @Override
-    public void autonomousInit() {
-    }
+  @Override
+  public void disabledInit() {
+    kShooterMotor.setControl(new NeutralOut());
+    kIndexerMotor.setControl(new NeutralOut());
+  }
 
-    @Override
-    public void autonomousPeriodic() {}
+  @Override
+  public void disabledPeriodic() {}
 
-    @Override
-    public void autonomousExit() {}
+  @Override
+  public void testInit() {}
 
-    @Override
-    public void teleopInit() {
-        if (m_autonomousCommand != null) {
-            m_autonomousCommand.cancel();
-        }
-    }
+  @Override
+  public void testPeriodic() {}
 
-    @Override
-    public void teleopPeriodic() {}
+  @Override
+  public void simulationInit() {}
 
-    @Override
-    public void teleopExit() {}
-
-    @Override
-    public void testInit() {
-        CommandScheduler.getInstance().cancelAll();
-    }
-
-    @Override
-    public void testPeriodic() {}
-
-    @Override
-    public void testExit() {}
+  @Override
+  public void simulationPeriodic() {}
 }
