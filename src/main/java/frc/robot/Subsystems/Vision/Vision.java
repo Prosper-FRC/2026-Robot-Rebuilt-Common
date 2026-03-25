@@ -2,16 +2,28 @@ package frc.robot.Subsystems.Vision;
 
 import static frc.robot.Subsystems.Vision.visionConstants.VisionConstants.kAmbiguityThreshold;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.LimelightHelpers;
 
 
 
-public class Vision {
+public class Vision extends SubsystemBase {
     private CameraIO camera;
     private CameraIOInputsAutoLogged cameraData;
+
+    @AutoLogOutput(key = "Vision/pose")
+    private Pose2d Observation = new Pose2d();
+
+    @AutoLogOutput(key = "Vision/Ok")
+    private boolean ok = false; 
+
+    @AutoLogOutput(key = "Vision/isValid")
+    private boolean isValid = false; 
 
     private final AprilTagFieldLayout k2026Field = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
     
@@ -20,21 +32,19 @@ public class Vision {
         cameraData = new CameraIOInputsAutoLogged();
     }
     
-     public void periodic() {     
+    public void periodic() {     
             camera.updateInputs(cameraData); 
-            Logger.processInputs("Vision/", cameraData);  
-            // Logger.recordOutput("Vision/"+cameraData.camName+"/Observation", getVisionObservation());
-            // Logger.recordOutput("Vision/"+cameraData.camName+"/Pose", cameraData.latestEstimatedRobotPose);
-            // Logger.recordOutput("Vision/"+cameraData.camName+"/Connected", cameraData.isConnected);
-            // Logger.recordOutput("Vision/"+cameraData.camName+"/VisibleTags", cameraData.tags);
-            // Logger.recordOutput("Vision/"+cameraData.camName+"/TagDistances", cameraData.distances);
+            Logger.processInputs("Vision", cameraData);  
+            Observation = cameraData.latestEstimatedRobotPose;
+            ok = cameraData.isConnected;
+            VisionObservation observation = getVisionObservation();
+            isValid = observation.isValid();
     }
 
     // Check reliability of vision
     public VisionObservation getVisionObservation() {
 
         VisionObservation observation = new VisionObservation(false, null, 0, false);
-
         // Check tag length
         if (cameraData.tags.length == 0) {
             observation = new VisionObservation(
@@ -44,17 +54,6 @@ public class Vision {
                 false
             );
         }
-
-        // Get scale factor to multiply with kXYStdDevs for actual standard deviation (not using STDDEVS, so comment out)
-
-        // double avgDistMeters = 0;
-        // for (int i = 0; i < cameraData.distances.length; i++) {
-        //     avgDistMeters += cameraData.distances[i];
-        // }
-        // avgDistMeters /= cameraData.distances.length;
-        // double xyScalar = Math.pow(avgDistMeters, 2) / (cameraData.tags.length);
-        
-        // If valid tag amount, check ambiguity threshold
         else if (cameraData.tags.length == 1) {
             if (cameraData.ambiguities[0] > kAmbiguityThreshold) {
                 observation = new VisionObservation(
@@ -62,6 +61,13 @@ public class Vision {
                     cameraData.latestEstimatedRobotPose, 
                     cameraData.latestTimestamp,
                     false
+                );
+            } else {
+                observation = new VisionObservation(
+                    true, 
+                    cameraData.latestEstimatedRobotPose, 
+                    cameraData.latestTimestamp,
+                    true
                 );
             }
         } 
@@ -75,6 +81,7 @@ public class Vision {
                         cameraData.latestTimestamp,
                         false
                     );
+                    
                     break;
                 } 
             }
@@ -115,10 +122,10 @@ public class Vision {
 
     public record VisionObservation(boolean hasObserved, Pose2d pose, double timeStamp, boolean isValid) {}
 
-    public void logVisionObservation(VisionObservation observation) {
-        Logger.recordOutput("Vision/Observation/hasObserved", observation.hasObserved());
-        Logger.recordOutput("Vision/Observation/pose", observation.pose());
-        Logger.recordOutput("Vision/Observation/timeStamp", observation.timeStamp());
-        Logger.recordOutput("Vision/Observation/isValid", observation.isValid());
-    }
+    // public void logVisionObservation(VisionObservation observation) {
+    //     Logger.recordOutput("Vision/Observation/hasObserved", observation.hasObserved());
+    //     Logger.recordOutput("Vision/Observation/pose", observation.pose());
+    //     Logger.recordOutput("Vision/Observation/timeStamp", observation.timeStamp());
+    //     Logger.recordOutput("Vision/Observation/isValid", observation.isValid());
+    // }
 }

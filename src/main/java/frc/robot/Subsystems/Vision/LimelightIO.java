@@ -67,7 +67,6 @@ public class LimelightIO implements CameraIO{
     }
 
     public Optional<Pose2d> estimateBotPose(Pose2d position) {
-        
         Optional<Pose2d> pose = Optional.ofNullable(position);
         return pose;
     }
@@ -84,7 +83,6 @@ public class LimelightIO implements CameraIO{
 
     @Override
     public void updateInputs(CameraIOInputs inputs) {
-
         inputs.camName = camName;
         inputs.isConnected = true; 
 

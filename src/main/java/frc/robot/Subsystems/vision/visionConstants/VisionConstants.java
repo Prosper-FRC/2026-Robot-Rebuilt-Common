@@ -25,7 +25,7 @@ public class VisionConstants {
     // Nose going up is positive
     public static final double kCamTiltDegrees = 30.234;
 
-    public static final double kAmbiguityThreshold = (RobotBase.isReal()) ? 0.2 : 1.0;
+    public static final double kAmbiguityThreshold = (RobotBase.isReal()) ? 0.5 : 1.0;
 
     public VisionConstants() {}
 }
