@@ -6,7 +6,6 @@ import frc.robot.Subsystems.Vision.visionConstants.VisionConstants;
 import frc.robot.Subsystems.Vision.visionConstants.VisionConstants5411;
 import frc.robot.Subsystems.Vision.visionConstants.VisionConstants9105;
 import frc.robot.Subsystems.Vision.visionConstants.VisionConstants9492;
-import frc.robot.Subsystems.Vision.visionConstants.VisionConstantsSim;
 
 public class RobotConstants {
     private static RobotConstants instance = null;
@@ -16,7 +15,7 @@ public class RobotConstants {
         REPLAY,
         SIM
     };
-
+    
     // Declare and Assign general constants here.
     public final int kTeamNumber;
     public final mode kMode;
@@ -53,10 +52,6 @@ public class RobotConstants {
             case 9492:
                 // Assign team specific constants.
                 kVisionConstants = new VisionConstants9492();
-                break;
-            case 0:
-                // Assign sim constants
-                kVisionConstants = new VisionConstantsSim();
                 break;
             default:
                 kVisionConstants = new VisionConstants();
