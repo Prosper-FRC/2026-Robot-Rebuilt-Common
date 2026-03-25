@@ -13,9 +13,9 @@ import edu.wpi.first.wpilibj.RobotBase;
 public class VisionConstants {
     
     // From CAD and decided by you in configuration
-    public static final String kCamName = "CAM_DEFAULT";
+    public final String kCamName = "CAM_DEFAULT";
 
-    public static final Transform3d kCamTransform = new Transform3d(
+    public final Transform3d kCamTransform = new Transform3d(
         // Assuming the intake is on the front (of the robot) and the limelight is on the back in starting position
         new Translation3d(Units.inchesToMeters(12.499), Units.inchesToMeters(-0.604), Units.inchesToMeters(7.361)),
         // Accounts for cameras being on back
@@ -23,9 +23,9 @@ public class VisionConstants {
     );
 
     // Nose going up is positive
-    public static final double kCamTiltDegrees = 30.234;
+    public final double kCamTiltDegrees = 30.234;
 
-    public static final double kAmbiguityThreshold = (RobotBase.isReal()) ? 0.5 : 1.0;
+    public final double kAmbiguityThreshold = (RobotBase.isReal()) ? 0.2 : 1.0;
 
     public VisionConstants() {}
 }

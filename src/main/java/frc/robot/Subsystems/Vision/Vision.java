@@ -1,7 +1,5 @@
 package frc.robot.Subsystems.Vision;
 
-import static frc.robot.Subsystems.Vision.visionConstants.VisionConstants.kAmbiguityThreshold;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -9,12 +7,15 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
+import frc.robot.RobotConstants;
 
 
 
 public class Vision extends SubsystemBase {
     private CameraIO camera;
     private CameraIOInputsAutoLogged cameraData;
+
+    private final double kAmbiguityThreshold = RobotConstants.getInstance().getVisionConstants().kAmbiguityThreshold;
 
     @AutoLogOutput(key = "Vision/pose")
     private Pose2d Observation = new Pose2d();

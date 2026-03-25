@@ -22,7 +22,7 @@ public class RobotContainer {
         configureBindings();
         switch (RobotConstants.getInstance().kMode) {
            case REAL:
-                vision = new Vision(new LimelightIO(kCamName, kCamTransform));
+                vision = new Vision(new LimelightIO(RobotConstants.getInstance().getVisionConstants().kCamName, kCamTransform));
                 break;
             case REPLAY:
                 vision = new Vision(new LimelightIO(kCamName, kCamTransform));
