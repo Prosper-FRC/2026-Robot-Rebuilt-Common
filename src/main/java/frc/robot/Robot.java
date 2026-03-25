@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
   private final SparkMax kHood = new SparkMax(2, MotorType.kBrushless);
 
   private final double kVoltage = 9.0d;
-  private double kShooterRPM = 30.0d;
+  private double kShooterRPS = 30.0d;
   private double kDesiredAngle = 0.0d;
   private final boolean kUseDesiredAngle = false;
 
@@ -65,9 +65,9 @@ public class Robot extends TimedRobot {
       }
 
       if(kController.getXButton()) {
-        kShooterRPM += 0.05d;
+        kShooterRPS += 0.05d;
       } else if (kController.getBButton()) {
-        kShooterRPM -= 0.05d;
+        kShooterRPS -= 0.05d;
       }
     }
   }
