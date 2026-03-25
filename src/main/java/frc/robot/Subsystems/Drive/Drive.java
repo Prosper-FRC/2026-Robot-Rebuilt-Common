@@ -99,15 +99,7 @@ public class Drive extends SubsystemBase {
             for(var module : kModules) {
                 module.setAzimuthRotations(0.0d);
             }
-        }, this).until(() -> {
-            int modulesInPosition = 0;
-            for (var input : kModuleInputs) {
-                if(Math.abs(input.azimuthPositionRotations%0.5d) <= 0.05d) {
-                    modulesInPosition++;
-                }
-            }
-            return modulesInPosition >= 4;
-        });
+        }, this).andThen(new WaitCommand(0.25d));
     }
     
     /******** COMMANDS ********/
@@ -239,8 +231,8 @@ public class Drive extends SubsystemBase {
         // Schedule the tests.
         return new SequentialCommandGroup(
             lockAzimuthsSysIdCommand(),
-            dynamicForward.andThen(new WaitCommand(2.5d)), dynamicReverse.andThen(stopDrivesCommand().andThen(new WaitCommand(1.0d))),
-            quasistaticForward.andThen(stopDrivesCommand().andThen(new WaitCommand(1.0d))), quasistaticReverse.andThen(stopDrivesCommand())
+            dynamicForward.andThen(new WaitCommand(0.2d)), dynamicReverse.andThen(stopDrivesCommand().andThen(new WaitCommand(0.2d))),
+            quasistaticForward.andThen(stopDrivesCommand().andThen(new WaitCommand(0.2d))), quasistaticReverse.andThen(stopDrivesCommand())
         );
     }
 
