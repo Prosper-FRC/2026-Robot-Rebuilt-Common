@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import frc.robot.RobotConstants;
+import frc.robot.Subsystems.Vision.CameraIO.LEDMode;
 
 
 
@@ -155,6 +156,21 @@ public class Vision extends SubsystemBase {
 
     public void setIMUModeAssist(double alphaLevel) {
         LimelightHelpers.SetIMUAssistAlpha(camName, alphaLevel);
+    }
+
+    // Yaw in degrees
+    public void setYaw(double yaw) {
+        cameraData.yaw = yaw;
+    }
+
+    public void setLEDMode(LEDMode mode) {
+        if(mode == LEDMode.ON) {
+            LimelightHelpers.setLEDMode_ForceOn(camName);
+        } else if(mode == LEDMode.OFF) {
+            LimelightHelpers.setLEDMode_ForceOff(camName);
+        } else if(mode == LEDMode.BLINK) {
+            LimelightHelpers.setLEDMode_ForceBlink(camName);
+        } else if (mode == LEDMode.DEFAULT) {}
     }
 
     public record VisionObservation(boolean hasObserved, Pose2d pose, double timeStamp, boolean isValid) {}

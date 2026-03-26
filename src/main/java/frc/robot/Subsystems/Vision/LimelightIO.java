@@ -29,27 +29,12 @@ public class LimelightIO implements CameraIO{
         LimelightHelpers.setCameraPose_RobotSpace(camName, offset.getX(), offset.getY(), offset.getZ(), 0, kCamTiltDegrees, 0);
     }
 
-    
-
-    // Yaw in degrees
-    public void setYaw(double yaw) {
-        this.yaw = yaw;
-    }
-
     public Optional<Pose2d> estimateBotPose(Pose2d position) {
         Optional<Pose2d> pose = Optional.ofNullable(position);
         return pose;
     }
 
-    public void setLEDMode(LEDMode mode) {
-        if(mode == LEDMode.ON) {
-            LimelightHelpers.setLEDMode_ForceOn(camName);
-        } else if(mode == LEDMode.OFF) {
-            LimelightHelpers.setLEDMode_ForceOff(camName);
-        } else if(mode == LEDMode.BLINK) {
-            LimelightHelpers.setLEDMode_ForceBlink(camName);
-        } else if (mode == LEDMode.DEFAULT) {}
-    }
+    
 
     @Override
     public void updateInputs(CameraIOInputs inputs) {
