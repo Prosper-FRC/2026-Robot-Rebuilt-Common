@@ -31,12 +31,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * this project, you must also update the Main.java file in the project.
  */
 public class Robot extends TimedRobot {
-  private final TalonFX kShooterMotor = new TalonFX(0);
-  private final TalonFX kIndexerMotor = new TalonFX(1);
+  private final TalonFX kShooterMotor = new TalonFX(1);
+  private final TalonFX kIndexerMotor = new TalonFX(0);
   private final SparkMax kHood = new SparkMax(2, MotorType.kBrushless);
 
-  private final double kVoltage = 9.0d;
-  private double kShooterRPS = 30.0d;
+  private final double kVoltage = 12.0d;
+  private double kShooterRPS = 45.0d;
   private double kDesiredAngle = 0.0d;
   private final boolean kUseDesiredAngle = true;
 
@@ -51,7 +51,7 @@ public class Robot extends TimedRobot {
     TalonFXConfiguration shooterConfig = new TalonFXConfiguration();
     config.closedLoop.p(0.5);
     shooterConfig.Slot0.kP = 0.1d;
-    shooterConfig.Slot0.kV = 0.365d;
+    shooterConfig.Slot0.kV = 0.12d;
     shooterConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     kHood.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     kShooterMotor.getConfigurator().apply(shooterConfig);
@@ -88,7 +88,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    kShooterMotor.setControl(new VelocityVoltage(kVoltage).withSlot(0));
+    kShooterMotor.setControl(new VelocityVoltage(kShooterRPS).withSlot(0));
     kIndexerMotor.setControl(new VoltageOut(-kVoltage));
   }
 
