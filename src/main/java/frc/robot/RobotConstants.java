@@ -1,7 +1,15 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants;
+import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants5411;
+import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants9105;
+import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants9492;
+import frc.robot.Subsystems.Drive.DriveConstants.DriveConstantsSim;
+import frc.robot.Subsystems.Drive.Vision.CameraConstants;
 
 public class RobotConstants {
     private static RobotConstants instance = null;
@@ -12,13 +20,14 @@ public class RobotConstants {
         SIM
     };
 
-    // Declare and Assign general constants here.
     public final int kTeamNumber;
     public final mode kMode;
+    public final boolean kIsBlueAlliance;
     public final int kDriveControllerPort = 0;
     public final double kTimestep = 0.02d;
 
-    // Declare team specific constants here.
+    private final DriveConstants kDriveConstants;
+    private final CameraConstants kCameraConstants;
 
     private RobotConstants() {
         kTeamNumber = RobotController.getTeamNumber();
@@ -29,27 +38,41 @@ public class RobotConstants {
         } else {
             kMode = mode.REPLAY;
         }
+        kIsBlueAlliance = DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue;
 
         switch (kTeamNumber) {
             case 5411:
-                // Assign team specific constants.
+                kDriveConstants = new DriveConstants5411();
+                kCameraConstants = new CameraConstants();
                 break;
             case 9105:
-                // Assign team specific constants.
+                kDriveConstants = new DriveConstants9105();
+                kCameraConstants = new CameraConstants();
                 break;
             case 9492:
-                // Assign team specific constants.
+                kDriveConstants = new DriveConstants9492();
+                kCameraConstants = new CameraConstants();
                 break;
             case 0:
-                // Assign sim constants
+                kDriveConstants = new DriveConstantsSim();
+                kCameraConstants = new CameraConstants();
                 break;
             default:
+                kDriveConstants = new DriveConstants();
+                kCameraConstants = new CameraConstants();
                 break;
         }
     }
 
-    public static RobotConstants getInstance() {
-        // Using a null check so that the instance is created at the proper time.
+    public static DriveConstants DriveConstants() {
+        return instance.kDriveConstants;
+    }
+
+    public static CameraConstants CameraConstants() {
+        return instance.kCameraConstants;
+    }
+
+    public static RobotConstants Instance() {
         if (instance == null) {
             instance = new RobotConstants();
         }

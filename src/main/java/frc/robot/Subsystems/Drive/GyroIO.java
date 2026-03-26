@@ -1,43 +1,44 @@
 package frc.robot.Subsystems.Drive;
 
+import java.util.Optional;
+
 import org.littletonrobotics.junction.AutoLog;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public interface GyroIO {
     @AutoLog
     static class gyroInputs {
-        public boolean isOK = false;
-        public double rotationsYaw = 0.0d;
-        public double rotationsRoll = 0.0d;
-        public double rotationsPitch = 0.0d;
-        public double rpsYaw = 0.0d;
-        public double rpsRoll = 0.0d;
-        public double rpsPitch = 0.0d;
+        public boolean isOk = false;
+        public double rollRotations = 0.0d;
+        public double pitchRotations = 0.0d;
+        public double yawRotations = 0.0d;
     }
 
+    /**
+     * Updates the inputs for AK logging.
+     * @param toUpdate the inputs to update
+     */
     default public void updateInputs(gyroInputs toUpdate) {}
 
     /**
-     * Reads the angle of the gyroscope, the dummy layer always returns -1.0.
-     * @return The current angle in rotations on the Z axis of the robot.
+     * Changes the yaw of the gyro reading by a delta value.
+     * @param yaw The number of rotations to change the yaw by.
      */
-    default public double getYawAngleRotations() { return -1.0d; }
+    default public void updateGyro(double yaw) {}
 
     /**
-     * Reads the change in angle of the gyroscope, the dummy layer always returns -1.0.
-     * @return The change in angle in rotations per second on the Z axis of the robot.
+     * Sets the yaw of the gyro reading to a value.
+     * @param yaw The number of rotations to set the yaw to.
      */
-    default public double getYawAngleRPS() { return -1.0d; }
+    default public void setGyro(double yaw) {}
 
     /**
-     * When extra processing is needed before updating the gyroscope, this method is really
-     * only used to update the sim gyroscope however, since most real gyroscopes actually work.
-     * @param omega The change in angle between this update and the previous update (This should be calculated via swerve odometry).
-     * @param dt The change in time.
-     */
-    default public void updateYaw(double omega, double dt) {}
-
-    /**
-     * Resets the gyroscope reading to zero (Currently unsused because I don't want to set up commands just yet).
+     * Resets the gyro reading on the z-axis (the yaw)
      */
     default public void resetGyro() {}
+
+    default public Optional<Rotation2d> getGyroAngle() {
+        return Optional.empty();
+    }
 }

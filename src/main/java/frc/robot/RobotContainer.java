@@ -4,12 +4,76 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Subsystems.Drive.*;
+
+// This whole file is currently really scuffed, I intend to fix it later.
 public class RobotContainer {
+    // Declare robot constants and subsystems.
+    public final CommandXboxController kDriveController = new CommandXboxController(RobotConstants.Instance().kDriveControllerPort);
+    public Drive kDrive;
 
     public RobotContainer() {
+        // Initializes the subsystems.
+        // TODO Replace this process with a superstructure?
+        switch (RobotConstants.Instance().kMode) {
+            case REAL:
+                kDrive = new Drive(
+                    new ModuleTalonFX(RobotConstants.DriveConstants().kFLModuleIDs, RobotConstants.DriveConstants().kFLModuleOffsets, RobotConstants.DriveConstants().kModuleGains, RobotConstants.DriveConstants().kCANBusInstance),
+                    new ModuleTalonFX(RobotConstants.DriveConstants().kFRModuleIDs, RobotConstants.DriveConstants().kFRModuleOffsets, RobotConstants.DriveConstants().kModuleGains, RobotConstants.DriveConstants().kCANBusInstance),
+                    new ModuleTalonFX(RobotConstants.DriveConstants().kBLModuleIDs, RobotConstants.DriveConstants().kBLModuleOffsets, RobotConstants.DriveConstants().kModuleGains, RobotConstants.DriveConstants().kCANBusInstance),
+                    new ModuleTalonFX(RobotConstants.DriveConstants().kBRModuleIDs, RobotConstants.DriveConstants().kBRModuleOffsets, RobotConstants.DriveConstants().kModuleGains, RobotConstants.DriveConstants().kCANBusInstance),
+                    new GyroPigeon2(RobotConstants.DriveConstants().kGyroID, RobotConstants.DriveConstants().kGyroOffsets, RobotConstants.DriveConstants().kCANBusInstance)
+                );
+                break;
+            case REPLAY:
+                break;
+            case SIM:
+                kDrive = new Drive(
+                    new ModuleSim(), 
+                    new ModuleSim(), 
+                    new ModuleSim(), 
+                    new ModuleSim(), 
+                    new GyroSim()
+                );
+                break;
+            default:
+                break;
+        }
+
         configureBindings();
     }
 
-    private void configureBindings() {}
+    // Bind buttons to hardware.
+    private void configureBindings() {
+        kDrive.setDefaultCommand(kDrive.setDriveStateCommand(Drive.driveState.DISABLED));
+        DriverStation.silenceJoystickConnectionWarning(true);
 
+        // I'm not even going to ask why this was pushed to remote.
+        // if (RobotController.getTeamNumber() == 9105) {
+        //     System.out.println("9105");
+        //     kDrive.supplyControllerInputs(() -> -kDriveController.getLeftX(), () -> -kDriveController.getLeftY(), () -> kDriveController.getRightX());
+        // } else {
+        //     System.out.println("5411, 9492");
+        //     kDrive.supplyControllerInputs(() -> kDriveController.getLeftX(), () -> kDriveController.getLeftY(), () -> kDriveController.getRightX());
+        // }
+
+        kDrive.supplyControllerInputs(() -> kDriveController.getLeftX(), () -> kDriveController.getLeftY(), () -> kDriveController.getRightX());
+
+        kDriveController.b().debounce(0.25, DebounceType.kRising)
+            .onTrue(kDrive.overrideTeleopHeadingCommand(Rotation2d.kZero))
+            .onFalse(kDrive.releaseTeleopHeadingCommand());
+    
+        kDriveController.a().debounce(0.25d, DebounceType.kRising)
+            .onTrue(new InstantCommand(() -> kDrive.setDriveState(Drive.driveState.SYSID)).andThen(kDrive.getSysIdCommand()))
+            .onFalse(kDrive.getDefaultCommand());
+
+        kDriveController.y().debounce(0.1d, DebounceType.kRising)
+            .onTrue(kDrive.resetGyroCommand());
+    }
 }

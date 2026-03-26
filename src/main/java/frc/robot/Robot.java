@@ -11,17 +11,15 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Subsystems.Drive.Drive;
 
 public class Robot extends LoggedRobot {
-    private Command m_autonomousCommand;
-
     private final RobotContainer m_robotContainer;
 
     public Robot() {
-        // Sets up logging.
-        switch(RobotConstants.getInstance().kMode) {
+        // Sets up AK logging.
+        switch(RobotConstants.Instance().kMode) {
             case REAL:
                 Logger.addDataReceiver(new WPILOGWriter());
                 Logger.addDataReceiver(new NT4Publisher());
@@ -50,7 +48,9 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void disabledInit() {}
+    public void disabledInit() {
+        m_robotContainer.kDrive.setDriveState(Drive.driveState.DISABLED);
+    }
 
     @Override
     public void disabledPeriodic() {}
@@ -60,6 +60,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
+        m_robotContainer.kDrive.setDefaultCommand(m_robotContainer.kDrive.setDriveStateCommand(Drive.driveState.AUTON));
     }
 
     @Override
@@ -70,9 +71,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
-        if (m_autonomousCommand != null) {
-            m_autonomousCommand.cancel();
-        }
+        m_robotContainer.kDrive.setDefaultCommand(m_robotContainer.kDrive.setDriveStateCommand(Drive.driveState.TELEOP));
     }
 
     @Override
