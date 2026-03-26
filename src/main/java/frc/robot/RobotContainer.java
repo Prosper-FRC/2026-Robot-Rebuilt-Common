@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Transform3d;
-import frc.robot.Subsystems.Vision.CameraIO;
 import frc.robot.Subsystems.Vision.LimelightIO;
 import frc.robot.Subsystems.Vision.Vision;
 import frc.robot.Subsystems.Vision.visionConstants.VisionConstants;
@@ -22,7 +21,7 @@ public class RobotContainer {
         configureBindings();
         switch (RobotConstants.getInstance().kMode) {
            case REAL:
-                vision = new Vision(new LimelightIO(RobotConstants.getInstance().getVisionConstants().kCamName, kCamTransform));
+                vision = new Vision(new LimelightIO(kCamName, kCamTransform));
                 break;
             case REPLAY:
                 vision = new Vision(new LimelightIO(kCamName, kCamTransform));

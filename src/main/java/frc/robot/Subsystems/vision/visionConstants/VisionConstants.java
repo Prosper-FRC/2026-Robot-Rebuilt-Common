@@ -17,7 +17,7 @@ public class VisionConstants {
 
     public final Transform3d kCamTransform = new Transform3d(
         // Assuming the intake is on the front (of the robot) and the limelight is on the back in starting position
-        new Translation3d(Units.inchesToMeters(12.499), Units.inchesToMeters(-0.604), Units.inchesToMeters(7.361)),
+        new Translation3d(Units.inchesToMeters(11.962582), Units.inchesToMeters(-0.923649), Units.inchesToMeters(6.585075)),
         // Accounts for cameras being on back
         new Rotation3d(0.0, Units.degreesToRadians(30.234), 0.0)
     );
