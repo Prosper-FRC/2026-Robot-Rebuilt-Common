@@ -14,6 +14,7 @@ import frc.robot.RobotConstants;
 public class Vision extends SubsystemBase {
     private CameraIO camera;
     private CameraIOInputsAutoLogged cameraData;
+    private String camName = RobotConstants.getInstance().getVisionConstants().kCamName;
 
     private final double kAmbiguityThreshold = RobotConstants.getInstance().getVisionConstants().kAmbiguityThreshold;
 
@@ -120,6 +121,41 @@ public class Vision extends SubsystemBase {
         return observation;
     }
     
+    public Pose2d getPose() {
+        return cameraData.latestEstimatedRobotPose;
+    }
+
+    public void setTagFilters(int[] ids) {
+        LimelightHelpers.SetFiducialIDFiltersOverride(camName, ids);
+    }
+
+    public void captureSnapshot() {
+        LimelightHelpers.triggerSnapshot(camName);
+    }
+
+    public void setRewindMode() {
+        LimelightHelpers.setRewindEnabled(camName, true);
+    }
+
+    public void captureSeconds(double seconds) {
+        LimelightHelpers.triggerRewindCapture(camName, seconds);
+    }
+
+    public void loadPipeline(int index) {
+        LimelightHelpers.setPipelineIndex(camName, index);
+    }
+
+    public void setIMUModePrecalibration() {
+        LimelightHelpers.SetIMUMode(camName, 1);
+    }
+    
+    public void setIMUModeExternalOnly() {
+        LimelightHelpers.SetIMUMode(camName, 4);
+    }
+
+    public void setIMUModeAssist(double alphaLevel) {
+        LimelightHelpers.SetIMUAssistAlpha(camName, alphaLevel);
+    }
 
     public record VisionObservation(boolean hasObserved, Pose2d pose, double timeStamp, boolean isValid) {}
 

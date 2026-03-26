@@ -29,37 +29,7 @@ public class LimelightIO implements CameraIO{
         LimelightHelpers.setCameraPose_RobotSpace(camName, offset.getX(), offset.getY(), offset.getZ(), 0, kCamTiltDegrees, 0);
     }
 
-    public void setTagFilters(int[] ids) {
-        LimelightHelpers.SetFiducialIDFiltersOverride(camName, ids);
-    }
-
-    public void captureSnapshot() {
-        LimelightHelpers.triggerSnapshot(camName);
-    }
-
-    public void setRewindMode() {
-        LimelightHelpers.setRewindEnabled(camName, true);
-    }
-
-    public void captureSeconds(double seconds) {
-        LimelightHelpers.triggerRewindCapture(camName, seconds);
-    }
-
-    public void loadPipeline(int index) {
-        LimelightHelpers.setPipelineIndex(camName, index);
-    }
-
-    public void setIMUModePrecalibration() {
-        LimelightHelpers.SetIMUMode(camName, 1);
-    }
     
-    public void setIMUModeExternalOnly() {
-        LimelightHelpers.SetIMUMode(camName, 4);
-    }
-
-    public void setIMUModeAssist(double alphaLevel) {
-        LimelightHelpers.SetIMUAssistAlpha(camName, alphaLevel);
-    }
 
     // Yaw in degrees
     public void setYaw(double yaw) {
