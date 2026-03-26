@@ -8,7 +8,7 @@ public interface IntakeIO {
         public boolean isPivotOk = false;
         public double pivotPositionRotations = 0.0d;
         public double pivotVelocityRPS = 0.0d;
-        public double pivotTemperatureCelcius = 0.0d;;
+        public double pivotTemperatureCelcius = 0.0d;
         public double pivotVoltage = 0.0d;
         public double pivotStatorCurrent = 0.0d;
         public double pivotSupplyCurrent = 0.0d;
@@ -65,9 +65,7 @@ public interface IntakeIO {
     /**
      * Stops the roller in place.
      */
-    default public void stopRoller() {
-        
-    }
+    default public void stopRoller() {}
 
     /**
      * Resets the roller's relative encode.
