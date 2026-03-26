@@ -65,7 +65,9 @@ public interface IntakeIO {
     /**
      * Stops the roller in place.
      */
-    default public void stopRoller() {}
+    default public void stopRoller() {
+        
+    }
 
     /**
      * Resets the roller's relative encode.
