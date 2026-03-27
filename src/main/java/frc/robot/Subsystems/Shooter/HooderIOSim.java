@@ -3,20 +3,15 @@ package frc.robot.Subsystems.Shooter;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import frc.robot.Subsystems.Shooter.ShooterConstants.FlywheelGains;
-import frc.robot.Subsystems.Shooter.ShooterConstants;
+import frc.robot.RobotConstants;
+import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants;
 
 public class HooderIOSim implements HooderIO {
     private static final double kLoopPeriodSec = 0.02;
@@ -37,7 +32,7 @@ public class HooderIOSim implements HooderIO {
             LinearSystemId.createSingleJointedArmSystem(DCMotor.getKrakenX44Foc(1), 0.001, 50.0), 
             DCMotor.getNeo550(1), 
             50.0, 
-            ShooterConstants.getInstance().kHooderArmLengthMeters,
+            RobotConstants.ShooterConstants().kHooderArmLengthMeters,
             Units.degreesToRadians(0),
             Units.degreesToRadians(90),
             true,

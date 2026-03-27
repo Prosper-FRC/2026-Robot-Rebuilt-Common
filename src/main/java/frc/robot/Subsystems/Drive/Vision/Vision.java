@@ -1,4 +1,4 @@
-package frc.robot.Subsystems.Vision;
+package frc.robot.Subsystems.Drive.Vision;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -6,18 +6,18 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.LimelightHelpers;
 import frc.robot.RobotConstants;
-import frc.robot.Subsystems.Vision.CameraIO.LEDMode;
+import frc.robot.Subsystems.Drive.Vision.CameraIO.LEDMode;
+import frc.robot.Util.LimelightHelpers;
 
 
 
 public class Vision extends SubsystemBase {
     private CameraIO camera;
     private CameraIOInputsAutoLogged cameraData;
-    private String camName = RobotConstants.getInstance().getVisionConstants().kCamName;
+    private String camName = RobotConstants.VisionConstants().kCamName;
 
-    private final double kAmbiguityThreshold = RobotConstants.getInstance().getVisionConstants().kAmbiguityThreshold;
+    private final double kAmbiguityThreshold = RobotConstants.VisionConstants().kAmbiguityThreshold;
 
     @AutoLogOutput(key = "Vision/pose")
     private Pose2d Observation = new Pose2d();

@@ -16,6 +16,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants.IntakeIDs;
 
 public class IntakeTalonFX implements IntakeIO {
     private final TalonFX kPivotMotor;
@@ -43,10 +44,10 @@ public class IntakeTalonFX implements IntakeIO {
     private final VelocityVoltage kVelocityControl = new VelocityVoltage(0.0d);
     private final NeutralOut kNeutralControl = new NeutralOut();
 
-    public IntakeTalonFX(int pivotId, int rollerId, int CANCoderId) {
-        kPivotMotor = new TalonFX(pivotId);
-        kRollerMotor = new TalonFX(rollerId);
-        kPivotCancoder = new CANcoder(CANCoderId);
+    public IntakeTalonFX(IntakeIDs ids) {
+        kPivotMotor = new TalonFX(ids.PivotID());
+        kRollerMotor = new TalonFX(ids.RollerID());
+        kPivotCancoder = new CANcoder(ids.CANCoderID());
 
         kPivotConfig = new TalonFXConfiguration();
         kRollerConfig = new TalonFXConfiguration();

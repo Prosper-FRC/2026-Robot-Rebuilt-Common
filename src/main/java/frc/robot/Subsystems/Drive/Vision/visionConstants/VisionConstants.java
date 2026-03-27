@@ -1,7 +1,5 @@
 
-package frc.robot.Subsystems.Vision.visionConstants;
-
-
+package frc.robot.Subsystems.Drive.Vision.visionConstants;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -13,7 +11,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 public class VisionConstants {
     
     // From CAD and decided by you in configuration
-    public final String kCamName = "CAM_DEFAULT";
+    public String kCamName = "CAM_DEFAULT";
 
     public final Transform3d kCamTransform = new Transform3d(
         // Assuming the intake is on the front (of the robot) and the limelight is on the back in starting position
@@ -25,7 +23,7 @@ public class VisionConstants {
     // Nose going up is positive
     public final double kCamTiltDegrees = 30.234;
 
-    public final double kAmbiguityThreshold = (RobotBase.isReal()) ? 0.2 : 1.0;
+    public double kAmbiguityThreshold = (RobotBase.isReal()) ? 0.2 : 1.0;
 
     public VisionConstants() {}
 }

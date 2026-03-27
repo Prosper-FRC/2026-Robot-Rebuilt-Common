@@ -6,9 +6,11 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants;
+import frc.robot.RobotConstants;
 
 public class Intake extends SubsystemBase {
+    public static final Intake NoOp = new Intake(new IntakeIO() {}); 
+
     public static enum IntakeState {
         Stowed(() -> 0.0d), // Using dummy poses at the moment
         Deployed(() -> 0.5d);
@@ -50,7 +52,7 @@ public class Intake extends SubsystemBase {
                 break;
             case Deployed:
                 kIntake.setPivotPositionRotations(state.getGoalPoseRotations());
-                kIntake.setRollerSpeedRPS(IntakeConstants.getInstance().kRollerRPS);; // Motion magic lets this work just fine.
+                kIntake.setRollerSpeedRPS(RobotConstants.IntakeConstants().kRollerRPS); // Motion magic lets this work just fine.
                 break;
             default:
                 break;

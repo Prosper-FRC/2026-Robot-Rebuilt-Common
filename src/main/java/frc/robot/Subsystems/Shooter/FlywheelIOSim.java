@@ -2,20 +2,14 @@ package frc.robot.Subsystems.Shooter;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
-import frc.robot.Subsystems.Shooter.ShooterConstants.FlywheelGains;
-import frc.robot.Subsystems.Shooter.ShooterConstants;
+import frc.robot.RobotConstants;
+import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants.FlywheelGains;
 
 public class FlywheelIOSim implements FlywheelIO {
     private static final double kLoopPeriodSec = 0.02;
@@ -60,7 +54,7 @@ public class FlywheelIOSim implements FlywheelIO {
 
     @Override
     public void stopFlywheel() {
-        setFlywheelVelocity(ShooterConstants.getInstance().kFlywheelVelocityOffRadiansPerSec);
+        setFlywheelVelocity(RobotConstants.ShooterConstants().kFlywheelVelocityOffRadiansPerSec);
     }
 
     public double calculateFlywheelVolts(double goalVelocity) {

@@ -1,13 +1,13 @@
-package frc.robot.Subsystems.Vision;
+package frc.robot.Subsystems.Drive.Vision;
 
 import java.util.Optional;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.LimelightHelpers;
+import frc.robot.Util.*;
+import frc.robot.Util.LimelightHelpers.RawFiducial;
 import frc.robot.RobotConstants;
-import frc.robot.LimelightHelpers.RawFiducial;
 
 public class LimelightIO implements CameraIO{
 
@@ -16,7 +16,7 @@ public class LimelightIO implements CameraIO{
     private Transform3d offset;
     // In Degrees
     private double yaw;
-    private double kCamTiltDegrees = RobotConstants.getInstance().getVisionConstants().kCamTiltDegrees;
+    private double kCamTiltDegrees = RobotConstants.VisionConstants().kCamTiltDegrees;
 
     public LimelightIO(String name, Transform3d cameraOffset) {
         // Instantiate a Limelight and account for position of limelight on the robot

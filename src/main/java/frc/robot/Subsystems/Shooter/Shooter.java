@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotConstants;
 
 public class Shooter extends SubsystemBase {
     public final static InterpolatingDoubleTreeMap distanceToAngleMap = new InterpolatingDoubleTreeMap();
@@ -32,10 +33,10 @@ public class Shooter extends SubsystemBase {
     private final HooderInputsAutoLogged kHooderInputs;
 
     public enum HooderPosition {
-        kHoodPosition1(() -> ShooterConstants.getInstance().kHoodPosition1),
-        kHoodPosition2(() -> ShooterConstants.getInstance().kHoodPosition2),
-        kHoodPosition3(() -> ShooterConstants.getInstance().kHoodPosition3),
-        kHoodPositionDefault(() -> ShooterConstants.getInstance().kHoodPositionDefault),
+        kHoodPosition1(() -> RobotConstants.ShooterConstants().kHoodPosition1),
+        kHoodPosition2(() -> RobotConstants.ShooterConstants().kHoodPosition2),
+        kHoodPosition3(() -> RobotConstants.ShooterConstants().kHoodPosition3),
+        kHoodPositionDefault(() -> RobotConstants.ShooterConstants().kHoodPositionDefault),
         kHoodPositionAuto(() -> new Rotation2d());
 
         public Supplier<Rotation2d> goalPosition;
@@ -172,10 +173,10 @@ public class Shooter extends SubsystemBase {
     public void flywheelOnOff() {
         if (flywheelOn) {
             kFlywheel.stopFlywheel();
-            flywheelGoalRPM = (ShooterConstants.getInstance().kFlywheelVelocityOffRadiansPerSec * 60) / (2 * Math.PI);
+            flywheelGoalRPM = (RobotConstants.ShooterConstants().kFlywheelVelocityOffRadiansPerSec * 60) / (2 * Math.PI);
             flywheelOn = false;
         } else {
-            kFlywheel.setFlywheelVelocity(ShooterConstants.getInstance().kFlywheelVelocityOnRadiansPerSec);
+            kFlywheel.setFlywheelVelocity(RobotConstants.ShooterConstants().kFlywheelVelocityOnRadiansPerSec);
             flywheelOn = true;
         }
     }

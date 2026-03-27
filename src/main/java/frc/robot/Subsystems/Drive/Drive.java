@@ -32,6 +32,13 @@ import frc.robot.Subsystems.Drive.Controllers.HolonomicController;
 import frc.robot.Subsystems.Drive.Controllers.TeleopController;
 
 public class Drive extends SubsystemBase {
+    // NO-OP implmenentation for drive.
+    public static final Drive NoOp = new Drive(new ModuleIO() {}, 
+    new ModuleIO() {}, 
+    new ModuleIO() {}, 
+    new ModuleIO() {}, 
+    new GyroIO() {}); 
+
     public enum driveState {
         DISABLED,
         TELEOP,

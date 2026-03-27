@@ -12,6 +12,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Indexer extends SubsystemBase {
+    public static final Indexer NoOp = new Indexer(new IndexerIO() {});
 
     private final IndexerIO indexerIO;
 

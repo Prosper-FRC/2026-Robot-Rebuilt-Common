@@ -18,9 +18,9 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.Subsystems.Shooter.FlywheelIO.FlywheelInputs;
-import frc.robot.Subsystems.Shooter.ShooterConstants.FlywheelGains;
-import frc.robot.Subsystems.Shooter.ShooterConstants;
+import frc.robot.RobotConstants;
+import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants;
+import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants.FlywheelGains;
 
 public class FlywheelIOTalonFx<HoodHardware> implements FlywheelIO {
     final TalonFX kFlywheelMotor;
@@ -46,8 +46,8 @@ public class FlywheelIOTalonFx<HoodHardware> implements FlywheelIO {
     private double kFlywheelVelocityGoalRotationsPerSec = 0.0;
 
     public FlywheelIOTalonFx(String canbus, HoodHardware hardware, FlywheelGains flywheelGains, double statusSignalUpdateFrequency) {
-        kFlywheelMotor = new TalonFX(ShooterConstants.getInstance().kFlywheelMotorID, new CANBus(canbus));
-        ShooterConstants constants = ShooterConstants.getInstance();
+        kFlywheelMotor = new TalonFX(RobotConstants.ShooterConstants().kFlywheelMotorID, new CANBus(canbus));
+        ShooterConstants constants = RobotConstants.ShooterConstants();
 
         // Flywheel signals
         kFlywheelVelocity = kFlywheelMotor.getVelocity();

@@ -17,8 +17,9 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.*;
-import frc.robot.Subsystems.Shooter.ShooterConstants;
-import frc.robot.Subsystems.Shooter.ShooterConstants.HooderGains;
+import frc.robot.RobotConstants;
+import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants;
+import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants.HooderGains;
 import edu.wpi.first.math.util.Units;
 
 public class HooderIOSparkMax implements HooderIO {
@@ -38,7 +39,7 @@ public class HooderIOSparkMax implements HooderIO {
     private ArmFeedforward hooderFeedforward;
 
     public HooderIOSparkMax(HooderGains hooderGains) {
-        ShooterConstants constants = ShooterConstants.getInstance();
+        ShooterConstants constants = RobotConstants.ShooterConstants();
 
         kHooderMotor = new SparkMax(constants.kHooderMotorID, MotorType.kBrushless);
         kHooderCancoder = new CANcoder(constants.kHooderCancoderID);
