@@ -1,5 +1,6 @@
 package frc.robot.Superstructure;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.RobotConstants;
 import frc.robot.Subsystems.Drive.Drive;
 import frc.robot.Subsystems.Drive.GyroPigeon2;
@@ -44,11 +45,17 @@ public class Superstructure {
                     new ModuleTalonFX(kDConsts.kBLModuleIDs, kDConsts.kBLModuleOffsets, kDConsts.kModuleGains, kDConsts.kCANBusInstance), 
                     new ModuleTalonFX(kDConsts.kBRModuleIDs, kDConsts.kBRModuleOffsets, kDConsts.kModuleGains, kDConsts.kCANBusInstance), 
                     new GyroPigeon2(kDConsts.kGyroID, kDConsts.kGyroOffsets, kDConsts.kCANBusInstance));
-                kIntake = new Intake(new IntakeTalonFX(kIntConsts.kIntakeIDs));
-                kIndexer = new Indexer(new IndexerTalonFX());
             } else {
                 kDrive = Drive.NoOp;
+            }
+            if(useIntake) {
+                kIntake = new Intake(new IntakeTalonFX(kIntConsts.kIntakeIDs));
+            } else {
                 kIntake = Intake.NoOp;
+            }
+            if(useIndexer) {
+                kIndexer = new Indexer(new IndexerTalonFX());
+            } else {
                 kIndexer = Indexer.NoOp;
             }
         }
