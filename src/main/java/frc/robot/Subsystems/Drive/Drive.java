@@ -169,13 +169,6 @@ public class Drive extends SubsystemBase {
 
     // Constructor for the drive subsystem
     public Drive(ModuleIO moduleFL, ModuleIO moduleFR, ModuleIO moduleBL, ModuleIO moduleBR, GyroIO gyro) {
-        // What are we even doing guys...
-        // These are literally constants... They don't change.
-        System.out.println(RobotConstants.DriveConstants().kFLModuleOffsets.rotationalOffset().getRotations());
-        System.out.println(RobotConstants.DriveConstants().kFRModuleOffsets.rotationalOffset().getRotations());
-        System.out.println(RobotConstants.DriveConstants().kBLModuleOffsets.rotationalOffset().getRotations());
-        System.out.println(RobotConstants.DriveConstants().kBRModuleOffsets.rotationalOffset().getRotations());
-
         kModules = new ModuleIO[] {
             moduleFL,
             moduleFR,
@@ -417,7 +410,7 @@ public class Drive extends SubsystemBase {
     public driveState getDriveState() { return state; }
 
     // TODO implement getDesiredAutonPose().
-    private Pose2d getDesiredAutonPose() { return new Pose2d(); }
+    private Pose2d getDesiredAutonPose() { return new Pose2d(-2.0d, 0.0, Rotation2d.fromRotations(0.0d)); }
 
     // TODO implement getDesiredAutonSpeeds().
     private ChassisSpeeds getDesiredAutonSpeeds() { return new ChassisSpeeds(); }

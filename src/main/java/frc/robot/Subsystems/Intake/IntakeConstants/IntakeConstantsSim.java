@@ -2,8 +2,8 @@ package frc.robot.Subsystems.Intake.IntakeConstants;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
-public class IntakeConstants9105 extends IntakeConstants {
-    public IntakeConstants9105() {
+public class IntakeConstantsSim extends IntakeConstants {
+    public IntakeConstantsSim() {
         kIntakePivotGains = new IntakeGains(new PIDGains(0, 0, 0), new FFGains(0, 0, 0, 0));
         kIntakeRollerGains = new IntakeGains(new PIDGains(0, 0, 0), new FFGains(0, 0, 0, 0));
         kIntakeIDs = new IntakeIDs(0, 0);

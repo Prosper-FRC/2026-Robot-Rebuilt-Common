@@ -1,29 +1,21 @@
 package frc.robot.Subsystems.Intake.IntakeConstants;
 
-import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public class IntakeConstants {
-    // Declare and Assign general constants here.
-    public final double kRollerRPS = 45.0d;
-
-    public record IntakeIDs(int PivotID, int RollerID, int CANCoderID) {}
-
-    public record IntakeGains(
-    // Feedback control
-    double p, 
-    double i, 
-    double d, 
-    // Motion magic constraints
-    double maxVelocityMetersPerSecond, 
-    double maxAccelerationMetersPerSecondSquared, 
+    public static final record PIDGains(double kP, double kI, double kD) {}
+    public static final record FFGains(double kV, double kS, double kA, double kG) {}
     
-    // Climb feedforward values
-    double s, 
-    double v, 
-    double a,
-    double g){}
+    public static final record IntakeGains(PIDGains pidGains, FFGains feedForwardGains) {}
+    public static final record IntakeIDs(int pivotID, int rollerID) {}
+    
+    public static final record IntakeSoftLimits(double voltageLimits, Rotation2d rangeOfMotion, boolean isInverted, boolean isBraked) {}
+    public static final record IntakeHardLimits(double rollerGearRatio, double pivotGearRatio) {}
 
-    public IntakeIDs kIntakeIDs = new IntakeIDs(0, 0, 0);
-    public IntakeGains kPivotGains = new IntakeGains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    public IntakeGains kIntakeWheelsGains = new IntakeGains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    public IntakeGains kIntakePivotGains;
+    public IntakeGains kIntakeRollerGains;
+    public IntakeIDs kIntakeIDs;
+    public IntakeSoftLimits kIntakeSoftLimits;
+    public IntakeHardLimits kIntakeHardLimits;
+    public double targetVelocityRPM;
 }

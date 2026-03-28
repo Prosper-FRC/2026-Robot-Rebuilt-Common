@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants5411;
@@ -13,14 +14,11 @@ import frc.robot.Subsystems.Drive.Vision.visionConstants.VisionConstants;
 import frc.robot.Subsystems.Drive.Vision.visionConstants.VisionConstants5411;
 import frc.robot.Subsystems.Drive.Vision.visionConstants.VisionConstants9105;
 import frc.robot.Subsystems.Drive.Vision.visionConstants.VisionConstants9492;
-import frc.robot.Subsystems.Indexer.IndexerConstantsMain.IndexerConstants;
-import frc.robot.Subsystems.Indexer.IndexerConstantsMain.IndexerConstants5411;
-import frc.robot.Subsystems.Indexer.IndexerConstantsMain.IndexerConstants9105;
-import frc.robot.Subsystems.Indexer.IndexerConstantsMain.IndexerConstants9492;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants5411;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants9105;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants9492;
+import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstantsSim;
 
 public class RobotConstants {
     private static RobotConstants instance = null;
@@ -31,18 +29,23 @@ public class RobotConstants {
         SIM
     };
 
+    public SendableChooser<Boolean> kChooser = new SendableChooser<Boolean>();
+
     public final int kTeamNumber;
     public final mode kMode;
     public final boolean kIsBlueAlliance;
     public final int kDriveControllerPort = 0;
+    public final int kOperatorControllerPort = 1;
     public final double kTimestep = 0.02d;
 
     private final DriveConstants kDriveConstants;
     private final VisionConstants kVisionConstants;
-    private final IndexerConstants kIndexerConstants;
     private final IntakeConstants kIntakeConstants;
 
     private RobotConstants() {
+        kChooser.addOption("No Auto", false);
+        kChooser.addOption("Auto", true);
+
         kTeamNumber = RobotController.getTeamNumber();
         if(RobotBase.isReal()) {
             kMode = mode.REAL;
@@ -57,31 +60,27 @@ public class RobotConstants {
             case 5411:
                 kDriveConstants = new DriveConstants5411();
                 kVisionConstants = new VisionConstants5411();
-                kIndexerConstants = new IndexerConstants5411();
                 kIntakeConstants = new IntakeConstants5411();
                 break;
             case 9105:
                 kDriveConstants = new DriveConstants9105();
                 kVisionConstants = new VisionConstants9105();
-                kIndexerConstants = new IndexerConstants9105();
                 kIntakeConstants = new IntakeConstants9105();
                 break;
             case 9492:
                 kDriveConstants = new DriveConstants9492();
                 kVisionConstants = new VisionConstants9492();
-                kIndexerConstants = new IndexerConstants9492();
                 kIntakeConstants = new IntakeConstants9492();
                 break;
             case 0:
                 kDriveConstants = new DriveConstantsSim();
                 kVisionConstants = new VisionConstants();
-                kIndexerConstants = new IndexerConstants();
-                kIntakeConstants = new IntakeConstants();
+                kIntakeConstants = new IntakeConstantsSim();
                 break;
             default:
+                // This will essentially throw an error
                 kDriveConstants = new DriveConstants();
                 kVisionConstants = new VisionConstants();
-                kIndexerConstants = new IndexerConstants();
                 kIntakeConstants = new IntakeConstants();
                 break;
         }
@@ -95,13 +94,9 @@ public class RobotConstants {
         return instance.kVisionConstants;
     }
 
-    public static IndexerConstants IndexerConstants() {
-        return instance.kIndexerConstants;
-    }
-
     public static IntakeConstants IntakeConstants() {
         return instance.kIntakeConstants;
-    } 
+    }
 
     public static RobotConstants Instance() {
         if (instance == null) {

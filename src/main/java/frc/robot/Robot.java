@@ -60,7 +60,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        m_robotContainer.kSuperstructure.kDrive.setDefaultCommand(m_robotContainer.kSuperstructure.kDrive.setDriveStateCommand(Drive.driveState.AUTON));
+        if(RobotConstants.Instance().kChooser.getSelected()) m_robotContainer.kSuperstructure.kDrive.setDefaultCommand(m_robotContainer.kSuperstructure.kDrive.setDriveStateCommand(Drive.driveState.AUTON));
     }
 
     @Override
