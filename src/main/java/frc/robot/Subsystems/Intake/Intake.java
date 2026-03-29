@@ -77,7 +77,7 @@ public class Intake extends SubsystemBase {
         this.state = state;
     }
 
-    public Command setIntakeStateCommand(intakeState state) {
+    public Command setIntakeStateCommand(intakeState state) { // Future Millie this is what u were looking for
         return new InstantCommand(() -> setIntakeState(state), this);
     }
 

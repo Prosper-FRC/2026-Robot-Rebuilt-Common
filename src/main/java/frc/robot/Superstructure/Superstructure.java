@@ -20,6 +20,7 @@ import frc.robot.Subsystems.Indexer.HopperTalonFX;
 import frc.robot.Subsystems.Indexer.Indexer;
 import frc.robot.Subsystems.Indexer.IndexerConstants.IndexerConstants;
 import frc.robot.Subsystems.Intake.Intake;
+import frc.robot.Subsystems.Intake.Intake.intakeState;
 import frc.robot.Subsystems.Intake.PivotSim;
 import frc.robot.Subsystems.Intake.PivotTalonFX;
 import frc.robot.Subsystems.Intake.RollerSim;
@@ -129,9 +130,13 @@ public class Superstructure {
 
     public void bindIntakeCommands(CommandXboxController toBind) {
         toBind.rightBumper().whileTrue(kIntake.setRollerVoltageCommand(4.0d))
-        .onFalse(kIntake.setRollerVoltageCommand(0.0d));
+            .onFalse(kIntake.setRollerVoltageCommand(0.0d));
         toBind.leftBumper().whileTrue(kIntake.setRollerVoltageCommand(-4.0d))
-        .onFalse(kIntake.setRollerVoltageCommand(0.0d));
+            .onFalse(kIntake.setRollerVoltageCommand(0.0d));
+        toBind.leftTrigger().onTrue(kIntake.setIntakeStateCommand(intakeState.Deployed)); // pivot button bindings, don't go through the state layer if this doesn't work in the morning
+            //.onFalse(kIntake.setIntakeStateCommand(intakeState.Stowed));
+        toBind.rightTrigger().onTrue(kIntake.setIntakeStateCommand(intakeState.Stowed)); 
+            //.onFalse(kIntake.setIntakeStateCommand(intakeState.Stowed));
     }
 
     public void bindIndexerCommands(CommandXboxController toBind) {

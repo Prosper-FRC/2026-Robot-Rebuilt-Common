@@ -25,7 +25,7 @@ public class PivotTalonFX implements PivotIO {
     
     // Control modes
     private final VoltageOut kVoltageOut = new VoltageOut(0.0d);
-    private final PositionVoltage kPositionControl = new PositionVoltage(0.0d);
+    private final PositionVoltage kPositionControl = new PositionVoltage(0.0d); // position TO BE TUNED in the morning
     private final NeutralOut kNeutralOut = new NeutralOut();
 
     // Status Signals
