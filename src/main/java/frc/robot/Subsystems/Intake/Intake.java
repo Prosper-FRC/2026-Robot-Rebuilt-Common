@@ -17,8 +17,7 @@ public class Intake extends SubsystemBase {
 
     public static enum intakeState {
         Stowed(() -> 0.0d),
-        Deployed(() -> 0.0d);
-
+        Deployed(() -> 0.25d);
         private DoubleSupplier rotationSetpoint;
 
         private intakeState(DoubleSupplier setpoint) {
@@ -81,6 +80,10 @@ public class Intake extends SubsystemBase {
         return new InstantCommand(() -> setIntakeState(state), this);
     }
 
+    public boolean isAtGoal() {
+        return Math.abs(kPivotInputs.positionRotations - state.getSetpoint().getAsDouble()) <= 0.05;
+    }
+
     @Override
     public void periodic() {
         kRoller.updateInputs(kRollerInputs);
@@ -89,14 +92,6 @@ public class Intake extends SubsystemBase {
         Logger.processInputs("Intake/Roller", kRollerInputs);
         Logger.processInputs("Intake/Pivot", kPivotInputs);
 
-        setPivotPositionCommand(Rotation2d.fromRotations(state.getSetpoint().getAsDouble()));
-        switch (state) {
-            case Deployed:
-                setRollerVoltageCommand(4.0);
-                break;
-            default:
-                stopRollerCommand();
-                break;
-        }
+        kPivot.setTargetPosition(Rotation2d.fromRotations(state.getSetpoint().getAsDouble()));
     }
 }

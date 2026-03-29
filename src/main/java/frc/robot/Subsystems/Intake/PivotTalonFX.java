@@ -37,7 +37,7 @@ public class PivotTalonFX implements PivotIO {
     private final StatusSignal<Current> kSupplyCurrent; 
 
     // Constants ref
-    private IntakeConstants intakeConstants = RobotConstants.IntakeConstants();
+    private final IntakeConstants intakeConstants = RobotConstants.IntakeConstants();
 
     public PivotTalonFX() {
         kPivotMotor = new TalonFX(intakeConstants.kIntakeIDs.pivotID());
@@ -54,8 +54,6 @@ public class PivotTalonFX implements PivotIO {
 
         kPivotConfiguration.Voltage.PeakForwardVoltage = intakeConstants.kIntakeSoftLimits.voltageLimits();
         kPivotConfiguration.Voltage.PeakReverseVoltage = -intakeConstants.kIntakeSoftLimits.voltageLimits();
-        kPivotConfiguration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        kPivotConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = intakeConstants.kIntakeSoftLimits.rangeOfMotion().getRotations();
         kPivotConfiguration.Feedback.SensorToMechanismRatio = intakeConstants.kIntakeHardLimits.pivotGearRatio();
         kPivotConfiguration.MotorOutput.Inverted = intakeConstants.kIntakeSoftLimits.isInverted() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
         kPivotConfiguration.MotorOutput.NeutralMode = intakeConstants.kIntakeSoftLimits.isBraked() ? NeutralModeValue.Brake : NeutralModeValue.Coast;
@@ -67,7 +65,7 @@ public class PivotTalonFX implements PivotIO {
         kPosition = kPivotMotor.getPosition();
         kVelocity = kPivotMotor.getVelocity();
         kTemperature = kPivotMotor.getDeviceTemp();
-        kSupplyVoltage = kPivotMotor.getMotorVoltage();
+        kSupplyVoltage = kPivotMotor.getSupplyVoltage();
         kStatorCurrent = kPivotMotor.getStatorCurrent();
         kSupplyCurrent = kPivotMotor.getSupplyCurrent();
     }

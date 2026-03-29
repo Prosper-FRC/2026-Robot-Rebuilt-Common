@@ -48,9 +48,7 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void disabledInit() {
-        m_robotContainer.kSuperstructure.kDrive.setDriveState(Drive.driveState.DISABLED);
-    }
+    public void disabledInit() {}
 
     @Override
     public void disabledPeriodic() {}
@@ -60,7 +58,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        if(RobotConstants.Instance().kChooser.getSelected()) m_robotContainer.kSuperstructure.kDrive.setDefaultCommand(m_robotContainer.kSuperstructure.kDrive.setDriveStateCommand(Drive.driveState.AUTON));
     }
 
     @Override
@@ -71,7 +68,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
-        m_robotContainer.kSuperstructure.kDrive.setDefaultCommand(m_robotContainer.kSuperstructure.kDrive.setDriveStateCommand(Drive.driveState.TELEOP));
     }
 
     @Override

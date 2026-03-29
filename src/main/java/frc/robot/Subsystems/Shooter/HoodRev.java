@@ -2,6 +2,7 @@ package frc.robot.Subsystems.Shooter;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -22,6 +23,7 @@ public class HoodRev implements HoodIO {
         kHoodConfig.closedLoop.p(gains.kP());
         kHoodConfig.closedLoop.i(gains.kI());
         kHoodConfig.closedLoop.d(gains.kD());
+        kHoodConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
 
         kHoodMotor.configure(kHoodConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
@@ -29,7 +31,8 @@ public class HoodRev implements HoodIO {
     @Override
     public void updateInputs(hoodInputs toUpdate) {
         toUpdate.isOk = true;
-        toUpdate.hoodPositionRotation = kHoodMotor.get();
+        toUpdate.hoodPositionRotation = kHoodMotor.getEncoder().getPosition();
+        toUpdate.hoodVelocityRPS = kHoodMotor.getEncoder().getVelocity();
         toUpdate.voltage = kHoodMotor.getBusVoltage();
         toUpdate.supplyCurrent = kHoodMotor.getOutputCurrent();
     }

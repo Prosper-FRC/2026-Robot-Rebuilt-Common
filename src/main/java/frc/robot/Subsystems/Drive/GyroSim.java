@@ -3,6 +3,7 @@ package frc.robot.Subsystems.Drive;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.RobotConstants;
 
 public class GyroSim implements GyroIO {
 
@@ -26,5 +27,14 @@ public class GyroSim implements GyroIO {
     @Override
     public Optional<Rotation2d> getGyroAngle() {
         return Optional.ofNullable(Rotation2d.fromRotations(yaw));
+    }
+
+    @Override
+    public void resetGyro() {
+        if(RobotConstants.Instance().kIsBlueAlliance) {
+            yaw = 0.0d;
+        } else {
+            yaw = 0.5d;
+        }
     }
 }

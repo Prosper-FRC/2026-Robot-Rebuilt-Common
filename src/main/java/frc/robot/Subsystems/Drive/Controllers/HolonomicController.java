@@ -2,6 +2,7 @@ package frc.robot.Subsystems.Drive.Controllers;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 
+import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -34,4 +35,8 @@ public class HolonomicController {
         velocityGoal.vyMetersPerSecond += kYPositionController.calculate(robotPoseEstimation.getY(), robotPoseTarget.getY());
         return velocityGoal; // Made field relative in the state logic handling in Drive.java.
     }
+
+    public void followTrajectory(SwerveSample sample) {
+        velocityGoal = sample.getChassisSpeeds();
+    } 
 }

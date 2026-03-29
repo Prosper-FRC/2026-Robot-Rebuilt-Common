@@ -1,4 +1,4 @@
-package frc.robot.Subsystems.Drive.Vision.visionConstants;
+package frc.robot.Subsystems.Drive.Vision.VisionConstants;
 
 import edu.wpi.first.wpilibj.RobotBase;
 

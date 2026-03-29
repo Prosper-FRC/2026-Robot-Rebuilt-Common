@@ -128,6 +128,8 @@ public class Drive extends SubsystemBase {
 
     public Command setDriveStateCommand(driveState driveState) { return new InstantCommand(() -> setDriveState(driveState), this); }
 
+    public Command setDriveStateCommandContinuous(driveState driveState) { return new RunCommand(() -> setDriveState(driveState), this); }
+
     public Command stopAzimuthsCommand() {
         return new InstantCommand(() -> stopAzimuths());
     }
@@ -415,4 +417,12 @@ public class Drive extends SubsystemBase {
     // TODO implement getDesiredAutonSpeeds().
     private ChassisSpeeds getDesiredAutonSpeeds() { return new ChassisSpeeds(); }
 
+    // Getters
+    public Pose2d getRobotPose() {
+        return kPoseEstimator.getEstimatedPosition();
+    }
+
+    public void resetOdometry(Pose2d pose) {
+        kPoseEstimator.resetPose(pose);
+    }
 }

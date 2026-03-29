@@ -1,5 +1,7 @@
 package frc.robot.Subsystems.Intake;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,12 +15,13 @@ import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants.IntakeGains;
 public class PivotSim implements PivotIO {
     private double appliedVoltage = 0.0d;
     private boolean usePID = false;
+    @AutoLogOutput(key = "Intake/TargetPose")
     private double targetPosition = 0.0d;
     private final PIDController kPivotController;
     private final ArmFeedforward kPivotFeedforward;
 
     private final SingleJointedArmSim kPivotMotor = new SingleJointedArmSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.125d, RobotConstants.IntakeConstants().kIntakeHardLimits.rollerGearRatio()),
+        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.0125d, RobotConstants.IntakeConstants().kIntakeHardLimits.rollerGearRatio()),
         DCMotor.getKrakenX60(1),
         RobotConstants.IntakeConstants().kIntakeHardLimits.rollerGearRatio(),
         0.65d, 
@@ -30,7 +33,7 @@ public class PivotSim implements PivotIO {
         0.0d);
 
     public PivotSim() {
-        IntakeGains gains = RobotConstants.IntakeConstants().kIntakeRollerGains;
+        IntakeGains gains = RobotConstants.IntakeConstants().kIntakePivotGains;
         kPivotController = new PIDController(
             gains.pidGains().kP(), 
             gains.pidGains().kI(), 
@@ -49,7 +52,7 @@ public class PivotSim implements PivotIO {
         toUpdate.supplyVoltage = appliedVoltage;
 
         if(usePID) {
-            appliedVoltage = kPivotController.calculate(appliedVoltage, targetPosition); // + kPivotFeedforward.calculate(Units.radiansToRotations(kPivotMotor.getAngleRads()), Units.radiansToRotations(kPivotMotor.getVelocityRadPerSec()));
+            appliedVoltage = kPivotController.calculate(Units.radiansToRotations(kPivotMotor.getAngleRads()), targetPosition); // + kPivotFeedforward.calculate(Units.radiansToRotations(kPivotMotor.getAngleRads()), Units.radiansToRotations(kPivotMotor.getVelocityRadPerSec()));
         }
         kPivotMotor.setInputVoltage(appliedVoltage);
 

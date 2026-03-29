@@ -1,13 +1,31 @@
 package frc.robot.Subsystems.Shooter;
 
+import java.util.function.DoubleSupplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
     public static final Shooter NoOp = new Shooter(new FlywheelIO() {}, new HoodIO() {});
+
+    public static enum shooterHoodSetpoint {
+        Hub(() -> 0.0d);
+
+        private DoubleSupplier setpoint;
+
+        private shooterHoodSetpoint(DoubleSupplier setpoint) {
+            this.setpoint = setpoint;
+        }
+
+        public DoubleSupplier getSetpoint() {
+            return setpoint;
+        }
+    }
+    public shooterHoodSetpoint setpoint = shooterHoodSetpoint.Hub;
 
     private final FlywheelIO kFlywheel;
     private final HoodIO kHood;
@@ -35,7 +53,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public Command setShooterCommand(double rps, double position) {
-        return new InstantCommand(() -> setShooter(rps, position));
+        return new RunCommand(() -> setShooter(rps, position));
     }
     public Command setFlywheelVoltsCommand(double volts) {
         return new InstantCommand(() -> setFlywheelVolts(volts));

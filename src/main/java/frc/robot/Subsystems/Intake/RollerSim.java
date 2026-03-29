@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.RobotConstants;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants.IntakeGains;
 
@@ -18,7 +17,7 @@ public class RollerSim implements RollerIO {
     private final SimpleMotorFeedforward kRollerFeedforward;
 
     private final DCMotorSim kRollerMotor = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.05, RobotConstants.IntakeConstants().kIntakeHardLimits.rollerGearRatio()), 
+        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.0005, RobotConstants.IntakeConstants().kIntakeHardLimits.rollerGearRatio()), 
         DCMotor.getKrakenX60(1), 
         0.0d, 0.0d);
 
