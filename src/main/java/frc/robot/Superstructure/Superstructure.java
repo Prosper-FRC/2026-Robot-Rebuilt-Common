@@ -1,12 +1,14 @@
 package frc.robot.Superstructure;
 
+import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
+
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotConstants;
 import frc.robot.Subsystems.Drive.Drive;
 import frc.robot.Subsystems.Drive.GyroPigeon2;
@@ -14,12 +16,17 @@ import frc.robot.Subsystems.Drive.GyroSim;
 import frc.robot.Subsystems.Drive.ModuleSim;
 import frc.robot.Subsystems.Drive.ModuleTalonFX;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants;
+import frc.robot.Subsystems.Indexer.HopperTalonFX;
+import frc.robot.Subsystems.Indexer.Indexer;
+import frc.robot.Subsystems.Indexer.IndexerConstants.IndexerConstants;
 import frc.robot.Subsystems.Intake.Intake;
 import frc.robot.Subsystems.Intake.PivotSim;
 import frc.robot.Subsystems.Intake.PivotTalonFX;
 import frc.robot.Subsystems.Intake.RollerSim;
 import frc.robot.Subsystems.Intake.RollerTalonFX;
-import frc.robot.Subsystems.Intake.Intake.intakeState;
+import frc.robot.Subsystems.Shooter.FlywheelTalonFX;
+import frc.robot.Subsystems.Shooter.HoodRev;
+import frc.robot.Subsystems.Shooter.Shooter;
 
 public class Superstructure {
     public static enum robotState {
@@ -33,10 +40,23 @@ public class Superstructure {
 
     public final Drive kDrive;
     public final Intake kIntake;
+    public final Indexer kIndexer;
+    public final Shooter kShooter;
+
+    public final TalonFX kBallTunnelMotor;
+    public final TalonFX kHopper1;
+    public final TalonFX kHopper2;
+    public final TalonFX kHopper3;
+
 
     private final DriveConstants kDConsts = RobotConstants.DriveConstants();
+    private final IndexerConstants kIConsts = RobotConstants.IndexerConstants();
 
     public Superstructure(boolean useDrive, boolean useIntake, boolean useIndexer, boolean useShooter) {
+        kBallTunnelMotor = new TalonFX(44);
+        kHopper1 = new TalonFX(41);
+        kHopper2 = new TalonFX(42);
+        kHopper3 = new TalonFX(43);
         if(kTeamNumber == 0) {
             // Sim init
             kDrive = new Drive(new ModuleSim(),
@@ -46,6 +66,11 @@ public class Superstructure {
             new GyroSim());
             
             kIntake = new Intake(new RollerSim(), new PivotSim());
+
+            kIndexer = Indexer.NoOp;
+
+            kShooter = Shooter.NoOp;
+
         } else {
             if(useDrive) {
                 kDrive = new Drive(
@@ -66,6 +91,21 @@ public class Superstructure {
             } else {
                 kIntake = Intake.NoOp;
             }
+
+            if(useIndexer) {
+                kIndexer = new Indexer(
+                    new HopperTalonFX(kIConsts.kHopper1Id), 
+                    new HopperTalonFX(kIConsts.kHopper2Id), 
+                    new HopperTalonFX(kIConsts.kHopper3Id));
+            } else {
+                kIndexer = Indexer.NoOp;
+            }
+            
+            if(useShooter) {
+                kShooter = new Shooter(new FlywheelTalonFX(), new HoodRev());
+            } else {
+                kShooter = Shooter.NoOp;
+            }
         }
     }
 
@@ -83,19 +123,35 @@ public class Superstructure {
                 .onTrue(kDrive.overrideTeleopHeadingCommand(Rotation2d.kZero))
                 .onFalse(kDrive.releaseTeleopHeadingCommand());
         
-            toBind.a().debounce(0.25d, DebounceType.kRising)
-                .onTrue(new InstantCommand(() -> kDrive.setDriveState(Drive.driveState.SYSID)).andThen(kDrive.getSysIdCommand()))
-                .onFalse(kDrive.getDefaultCommand());
-
             toBind.y().debounce(0.1d, DebounceType.kRising)
                 .onTrue(kDrive.resetGyroCommand());
     }
 
     public void bindIntakeCommands(CommandXboxController toBind) {
-        kIntake.setDefaultCommand(kIntake.setIntakeStateCommand(intakeState.Stowed));
+        toBind.rightBumper().whileTrue(kIntake.setRollerVoltageCommand(4.0d))
+        .onFalse(kIntake.setRollerVoltageCommand(0.0d));
+        toBind.leftBumper().whileTrue(kIntake.setRollerVoltageCommand(-4.0d))
+        .onFalse(kIntake.setRollerVoltageCommand(0.0d));
+    }
 
+    public void bindIndexerCommands(CommandXboxController toBind) {
         toBind.a()
-            .whileTrue(kIntake.setIntakeStateCommand(intakeState.Deployed))
-            .onFalse(kIntake.getDefaultCommand());
+            .whileTrue(new InstantCommand(() -> kBallTunnelMotor.setControl(new VoltageOut(5.0d))))
+            .onFalse(new InstantCommand(() -> kBallTunnelMotor.setControl(new NeutralOut())));
+        toBind.a()
+            .whileTrue(new InstantCommand(() -> kHopper1.setControl(new VoltageOut(8.0d))))
+            .onFalse(new InstantCommand(() -> kHopper1.setControl(new NeutralOut())));
+        toBind.a()
+            .whileTrue(new InstantCommand(() -> kHopper2.setControl(new VoltageOut(-10.0d))))
+            .onFalse(new InstantCommand(() -> kHopper2.setControl(new NeutralOut())));
+        toBind.a()
+            .whileTrue(new InstantCommand(() -> kHopper3.setControl(new VoltageOut(-10.0d))))
+            .onFalse(new InstantCommand(() -> kHopper3.setControl(new NeutralOut())));
+    } 
+
+    public void bindShooterCommands(CommandXboxController toBind) {
+        toBind.rightTrigger(0.5d)
+            .whileTrue(kShooter.setShooterCommand(45.0d, 0.0d))
+            .onFalse(kShooter.stopShooterCommand());
     }
 }

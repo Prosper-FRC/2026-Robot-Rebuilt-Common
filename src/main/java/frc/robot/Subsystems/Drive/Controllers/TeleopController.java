@@ -42,8 +42,8 @@ public class TeleopController {
         double sniperScalar = RobotConstants.DriveConstants().sniperModeScalar;
 
         // Read the current input states supplied to us.
-        double readXInput = xInput.getAsDouble();
-        double readYInput = yInput.getAsDouble();
+        double readXInput = -xInput.getAsDouble();
+        double readYInput = -yInput.getAsDouble();
         double readAngleInput = angleInput.getAsDouble();
 
         // Apply a deadband to the controller inputs.
@@ -64,7 +64,7 @@ public class TeleopController {
         // Convert proper controller inputs into desired speeds.
         double speedX = exponentiatedXInput * maxMPS;
         double speedY = exponentiatedYInput * maxMPS;
-        double speedOmega = Units.rotationsToRadians(exponentiatedAngleInput * maxRPS);
+        double speedOmega = -Units.rotationsToRadians(exponentiatedAngleInput * maxRPS);
 
         // Apply an extra sniper mode scalar.
         if(isSniperMode) {

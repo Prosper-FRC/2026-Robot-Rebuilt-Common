@@ -14,11 +14,15 @@ import frc.robot.Subsystems.Drive.Vision.visionConstants.VisionConstants;
 import frc.robot.Subsystems.Drive.Vision.visionConstants.VisionConstants5411;
 import frc.robot.Subsystems.Drive.Vision.visionConstants.VisionConstants9105;
 import frc.robot.Subsystems.Drive.Vision.visionConstants.VisionConstants9492;
+import frc.robot.Subsystems.Indexer.IndexerConstants.IndexerConstants;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants5411;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants9105;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants9492;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstantsSim;
+import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants;
+import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants5411;
+import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants9105;
 
 public class RobotConstants {
     private static RobotConstants instance = null;
@@ -41,6 +45,8 @@ public class RobotConstants {
     private final DriveConstants kDriveConstants;
     private final VisionConstants kVisionConstants;
     private final IntakeConstants kIntakeConstants;
+    private final IndexerConstants kIndexerConstants;
+    private final ShooterConstants kShooterConstants;
 
     private RobotConstants() {
         kChooser.addOption("No Auto", false);
@@ -61,27 +67,37 @@ public class RobotConstants {
                 kDriveConstants = new DriveConstants5411();
                 kVisionConstants = new VisionConstants5411();
                 kIntakeConstants = new IntakeConstants5411();
+                kIndexerConstants = new IndexerConstants();
+                kShooterConstants = new ShooterConstants5411();
                 break;
             case 9105:
                 kDriveConstants = new DriveConstants9105();
                 kVisionConstants = new VisionConstants9105();
                 kIntakeConstants = new IntakeConstants9105();
+                kIndexerConstants = new IndexerConstants();
+                kShooterConstants = new ShooterConstants9105();
                 break;
             case 9492:
                 kDriveConstants = new DriveConstants9492();
                 kVisionConstants = new VisionConstants9492();
                 kIntakeConstants = new IntakeConstants9492();
+                kIndexerConstants = new IndexerConstants();
+                kShooterConstants = new ShooterConstants();
                 break;
             case 0:
                 kDriveConstants = new DriveConstantsSim();
                 kVisionConstants = new VisionConstants();
                 kIntakeConstants = new IntakeConstantsSim();
+                kIndexerConstants = new IndexerConstants();
+                kShooterConstants = new ShooterConstants();
                 break;
             default:
                 // This will essentially throw an error
                 kDriveConstants = new DriveConstants();
                 kVisionConstants = new VisionConstants();
                 kIntakeConstants = new IntakeConstants();
+                kIndexerConstants = new IndexerConstants();
+                kShooterConstants = new ShooterConstants();
                 break;
         }
     }
@@ -96,6 +112,14 @@ public class RobotConstants {
 
     public static IntakeConstants IntakeConstants() {
         return instance.kIntakeConstants;
+    }
+
+    public static IndexerConstants IndexerConstants() {
+        return instance.kIndexerConstants;
+    }
+
+    public static ShooterConstants ShooterConstants() {
+        return instance.kShooterConstants;
     }
 
     public static RobotConstants Instance() {

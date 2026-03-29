@@ -1,138 +1,57 @@
 package frc.robot.Subsystems.Indexer;
 
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import edu.wpi.first.wpilibj.DriverStation;
-
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 public class Indexer extends SubsystemBase {
-    public static final Indexer NoOp = new Indexer(new IndexerIO() {});
+    public static final Indexer NoOp = new Indexer(
+        new HopperIO() {},
+        new HopperIO() {},
+        new HopperIO() {}
+    );
 
-    private final IndexerIO indexerIO;
+    private final HopperIO[] kHopperMotors = new HopperIO[3];
+    private final hopperInputsAutoLogged[] kHopperInputs = new hopperInputsAutoLogged[] {
+        new hopperInputsAutoLogged(),
+        new hopperInputsAutoLogged(),
+        new hopperInputsAutoLogged(),
+    };
 
-    public Indexer(IndexerIO indexerIO) {
-        this.indexerIO = indexerIO;
+    public Indexer(HopperIO hopper1, HopperIO hopper2, HopperIO hopper3) {
+        kHopperMotors[0] = hopper1;
+        kHopperMotors[1] = hopper2;
+        kHopperMotors[2] = hopper3;
     }
 
-    public static enum IndexerState {
-        Idle(() -> new double[]{0.0, 0.0, 0.0}),
-        Active(() -> new double[]{5.0, 5.0, 5.0}),
-        Eject(() -> new double[]{-5.0, -5.0, -5.0});
-
-        private final Supplier<double[]> goalVoltage;
-
-        private IndexerState(Supplier<double[]> goalVoltage) {
-            this.goalVoltage = goalVoltage;
-        }
-
-        public double[] getGoalVoltage() {
-            return goalVoltage.get();
-        }
+    public void setHoppers(double voltage) {
+        kHopperMotors[0].setHopperVoltage(voltage);
+        kHopperMotors[1].setHopperVoltage(voltage);
+        kHopperMotors[2].setHopperVoltage(voltage);
+    }
+    public Command setHoppersCommand(double voltage) {
+        return new InstantCommand(() -> setHoppers(voltage), this);
     }
 
-    // need the utils file for this
-    private final IndexerInputsAutoLogged inputs = new IndexerInputsAutoLogged();
-
-    @AutoLogOutput(key = "Indexer/State")
-    public IndexerState state = IndexerState.Idle;
-
-    public void setIndexerState(IndexerState state) {
-        this.state = state;
+    public void stopHoppers() {
+        kHopperMotors[0].stopHopper();
+        kHopperMotors[1].stopHopper();
+        kHopperMotors[2].stopHopper();
+    }
+    public Command stopHoppersCommand() {
+        return new InstantCommand(() -> stopHoppers(), this);
     }
 
     @Override
     public void periodic() {
-    // identify what to do based on the states of the indexer!
-        indexerIO.updateInputs(inputs);
-        Logger.processInputs("Indexer", inputs);
+        kHopperMotors[0].updateInputs(kHopperInputs[0]);
+        kHopperMotors[1].updateInputs(kHopperInputs[1]);
+        kHopperMotors[2].updateInputs(kHopperInputs[2]);
 
-        switch (state) {
-            case Idle:
-                indexerIO.stopMotors();
-                break;
-            case Active:
-                indexerIO.setHopperMotor1Voltage(state.getGoalVoltage()[0]);
-                indexerIO.setHopperMotor2Voltage(state.getGoalVoltage()[1]);
-                indexerIO.setHopperMotor3Voltage(state.getGoalVoltage()[2]);
-                break;
-            case Eject:
-                indexerIO.setHopperMotor1Voltage(state.getGoalVoltage()[0]);
-                indexerIO.setHopperMotor2Voltage(state.getGoalVoltage()[1]);
-                indexerIO.setHopperMotor3Voltage(state.getGoalVoltage()[2]);
-                break;
-            default:
-                break;
-        }
-
-        if (DriverStation.isDisabled()) {
-            indexerIO.stopMotors();
-        }
-   }
-
-// Below are all the methods identified earlier, not sure if we may need them later
-
-   public void setIndexerMotor1Voltage(double volts) {
-    indexerIO.setIndexerMotor1Voltage(volts);
-   }
-
-
-   public void stopIndexerMotor1() {
-    indexerIO.stopIndexerMotor1();
-   }
-
-   public void setHopperMotor1Voltage(double volts) {
-    indexerIO.setHopperMotor1Voltage(volts);
-   }
-
-   
-
-   public void stopHopperMotor1Voltage(double volts) {
-    indexerIO.stopHopperMotor1();
-   }
-
-   public void setHopperMotor2Voltage(double volts) {
-    indexerIO.setHopperMotor2Voltage(volts);
-   }
-
-   public void stopHopperMotor2() {
-    indexerIO.stopHopperMotor2();
-   }
-
-   public void setHopperMotor3Voltage(double volts) {
-    indexerIO.setHopperMotor3Voltage(volts);
-   }
-
-   public void stopHopperMotor3() {
-    indexerIO.stopHopperMotor3();
-   }
-
-   public double getIndexerMotor1VelocityRPS() {
-    return inputs.kIndexMotor1VelocityRPS;
-   }
-
-   public double getHopperMotor1VelocityRPS() {
-    return inputs.kHopperMotor1VelocityRPS;
-   }
-
-   public double getHopperMotor2VelocityRPS() {
-    return inputs.kHopperMotor2VelocityRPS;
-   }
-
-   public double getHopperMotor3VelocityRPS() {
-    return inputs.kHopperMotor3VelocityRPS;
-   }
-
-   public Command setIndexerStateCommand(IndexerState state) {
-    return runOnce(() -> setIndexerState(state));
-   }
-
-   public Command setIndexerMotorsCommand(double rps) {
-    return runOnce(() -> indexerIO.setMotorsVelocityRPS(rps));
-   }
+        Logger.processInputs("Indexer/Hopper1", kHopperInputs[0]);
+        Logger.processInputs("Indexer/Hopper2", kHopperInputs[0]);
+        Logger.processInputs("Indexer/Hopper3", kHopperInputs[0]);
+    }
 }

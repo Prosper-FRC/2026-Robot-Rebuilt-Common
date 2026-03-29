@@ -52,10 +52,6 @@ public class RollerTalonFX implements RollerIO {
         kRollerConfiguration.Slot0.kA = intakeConstants.kIntakeRollerGains.feedForwardGains().kA();
         kRollerConfiguration.Slot0.kG = intakeConstants.kIntakeRollerGains.feedForwardGains().kG();
 
-        kRollerConfiguration.Voltage.PeakForwardVoltage = intakeConstants.kIntakeSoftLimits.voltageLimits();
-        kRollerConfiguration.Voltage.PeakReverseVoltage = -intakeConstants.kIntakeSoftLimits.voltageLimits();
-        kRollerConfiguration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        kRollerConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = intakeConstants.kIntakeSoftLimits.rangeOfMotion().getRotations();
         kRollerConfiguration.Feedback.SensorToMechanismRatio = intakeConstants.kIntakeHardLimits.rollerGearRatio();
         kRollerConfiguration.MotorOutput.Inverted = intakeConstants.kIntakeSoftLimits.isInverted() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
         kRollerConfiguration.MotorOutput.NeutralMode = intakeConstants.kIntakeSoftLimits.isBraked() ? NeutralModeValue.Brake : NeutralModeValue.Coast;

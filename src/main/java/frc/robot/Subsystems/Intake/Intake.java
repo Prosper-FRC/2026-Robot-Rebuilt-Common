@@ -2,6 +2,7 @@ package frc.robot.Subsystems.Intake;
 
 import java.util.function.DoubleSupplier;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -29,6 +30,7 @@ public class Intake extends SubsystemBase {
         }
     }
 
+    @AutoLogOutput(key = "Intake/State")
     public intakeState state = intakeState.Stowed;
 
     private final RollerIO kRoller;
@@ -90,7 +92,7 @@ public class Intake extends SubsystemBase {
         setPivotPositionCommand(Rotation2d.fromRotations(state.getSetpoint().getAsDouble()));
         switch (state) {
             case Deployed:
-                setRollerVelocityCommand(Rotation2d.fromRotations(45.0d));
+                setRollerVoltageCommand(4.0);
                 break;
             default:
                 stopRollerCommand();

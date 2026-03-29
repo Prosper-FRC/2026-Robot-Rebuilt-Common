@@ -8,7 +8,7 @@ public class IntakeConstants9492 extends IntakeConstants {
         kIntakeRollerGains = new IntakeGains(new PIDGains(0, 0, 0), new FFGains(0, 0, 0, 0));
         kIntakeIDs = new IntakeIDs(0, 0);
         kIntakeSoftLimits = new IntakeSoftLimits(12.0d, Rotation2d.fromRotations(0.0d), false, true);
-        kIntakeHardLimits = new IntakeHardLimits(1.0d, 1.0d);
+        kIntakeHardLimits = new IntakeHardLimits(1.0d, 5.0d);
         targetVelocityRPM = 45.0d;
     }
 }
