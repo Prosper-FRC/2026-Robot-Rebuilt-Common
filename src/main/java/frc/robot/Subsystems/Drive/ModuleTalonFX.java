@@ -67,10 +67,6 @@ public class ModuleTalonFX implements ModuleIO {
         kAzimuth = new TalonFX(ids.azimuthID(), CANBus);
         kCANcoder = new CANcoder(ids.CANcoderID(), CANBus);
 
-        kCANcoder.optimizeBusUtilization();
-        kAzimuth.optimizeBusUtilization();
-        kDrive.optimizeBusUtilization();
-        
         // TODO: Reconfigure the motors with premium feature once we've activated the licenses
         ///// DRIVE MOTOR /////
         // Drive Gains
@@ -135,11 +131,29 @@ public class ModuleTalonFX implements ModuleIO {
         kAzimuthTemperature = kAzimuth.getDeviceTemp();
         kAzimuthStatorCurrent = kAzimuth.getStatorCurrent();
         kAzimuthSupplyCurrent = kAzimuth.getSupplyCurrent();
-        kAzimuthSupplyVoltage = kAzimuth.getMotorVoltage();
+        kAzimuthSupplyVoltage = kAzimuth.getSupplyVoltage();
 
         kCANcoderPosition = kCANcoder.getAbsolutePosition();
 
         kModuleOffset = offsets.rotationalOffset();
+
+        BaseStatusSignal.setUpdateFrequencyForAll(50, 
+            kDrivePosition,
+            kDriveVelocity,
+            kDriveTemperature,
+            kDriveStatorCurrent,
+            kDriveSupplyCurrent,
+            kAzimuthPosition,
+            kAzimuthVelocity,
+            kAzimuthTemperature,
+            kAzimuthStatorCurrent,
+            kAzimuthSupplyCurrent,
+            kAzimuthSupplyVoltage
+        );
+
+        kCANcoder.optimizeBusUtilization();
+        kAzimuth.optimizeBusUtilization();
+        kDrive.optimizeBusUtilization();
     }
 
     @Override

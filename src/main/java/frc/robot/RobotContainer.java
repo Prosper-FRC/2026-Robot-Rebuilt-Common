@@ -12,7 +12,7 @@ public class RobotContainer {
     // Declare robot constants and subsystems.
     public final CommandXboxController kDriveController = new CommandXboxController(RobotConstants.Instance().kDriveControllerPort);
     public final CommandXboxController kOperatorController = new CommandXboxController(RobotConstants.Instance().kOperatorControllerPort);
-    public final Superstructure kSuperstructure = new Superstructure(true, true, true, true);
+    public final Superstructure kSuperstructure = new Superstructure(true, false, false, false);
 
     public RobotContainer() {
         configureBindings();
@@ -21,8 +21,5 @@ public class RobotContainer {
     // Bind buttons to hardware.
     private void configureBindings() {
         kSuperstructure.bindDriveCommands(kDriveController);
-        kSuperstructure.bindIntakeCommands(kOperatorController);
-        kSuperstructure.bindIndexerCommands(kOperatorController);
-        kSuperstructure.bindShooterCommands(kOperatorController);
     }
 }
