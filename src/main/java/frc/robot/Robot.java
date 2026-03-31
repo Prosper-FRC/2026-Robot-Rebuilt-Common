@@ -11,11 +11,17 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import choreo.auto.AutoChooser;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.robot.Commands.AutonCommands;
 import frc.robot.Subsystems.Drive.Drive;
 
 public class Robot extends LoggedRobot {
     private final RobotContainer m_robotContainer;
+    
+    private final AutonCommands kAutonCommands;
+    private final AutoChooser kAutoChooser;
 
     public Robot() {
         // Sets up AK logging.
@@ -40,6 +46,16 @@ public class Robot extends LoggedRobot {
         Logger.start();
 
         m_robotContainer = new RobotContainer();
+
+        kAutonCommands = new AutonCommands(m_robotContainer.getDrive(), m_robotContainer.getShooter(), m_robotContainer.getIndexer());
+        kAutoChooser = new AutoChooser();
+
+        kAutoChooser.addRoutine("Test Routine (NOT FOR COMP)", kAutonCommands::testRoutine);
+        kAutoChooser.addRoutine("Simple Left to Hub", kAutonCommands::LeftToHub);
+        kAutoChooser.addRoutine("Simple Right to Hub", kAutonCommands::RightToHub);
+        kAutoChooser.addRoutine("Simple Hub Shoot", kAutonCommands::HubStart);
+
+        RobotModeTriggers.autonomous().whileTrue(kAutoChooser.selectedCommandScheduler());
     }
 
     @Override

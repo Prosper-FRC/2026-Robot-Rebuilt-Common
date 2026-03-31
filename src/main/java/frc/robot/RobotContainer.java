@@ -72,4 +72,25 @@ public class RobotContainer {
             .onTrue(kIntake.setRollerVoltageCommand(4.0d).alongWith(kSuperstructure.setRobotStateCommand(robotState.ACTIVE_CONFIGURATION)));
 
     }
+
+    // Methods to give the subsystems to Robot.java for Auton
+    public Drive getDrive()
+    {
+        return kDrive;
+    }
+
+    public Intake getIntake()
+    {
+        return kIntake;
+    }
+
+    public Indexer getIndexer()
+    {
+        return kIndexer;
+    }
+
+    public Shooter getShooter()
+    {
+        return kShooter;
+    }
 }

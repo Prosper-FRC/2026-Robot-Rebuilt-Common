@@ -8,6 +8,7 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -425,4 +426,7 @@ public class Drive extends SubsystemBase {
     public void resetOdometry(Pose2d pose) {
         kPoseEstimator.resetPose(pose);
     }
+
+    // Dummy method for auton
+    public void folllowTrajectoryChor(SwerveSample sample) {}
 }
