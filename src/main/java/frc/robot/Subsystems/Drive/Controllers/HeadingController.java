@@ -1,12 +1,9 @@
 package frc.robot.Subsystems.Drive.Controllers;
 
-import java.security.Timestamp;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 
-import choreo.trajectory.SwerveSample;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.RobotConstants;

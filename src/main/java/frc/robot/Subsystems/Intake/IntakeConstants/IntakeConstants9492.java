@@ -9,6 +9,9 @@ public class IntakeConstants9492 extends IntakeConstants {
         kIntakeIDs = new IntakeIDs(0, 0);
         kIntakeSoftLimits = new IntakeSoftLimits(12.0d, Rotation2d.fromRotations(0.0d), false, true);
         kIntakeHardLimits = new IntakeHardLimits(1.0d, 5.0d);
-        targetVelocityRPM = 45.0d;
+        rollerVoltageActive = 10.0d;
+        rollerVoltageIdle = 2.0d;
+        pivotCurrentLimits = new IntakeCurrentLimits(60.0d, 40.0d);
+        rollerCurrentLimits = new IntakeCurrentLimits(50.0d, 40.0d);
     }
 }

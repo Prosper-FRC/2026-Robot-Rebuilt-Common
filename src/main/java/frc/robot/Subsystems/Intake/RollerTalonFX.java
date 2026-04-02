@@ -56,6 +56,11 @@ public class RollerTalonFX implements RollerIO {
         kRollerConfiguration.MotorOutput.Inverted = intakeConstants.kIntakeSoftLimits.isInverted() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
         kRollerConfiguration.MotorOutput.NeutralMode = intakeConstants.kIntakeSoftLimits.isBraked() ? NeutralModeValue.Brake : NeutralModeValue.Coast;
 
+        kRollerConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
+        kRollerConfiguration.CurrentLimits.SupplyCurrentLimit = RobotConstants.IntakeConstants().rollerCurrentLimits.supplyCurrent();
+        kRollerConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
+        kRollerConfiguration.CurrentLimits.StatorCurrentLimit = RobotConstants.IntakeConstants().rollerCurrentLimits.statorCurrent();
+
         // Apply configuration
         kRollerMotor.getConfigurator().apply(kRollerConfiguration);
 

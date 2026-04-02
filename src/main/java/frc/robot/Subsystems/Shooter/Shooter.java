@@ -1,37 +1,32 @@
 package frc.robot.Subsystems.Shooter;
 
-import java.util.function.DoubleSupplier;
-
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotConstants;
 
 public class Shooter extends SubsystemBase {
     public static final Shooter NoOp = new Shooter(new FlywheelIO() {}, new HoodIO() {});
 
-    public static enum shooterHoodSetpoint {
-        Hub(() -> 0.0d);
-
-        private DoubleSupplier setpoint;
-
-        private shooterHoodSetpoint(DoubleSupplier setpoint) {
-            this.setpoint = setpoint;
-        }
-
-        public DoubleSupplier getSetpoint() {
-            return setpoint;
-        }
+    public static enum shooterState {
+        Inactive, 
+        Active;
     }
-    public shooterHoodSetpoint setpoint = shooterHoodSetpoint.Hub;
+    @AutoLogOutput(key = "Shooter/State")
+    public shooterState state = shooterState.Inactive;
 
     private final FlywheelIO kFlywheel;
     private final HoodIO kHood;
 
     private final flywheelInputsAutoLogged kFlywheelInputs = new flywheelInputsAutoLogged();
     private final hoodInputsAutoLogged kHoodInputs = new hoodInputsAutoLogged();
+
+    private final Debouncer kShooterSpeedDebouncer = new Debouncer(0.15d);
     
     public Shooter(FlywheelIO flywheel, HoodIO hood) {
         kFlywheel = flywheel;
@@ -51,6 +46,9 @@ public class Shooter extends SubsystemBase {
     public void stopShooter() {
         kFlywheel.stopFlywheel();
     }
+    public void setShooterState(shooterState state) {
+        this.state = state;
+    }
 
     public Command setShooterCommand(double rps, double position) {
         return new RunCommand(() -> setShooter(rps, position));
@@ -64,6 +62,13 @@ public class Shooter extends SubsystemBase {
     public Command stopShooterCommand() {
         return new InstantCommand(() -> stopShooter());
     }
+    public Command setShooterStateCommand(shooterState state) {
+        return new InstantCommand(() -> setShooterState(state));
+    }
+
+    public boolean isShooterSpunUp() {
+        return kShooterSpeedDebouncer.calculate(Math.abs(RobotConstants.ShooterConstants().kShooterRPS - kFlywheelInputs.velocityRPS) < 5.0d);
+    }
 
     @Override
     public void periodic() {
@@ -71,5 +76,16 @@ public class Shooter extends SubsystemBase {
         kHood.updateInputs(kHoodInputs);
         Logger.processInputs("Shooter/Flywheel", kFlywheelInputs);
         Logger.processInputs("Shooter/Hood", kHoodInputs);
+
+        switch (state) {
+            case Active:
+                kFlywheel.setFlywheelRPS(RobotConstants.ShooterConstants().kShooterRPS);
+                break;
+            case Inactive:
+                kFlywheel.setFlywheelRPS(0.0d);
+                break;
+            default:
+                break;
+        }
     }
 }

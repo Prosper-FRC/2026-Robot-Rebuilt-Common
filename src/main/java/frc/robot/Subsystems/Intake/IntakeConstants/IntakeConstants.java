@@ -12,10 +12,15 @@ public class IntakeConstants {
     public static final record IntakeSoftLimits(double voltageLimits, Rotation2d rangeOfMotion, boolean isInverted, boolean isBraked) {}
     public static final record IntakeHardLimits(double rollerGearRatio, double pivotGearRatio) {}
 
+    public static final record IntakeCurrentLimits(double statorCurrent, double supplyCurrent) {}
+
     public IntakeGains kIntakePivotGains;
     public IntakeGains kIntakeRollerGains;
     public IntakeIDs kIntakeIDs;
     public IntakeSoftLimits kIntakeSoftLimits;
     public IntakeHardLimits kIntakeHardLimits;
-    public double targetVelocityRPM;
+    public double rollerVoltageActive;
+    public double rollerVoltageIdle;
+    public IntakeCurrentLimits pivotCurrentLimits;
+    public IntakeCurrentLimits rollerCurrentLimits;
 }

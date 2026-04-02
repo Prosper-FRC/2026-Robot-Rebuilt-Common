@@ -1,11 +1,12 @@
 package frc.robot.Subsystems.Indexer;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotConstants;
 
 public class Indexer extends SubsystemBase {
     public static final Indexer NoOp = new Indexer(
@@ -14,6 +15,14 @@ public class Indexer extends SubsystemBase {
         new HopperIO() {},
         new HopperIO() {}
     );
+
+    public static enum indexerState {
+        Inactive,
+        Active
+    }
+
+    @AutoLogOutput(key = "Indexer/State")
+    public indexerState state = indexerState.Inactive;
 
     private final HopperIO[] kHopperMotors = new HopperIO[4];
     private final hopperInputsAutoLogged[] kHopperInputs = new hopperInputsAutoLogged[] {
@@ -49,7 +58,7 @@ public class Indexer extends SubsystemBase {
     }
 
     public Command setHoppersAndBallTunnelCommand(double hopperVolts, double tunnelVolts) {
-        return new RunCommand(() -> {
+        return new InstantCommand(() -> {
             setHoppers(hopperVolts);
             setBallTunnel(tunnelVolts);
         });
@@ -75,6 +84,15 @@ public class Indexer extends SubsystemBase {
         return new InstantCommand(() -> stopBallTunnel(), this);
     }
 
+    public void setIndexerState(indexerState state) {
+        this.state = state;
+    }
+    public Command setIndexerStateCommand(indexerState state) {
+        return new InstantCommand(() -> {
+            setIndexerState(state);
+        });
+    }
+
     @Override
     public void periodic() {
         kHopperMotors[0].updateInputs(kHopperInputs[0]);
@@ -86,5 +104,18 @@ public class Indexer extends SubsystemBase {
         Logger.processInputs("Indexer/Hopper2", kHopperInputs[1]);
         Logger.processInputs("Indexer/Hopper3", kHopperInputs[2]);
         Logger.processInputs("Indexer/BallTunnel", kHopperInputs[3]);
+
+        switch (state) {
+            case Inactive:
+                stopHoppers();
+                stopBallTunnel();
+                break;
+            case Active:
+                setHoppers(RobotConstants.IndexerConstants().kHopperVoltagesActive);
+                setBallTunnel(RobotConstants.IndexerConstants().kBallTunnelVoltagesActive);
+                break;
+            default:
+                break;
+        }
     }
 }

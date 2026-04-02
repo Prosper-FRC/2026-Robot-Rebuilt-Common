@@ -58,6 +58,11 @@ public class PivotTalonFX implements PivotIO {
         kPivotConfiguration.MotorOutput.Inverted = intakeConstants.kIntakeSoftLimits.isInverted() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
         kPivotConfiguration.MotorOutput.NeutralMode = intakeConstants.kIntakeSoftLimits.isBraked() ? NeutralModeValue.Brake : NeutralModeValue.Coast;
 
+        kPivotConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
+        kPivotConfiguration.CurrentLimits.SupplyCurrentLimit = RobotConstants.IntakeConstants().pivotCurrentLimits.supplyCurrent();
+        kPivotConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
+        kPivotConfiguration.CurrentLimits.StatorCurrentLimit = RobotConstants.IntakeConstants().pivotCurrentLimits.statorCurrent();
+
         // Apply configuration
         kPivotMotor.getConfigurator().apply(kPivotConfiguration);
 

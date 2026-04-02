@@ -29,12 +29,17 @@ public class FlywheelTalonFX implements FlywheelIO{
         kFlywheelMotor = new TalonFX(RobotConstants.ShooterConstants().flywheelID);
         kFlywheelConfig = new TalonFXConfiguration();
         
-        var gains = RobotConstants.ShooterConstants().kSGains;
+        var gains = RobotConstants.ShooterConstants().kShooterGains;
 
         kFlywheelConfig.Slot0.kP = gains.kP();
         kFlywheelConfig.Slot0.kI = gains.kI();
         kFlywheelConfig.Slot0.kD = gains.kD();
         kFlywheelConfig.Slot0.kV = gains.kV();
+
+        kFlywheelConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        kFlywheelConfig.CurrentLimits.StatorCurrentLimit = RobotConstants.ShooterConstants().kFlywheelCurrentLimits.statorCurrent();
+        kFlywheelConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        kFlywheelConfig.CurrentLimits.SupplyCurrentLimit = RobotConstants.ShooterConstants().kFlywheelCurrentLimits.supplyCurrent();
 
         kFlywheelMotor.getConfigurator().apply(kFlywheelConfig);
         

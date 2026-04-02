@@ -1,8 +1,12 @@
 package frc.robot.Subsystems.Drive;
 
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.VoltsPerMeterPerSecond;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -201,7 +205,7 @@ public class Drive extends SubsystemBase {
         SmartDashboard.putData("Field", field); // Field widget for dashboard
 
         kRoutine = new SysIdRoutine(
-            new SysIdRoutine.Config(null, null, null, // Default values
+            new SysIdRoutine.Config(Volts.per(Second).of(0.75d), Volts.of(6d), Seconds.of(8.0), // Default values
             (sysidState) -> Logger.recordOutput("Drive/SysIdState", sysidState.toString())),
             new SysIdRoutine.Mechanism((voltage) -> this.applySysIdVoltage(voltage.in(Volts)), 
             null, // AK will be logging the values here.
@@ -283,8 +287,6 @@ public class Drive extends SubsystemBase {
                 stateUpdateTeleop();
                 break;
             case AUTON:
-                desiredSpeeds = kHolonomicController.getVelocityGoal(getDesiredAutonSpeeds(), getDesiredAutonPose(), poseEstimator);
-                desiredSpeeds.omegaRadiansPerSecond = kHeadingController.getOmega(Rotation2d.fromRadians(getDesiredAutonSpeeds().omegaRadiansPerSecond)).getRadians();
                 releaseTeleopHeading();
                 stateUpdateAutonomous();
                 break;
@@ -342,7 +344,6 @@ public class Drive extends SubsystemBase {
     private void stateUpdateAutonomous() {
         // Get the field relative speeds and convert them to robot relative speeds. Then convert them to swerve module states.
         ChassisSpeeds autonTargetSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(desiredSpeeds, kGyro.getGyroAngle().orElse(Rotation2d.kZero));
-        kHeadingController.setHeading(getDesiredAutonPose().getRotation());
         SwerveModuleState[] autonModuleStates = kKinematics.toSwerveModuleStates(autonTargetSpeeds);
 
         SwerveDriveKinematics.desaturateWheelSpeeds(autonModuleStates, RobotConstants.DriveConstants().kModuleSoftLimits.absoluteMaxDriveVelocityMPS());
@@ -412,11 +413,9 @@ public class Drive extends SubsystemBase {
     
     public driveState getDriveState() { return state; }
 
-    // TODO implement getDesiredAutonPose().
-    private Pose2d getDesiredAutonPose() { return new Pose2d(-2.0d, 0.0, Rotation2d.fromRotations(0.0d)); }
-
-    // TODO implement getDesiredAutonSpeeds().
-    private ChassisSpeeds getDesiredAutonSpeeds() { return new ChassisSpeeds(); }
+    public void followSwerveTrajectory(SwerveSample sample) {
+        kHolonomicController.setTargetTrajectory(sample.getChassisSpeeds(), sample.getPose());
+    }
 
     // Getters
     public Pose2d getRobotPose() {

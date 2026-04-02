@@ -64,9 +64,9 @@ public class GyroPigeon2 implements GyroIO {
     public void resetGyro() {
         // TODO Verify if these values need to be flipped to operate properly
         if(RobotConstants.Instance().kIsBlueAlliance) {
-            kGyro.setYaw(0.0d);
+            kGyro.setYaw(180.0d);
         } else {
-            kGyro.setYaw(180); // In degrees
+            kGyro.setYaw(0.0d); // In degrees
         }
     }
 

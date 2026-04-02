@@ -1,31 +1,22 @@
 package frc.robot.Subsystems.Intake;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Rotation2d;
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.RobotConstants;
-import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants.IntakeGains;
 
 public class RollerSim implements RollerIO { 
+    @AutoLogOutput(key = "Intake/Roller/Voltage")
     private double appliedVoltage = 0.0d;
-    private boolean usePID = false;
-    private double targetSpeedSetpoint = 0.0d;
-    private final PIDController kRollerController;
-    private final SimpleMotorFeedforward kRollerFeedforward;
 
     private final DCMotorSim kRollerMotor = new DCMotorSim(
         LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.0005, RobotConstants.IntakeConstants().kIntakeHardLimits.rollerGearRatio()), 
         DCMotor.getKrakenX60(1), 
         0.0d, 0.0d);
 
-    public RollerSim() {
-        IntakeGains gains = RobotConstants.IntakeConstants().kIntakeRollerGains;
-        kRollerController = new PIDController(gains.pidGains().kP(), gains.pidGains().kI(), gains.pidGains().kD());
-        kRollerFeedforward = new SimpleMotorFeedforward(gains.feedForwardGains().kS(), gains.feedForwardGains().kV());
-    }
+    public RollerSim() {}
 
     @Override
     public void updateInputs(RollerInputs toUpdate) {
@@ -34,9 +25,6 @@ public class RollerSim implements RollerIO {
         toUpdate.velocityRPS = kRollerMotor.getAngularVelocityRPM() / 60;
         toUpdate.supplyVoltage = appliedVoltage;
 
-        if(usePID) {
-            appliedVoltage = kRollerController.calculate(appliedVoltage, targetSpeedSetpoint) + kRollerFeedforward.calculate(kRollerMotor.getAngularVelocityRPM() / 60);
-        }
         kRollerMotor.setInputVoltage(appliedVoltage);
 
         kRollerMotor.update(RobotConstants.Instance().kTimestep);
@@ -45,18 +33,10 @@ public class RollerSim implements RollerIO {
     @Override
     public void setOutputVoltage(double voltage) {
         appliedVoltage = voltage;
-        usePID = false;
-    }
-
-    @Override
-    public void setTargetVelocity(Rotation2d velocityPerSecond) {
-        usePID = true;
-        targetSpeedSetpoint = velocityPerSecond.getRotations();
     }
 
     @Override
     public void stopRollerMotor() {
-        usePID = false;
         appliedVoltage = 0.0d;
     }
 }

@@ -2,7 +2,6 @@ package frc.robot.Subsystems.Drive.Controllers;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 
-import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -15,8 +14,14 @@ public class HolonomicController {
     @AutoLogOutput(key = "Drive/HolonomicController/TargetSetpoint")
     private Pose2d targetPoseSetpoint = new Pose2d();
     
-    @AutoLogOutput(key = "Drive/HolonomicController/velocityGoalSpeeds")
+    @AutoLogOutput(key = "Drive/HolonomicController/VelocityGoalSpeeds")
     private ChassisSpeeds velocityGoal = new ChassisSpeeds();
+
+    @AutoLogOutput(key = "Drive/HolonomicController/Auton/AutonomousRequestedSpeeds")
+    private ChassisSpeeds requestedTargetSpeeds = new ChassisSpeeds();
+
+    @AutoLogOutput(key = "Drive/HolonomicController/Auton/AutonomousRequestedPose")
+    private Pose2d requestedTargetPositions = new Pose2d();
 
     public HolonomicController(ProfiledPIDController xPositionController, ProfiledPIDController yPositionController) {
         kXPositionController = xPositionController;
@@ -36,7 +41,8 @@ public class HolonomicController {
         return velocityGoal; // Made field relative in the state logic handling in Drive.java.
     }
 
-    public void followTrajectory(SwerveSample sample) {
-        velocityGoal = sample.getChassisSpeeds();
-    } 
+    public void setTargetTrajectory(ChassisSpeeds speeds, Pose2d pose) {
+        requestedTargetSpeeds = speeds;
+        requestedTargetPositions = pose;
+    }
 }

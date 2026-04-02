@@ -25,6 +25,7 @@ import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstantsSim;
 import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants;
 import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants5411;
 import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants9105;
+import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstantsSim;
 
 public class RobotConstants {
     private static RobotConstants instance = null;
@@ -89,7 +90,7 @@ public class RobotConstants {
                 kVisionConstants = new VisionConstants();
                 kIntakeConstants = new IntakeConstantsSim();
                 kIndexerConstants = new IndexerConstants();
-                kShooterConstants = new ShooterConstants();
+                kShooterConstants = new ShooterConstantsSim();
                 break;
             default:
                 // This will essentially throw an error

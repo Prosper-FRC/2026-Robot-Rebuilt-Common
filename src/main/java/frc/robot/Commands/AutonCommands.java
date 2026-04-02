@@ -5,10 +5,10 @@ package frc.robot.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.RobotConstants;
 import frc.robot.Subsystems.Drive.Drive;
 import frc.robot.Subsystems.Shooter.Shooter;
 import frc.robot.Subsystems.Indexer.Indexer;
-import frc.robot.Superstructure.Superstructure;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
@@ -16,6 +16,7 @@ import choreo.auto.AutoTrajectory;
 // imports
 
 public class AutonCommands {
+    // TODO Fix most of these things.
 
     private final AutoFactory kAutoFactory;
     //private final Superstructure kSuperstructure;
@@ -28,8 +29,8 @@ public class AutonCommands {
         kAutoFactory = new AutoFactory(
             drive::getRobotPose,
             drive::resetOdometry,
-            drive::folllowTrajectoryChor,
-            false, // TODO: get the alliance here somehow
+            drive::followSwerveTrajectory,
+            !RobotConstants.Instance().kIsBlueAlliance,
             drive);
 
         kShooter = shooter;
@@ -45,7 +46,7 @@ public class AutonCommands {
 
         routine.active().onTrue(
             new SequentialCommandGroup(
-                kShooter.setShooterCommand(0, 0), // TODO: get actual values
+                //kShooter.runShooterMotors(),
                 LeftToHub.resetOdometry(),
                 LeftToHub.cmd()
             )
@@ -53,7 +54,7 @@ public class AutonCommands {
 
         LeftToHub.done().onTrue(
             new ParallelCommandGroup(
-                kIndexer.setHoppersAndBallTunnelCommand(0, 0), // TODO: get actual values
+                //kIndexer.setIndexerStateCommand(IndexerState.Active),
                 new WaitCommand(5.0)
             ).andThen(
                 OutOfTheWay.cmd()
@@ -72,7 +73,7 @@ public class AutonCommands {
 
         routine.active().onTrue(
             new SequentialCommandGroup(
-                kShooter.setShooterCommand(0, 0),
+                //kShooter.runShooterMotors(),
                 LeftToHub.resetOdometry(),
                 LeftToHub.cmd()
             )
@@ -80,7 +81,7 @@ public class AutonCommands {
 
         LeftToHub.done().onTrue(
             new ParallelCommandGroup(
-                kIndexer.setHoppersAndBallTunnelCommand(0, 0),
+                //kIndexer.setIndexerStateCommand(IndexerState.Active),
                 new WaitCommand(5.0)
             ).andThen(
                 OutOfTheWay.cmd()
@@ -98,11 +99,11 @@ public class AutonCommands {
 
         routine.active().onTrue(
             new ParallelCommandGroup(
-                kShooter.setShooterCommand(0, 0),
+                //kShooter.runShooterMotors(),
                 new WaitCommand(0.5)
             ).andThen(
                 new ParallelCommandGroup(
-                kIndexer.setHoppersAndBallTunnelCommand(0, 0),
+                //kIndexer.setIndexerStateCommand(IndexerState.Active),
                 new WaitCommand(5.0)
                 ).andThen(
                     OutOfTheWay.cmd()
@@ -131,5 +132,4 @@ public class AutonCommands {
 
         return routine;
     }
-    
 }

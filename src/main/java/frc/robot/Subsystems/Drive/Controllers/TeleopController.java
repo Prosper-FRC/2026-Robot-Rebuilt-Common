@@ -42,9 +42,14 @@ public class TeleopController {
         double sniperScalar = RobotConstants.DriveConstants().sniperModeScalar;
 
         // Read the current input states supplied to us.
-        double readXInput = -xInput.getAsDouble();
-        double readYInput = -yInput.getAsDouble();
-        double readAngleInput = angleInput.getAsDouble();
+        double readXInput = xInput.getAsDouble();
+        double readYInput = yInput.getAsDouble();
+        double readAngleInput = -angleInput.getAsDouble();
+
+        if(RobotConstants.Instance().kIsBlueAlliance) {
+            readXInput *= -1;
+            readYInput *= -1;            
+        }
 
         // Apply a deadband to the controller inputs.
         double dbXInput = MathUtil.applyDeadband(readXInput, deadband);
