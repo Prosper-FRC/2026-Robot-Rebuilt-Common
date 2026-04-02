@@ -4,14 +4,12 @@
 
 package frc.robot;
 
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.photonvision.estimation.TargetModel;
-
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Commands.AutonCommands;
+import frc.robot.Commands.TeleopCommands;
 import frc.robot.Factories.DriveFactory;
 import frc.robot.Factories.IndexerFactory;
 import frc.robot.Factories.IntakeFactory;
@@ -20,15 +18,19 @@ import frc.robot.Factories.SubsystemFactory.SubsystemType;
 import frc.robot.Subsystems.Drive.Drive;
 import frc.robot.Subsystems.Drive.Drive.driveState;
 import frc.robot.Subsystems.Indexer.Indexer;
-import frc.robot.Subsystems.Indexer.Indexer.indexerState;
 import frc.robot.Subsystems.Intake.Intake;
-import frc.robot.Subsystems.Intake.Intake.intakePivotState;
-import frc.robot.Subsystems.Intake.Intake.intakeRollerState;
 import frc.robot.Subsystems.Shooter.Shooter;
-import frc.robot.Subsystems.Shooter.Shooter.shooterState;
 
-// This whole file is currently really scuffed, I intend to fix it later.
 public class RobotContainer {
+    public static enum robotState {
+        UNLOCKED,
+        DEFAULT_CONFIGURATION,
+        INTAKE_CONFIGURATION,
+        OUTTAKE_CONFIGURATION,
+        SHOOTER_CONFIGURATION
+    }
+    public robotState rState = robotState.DEFAULT_CONFIGURATION;
+
     // Declare robot constants and subsystems.
     public final CommandXboxController kDriveController = new CommandXboxController(RobotConstants.Instance().kDriveControllerPort);
     public final CommandXboxController kOperatorController = new CommandXboxController(RobotConstants.Instance().kOperatorControllerPort);
@@ -37,32 +39,29 @@ public class RobotContainer {
     public final Indexer kIndexer;
     public final Shooter kShooter;
 
+    public final TeleopCommands kTCommands;
+    public final AutonCommands kACommands;
+
+    public Command setRobotState(robotState state) {
+        return new InstantCommand(() -> rState = state);
+    }
+
+
     public RobotContainer() {
         // We're manually changing these for now.
         kDrive = DriveFactory.create(SubsystemType.SIM);
         kIntake = IntakeFactory.create(SubsystemType.SIM);
         kIndexer = IndexerFactory.create(SubsystemType.SIM);
         kShooter = ShooterFactory.create(SubsystemType.SIM);
-
+    
+        kACommands = new AutonCommands(kDrive, kShooter, kIndexer);
+        kTCommands = new TeleopCommands(kDrive, kIntake, kIndexer, kShooter);
+        
         configureBindings();
     }
 
-    @AutoLogOutput(key = "Intake/IsAtGoal")
-    private Trigger isIntakeAtGoal;
-
-    @AutoLogOutput(key = "Shooter/Flywheel/IsAtGoal")
-    private Trigger isShooterAtGoal;
-
-    @AutoLogOutput(key = "Intake/IsDeployed")
-    private Trigger isIntakeDeployed;
-
     // Bind buttons to hardware.
     private void configureBindings() {
-        isIntakeAtGoal = new Trigger(() -> kIntake.isAtGoal());
-        isShooterAtGoal = new Trigger(() -> kShooter.isShooterSpunUp());
-        isIntakeDeployed = new Trigger(() -> {
-            return kIntake.pivotState.equals(intakePivotState.Deployed);
-        });
 
         kDrive.setDefaultCommand(kDrive.setDriveStateCommand(driveState.TELEOP));
 
@@ -82,43 +81,21 @@ public class RobotContainer {
         );
 
         // Note: We can only shift commands when the intake is at its most recent desired goal.
-        kOperatorController.rightTrigger(0.75d)
-            .onTrue(
-                kIntake.setIntakeStateCommand(intakePivotState.Deployed, intakeRollerState.Inactive)
-                .alongWith(kShooter.setShooterStateCommand(shooterState.Active)))
-            .whileTrue (
-                new WaitUntilCommand(isIntakeAtGoal).andThen(
-                    kIntake.setIntakeStateCommand(intakePivotState.Deployed, intakeRollerState.Idling)
-                    .alongWith(new WaitUntilCommand(isShooterAtGoal)
-                        .andThen(kIndexer.setIndexerStateCommand(indexerState.Active)))
-                )
-            )
-            .onFalse(
-                kShooter.setShooterStateCommand(shooterState.Inactive)
-                .alongWith(kIndexer.setIndexerStateCommand(indexerState.Inactive))
-            );
-
-        kOperatorController.rightBumper()
-            .onTrue(kIntake.setIntakeStateCommand(intakePivotState.Deployed, intakeRollerState.Inactive))
-            .whileTrue(new WaitUntilCommand(isIntakeAtGoal)
-                .andThen(kIntake.setIntakeStateCommand(intakePivotState.Deployed, intakeRollerState.Intake)
-                .alongWith(kIndexer.setIndexerStateCommand(indexerState.Active))))
-            .onFalse(kIndexer.setIndexerStateCommand(indexerState.Inactive)
-            .alongWith(kIntake.setIntakeStateCommand(intakePivotState.Deployed, intakeRollerState.Idling)));
+        kOperatorController.rightTrigger(0.85d)
+            .onTrue(kTCommands.shiftToSuperstructureStateShooter())
+            .whileTrue(kTCommands.superstructureStateShooter())
+            .onFalse(kTCommands.exitSuperstructureStateShooter());
 
         kOperatorController.leftBumper()
-            .onTrue(kIntake.setIntakeStateCommand(intakePivotState.Deployed, intakeRollerState.Inactive).unless(isIntakeAtGoal.and(isIntakeDeployed)))
-            .whileTrue(new WaitUntilCommand(isIntakeAtGoal)
-                .andThen(kIntake.setIntakeStateCommand(intakePivotState.Deployed, intakeRollerState.Outtake)
-                .alongWith(kIndexer.setIndexerStateCommand(indexerState.Active))))
-            .onFalse(kIndexer.setIndexerStateCommand(indexerState.Inactive)
-            .alongWith(kIntake.setIntakeStateCommand(intakePivotState.Deployed, intakeRollerState.Inactive)));
+            .onTrue(kTCommands.shiftToSuperstructureStateIntake())
+            .whileTrue(kTCommands.superstructureStateIntake())
+            .onFalse(kTCommands.exitSuperstructureStateIntake());
 
-        kOperatorController.y()
-            .onTrue(
-                kIntake.setIntakeStateCommand(intakePivotState.Stowed, intakeRollerState.Inactive)
-                .alongWith(kIndexer.setIndexerStateCommand(indexerState.Inactive))
-                .alongWith(kShooter.setShooterStateCommand(shooterState.Inactive))
-            );
+        kOperatorController.leftTrigger()
+            .onTrue(kTCommands.shiftToSuperstructureStateOuttake())
+            .whileTrue(kTCommands.superstructureStateOuttake())
+            .onFalse(kTCommands.exitSuperstructureStateOuttake());
+
+        kOperatorController.y().onTrue(kTCommands.superstructureStateDefault());
     }
 }

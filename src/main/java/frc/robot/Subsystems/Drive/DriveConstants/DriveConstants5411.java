@@ -15,7 +15,7 @@ public class DriveConstants5411 extends DriveConstants {
         kBRModuleIDs = new moduleIDs(12, 22, 32);
 
         kModuleHardLimits = new moduleHardLimits(0.0508d, 6.12d/1.0d, 150.0d/7.0d, Units.inchesToMeters(26.5d));
-        kModuleSoftLimits = new moduleSoftlimits(new moduleControllerLimits(0.05d, 2, 6.0d), 4.5d, 4.0d, 1.0d, 24.0, true, true);
+        kModuleSoftLimits = new moduleSoftlimits(new moduleControllerLimits(0.05d, 2, 6.0d), 4.5d, 4.0d, 1.0d, 5.5d, true, true);
 
         kFLModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters()/2, kModuleHardLimits.trackDistanceMeters()/2), Rotation2d.fromRotations(0.017822), false);
         kFRModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters()/2, -kModuleHardLimits.trackDistanceMeters()/2), Rotation2d.fromRotations(0.254150), false);

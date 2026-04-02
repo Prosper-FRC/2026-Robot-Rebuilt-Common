@@ -15,7 +15,7 @@ public class DriveConstantsSim extends DriveConstants {
         kBRModuleIDs = new moduleIDs(14, 24, 34);
 
         kModuleHardLimits = new moduleHardLimits(0.0508d, 6.12d/1.0d, 150.0d/7.0d, Units.inchesToMeters(26.5d));
-        kModuleSoftLimits = new moduleSoftlimits(new moduleControllerLimits(0.05d, 2, 6.0d), 4.5d, 4.0d, 1.0d, 24.0, true, true);
+        kModuleSoftLimits = new moduleSoftlimits(new moduleControllerLimits(0.05d, 2, 6.0d), 4.5d, 4.0d, 1.0d, 5.5, true, true);
 
         kFLModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters()/2, kModuleHardLimits.trackDistanceMeters()/2), Rotation2d.fromRotations(0.43359375), true);
         kFRModuleOffsets = new moduleOffsets(new Translation2d(kModuleHardLimits.trackDistanceMeters()/2, -kModuleHardLimits.trackDistanceMeters()/2), Rotation2d.fromRotations(-0.42333984375), false);
@@ -23,9 +23,9 @@ public class DriveConstantsSim extends DriveConstants {
         kBRModuleOffsets = new moduleOffsets(new Translation2d(-kModuleHardLimits.trackDistanceMeters()/2, -kModuleHardLimits.trackDistanceMeters()/2), Rotation2d.fromRotations(-0.412841796875), false);
     
         kXTranslationalConstraints = new TrapezoidProfile.Constraints(kModuleSoftLimits.absoluteMaxDriveVelocityMPS(), kModuleSoftLimits.maxLinearAccelerationMPS2());
-        kXTranslationalController = new ProfiledPIDController(2.5d, 0.0d, 0.0d, kXTranslationalConstraints);
+        kXTranslationalController = new ProfiledPIDController(1.5d, 0.0d, 0.0d, kXTranslationalConstraints);
         kYTranslationalConstraints = new TrapezoidProfile.Constraints(kModuleSoftLimits.absoluteMaxDriveVelocityMPS(), kModuleSoftLimits.maxLinearAccelerationMPS2());
-        kYTranslationalController = new ProfiledPIDController(2.5d, 0.0d, 0.0d, kYTranslationalConstraints);
+        kYTranslationalController = new ProfiledPIDController(1.5d, 0.0d, 0.0d, kYTranslationalConstraints);
         kHeadingConstraints = new TrapezoidProfile.Constraints(kModuleSoftLimits.absoluteMaxDriveVelocityMPS(), kModuleSoftLimits.maxLinearAccelerationMPS2());
         kHeadingController = new ProfiledPIDController(20d, 0.0d, 0.05d, kHeadingConstraints);
     }

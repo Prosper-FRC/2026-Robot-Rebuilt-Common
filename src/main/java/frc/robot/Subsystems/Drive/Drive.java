@@ -3,10 +3,8 @@ package frc.robot.Subsystems.Drive;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
-import static edu.wpi.first.units.Units.VoltsPerMeterPerSecond;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -288,6 +286,7 @@ public class Drive extends SubsystemBase {
                 break;
             case AUTON:
                 releaseTeleopHeading();
+                desiredSpeeds = kHolonomicController.getVelocityGoal(poseEstimator);
                 stateUpdateAutonomous();
                 break;
             case SYSID:
@@ -413,6 +412,9 @@ public class Drive extends SubsystemBase {
     
     public driveState getDriveState() { return state; }
 
+     public void followSwerveTrajectoryNoPath(Pose2d kPosition) {
+        kHolonomicController.setTargetTrajectory(new ChassisSpeeds(), kPosition);
+    }
     public void followSwerveTrajectory(SwerveSample sample) {
         kHolonomicController.setTargetTrajectory(sample.getChassisSpeeds(), sample.getPose());
     }

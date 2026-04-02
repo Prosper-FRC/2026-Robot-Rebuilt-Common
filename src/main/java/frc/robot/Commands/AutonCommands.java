@@ -2,6 +2,8 @@
 package frc.robot.Commands;
 
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -23,8 +25,10 @@ public class AutonCommands {
 
     private final Shooter kShooter;
     private final Indexer kIndexer;
+    private final Drive kDrive;
 
     public AutonCommands(Drive drive, Shooter shooter, Indexer indexer) {
+        kDrive = drive;
 
         kAutoFactory = new AutoFactory(
             drive::getRobotPose,
@@ -131,5 +135,10 @@ public class AutonCommands {
         testPath.done().onTrue(testPath2.cmd());
 
         return routine;
+    }
+
+    // NON Choreo move command for ranking point through direct holonomic drive controller.
+    public Command moveRPAuto() {
+        return new InstantCommand(() -> kDrive.followSwerveTrajectoryNoPath(kDrive.getRobotPose().plus(new Transform2d(-1.5d, 0, new Rotation2d()))));
     }
 }

@@ -29,15 +29,15 @@ public class HolonomicController {
     }
 
     // Gets the updated velocity goals with the input.
-    public ChassisSpeeds getVelocityGoal(ChassisSpeeds feedforwardVelocity, Pose2d robotPoseTarget, Pose2d robotPoseEstimation) {
+    public ChassisSpeeds getVelocityGoal(Pose2d robotPoseEstimation) {
         velocityGoal = new ChassisSpeeds(
-            feedforwardVelocity.vxMetersPerSecond, 
-            feedforwardVelocity.vyMetersPerSecond, 
+            requestedTargetSpeeds.vxMetersPerSecond, 
+            requestedTargetSpeeds.vyMetersPerSecond, 
             0.0d); // Feedforward velocity is returned by Choreo.
         
         // Update the velocity goal with the translational error's offset.
-        velocityGoal.vxMetersPerSecond += kXPositionController.calculate(robotPoseEstimation.getX(), robotPoseTarget.getX());
-        velocityGoal.vyMetersPerSecond += kYPositionController.calculate(robotPoseEstimation.getY(), robotPoseTarget.getY());
+        velocityGoal.vxMetersPerSecond += kXPositionController.calculate(robotPoseEstimation.getX(), requestedTargetPositions.getX());
+        velocityGoal.vyMetersPerSecond += kYPositionController.calculate(robotPoseEstimation.getY(), requestedTargetPositions.getY());
         return velocityGoal; // Made field relative in the state logic handling in Drive.java.
     }
 
