@@ -49,10 +49,10 @@ public class RobotContainer {
 
     public RobotContainer() {
         // We're manually changing these for now.
-        kDrive = DriveFactory.create(SubsystemType.SIM);
-        kIntake = IntakeFactory.create(SubsystemType.SIM);
-        kIndexer = IndexerFactory.create(SubsystemType.SIM);
-        kShooter = ShooterFactory.create(SubsystemType.SIM);
+        kDrive = DriveFactory.create(SubsystemType.REAL);
+        kIntake = IntakeFactory.create(SubsystemType.REAL);
+        kIndexer = IndexerFactory.create(SubsystemType.REAL);
+        kShooter = ShooterFactory.create(SubsystemType.REAL);
     
         kACommands = new AutonCommands(kDrive, kShooter, kIndexer);
         kTCommands = new TeleopCommands(kDrive, kIntake, kIndexer, kShooter);
