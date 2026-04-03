@@ -18,7 +18,9 @@ public class Indexer extends SubsystemBase {
 
     public static enum indexerState {
         Inactive,
-        Active
+        Active,
+        Active_Ball_Tunnel,
+        Active_Hoppers
     }
 
     @AutoLogOutput(key = "Indexer/State")
@@ -113,6 +115,14 @@ public class Indexer extends SubsystemBase {
             case Active:
                 setHoppers(RobotConstants.IndexerConstants().kHopperVoltagesActive);
                 setBallTunnel(RobotConstants.IndexerConstants().kBallTunnelVoltagesActive);
+                break;
+            case Active_Ball_Tunnel:
+                stopHoppers();;
+                setBallTunnel(RobotConstants.IndexerConstants().kBallTunnelVoltagesActive);
+                break;
+            case Active_Hoppers:
+                setHoppers(RobotConstants.IndexerConstants().kHopperVoltagesActive);
+                stopBallTunnel();
                 break;
             default:
                 break;

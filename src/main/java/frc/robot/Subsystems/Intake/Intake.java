@@ -107,6 +107,16 @@ public class Intake extends SubsystemBase {
         });
     }
 
+    public Command toggleIntakePivotState() {
+        return new InstantCommand(() -> {
+            if (pivotState.equals(intakePivotState.Deployed)) {
+                pivotState = intakePivotState.Stowed;
+            } else {
+                pivotState = intakePivotState.Deployed;
+            }
+        });
+    }
+
     public boolean isAtGoal() {
         return kIntakeDeployDebouncer.calculate(Math.abs(kPivotInputs.positionRotations - pivotState.getSetpoint().getAsDouble()) <= 0.05);
     }
