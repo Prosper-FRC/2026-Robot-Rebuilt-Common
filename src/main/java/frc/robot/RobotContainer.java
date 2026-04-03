@@ -18,8 +18,12 @@ import frc.robot.Factories.SubsystemFactory.SubsystemType;
 import frc.robot.Subsystems.Drive.Drive;
 import frc.robot.Subsystems.Drive.Drive.driveState;
 import frc.robot.Subsystems.Indexer.Indexer;
+import frc.robot.Subsystems.Indexer.Indexer.indexerState;
 import frc.robot.Subsystems.Intake.Intake;
+import frc.robot.Subsystems.Intake.Intake.intakePivotState;
+import frc.robot.Subsystems.Intake.Intake.intakeRollerState;
 import frc.robot.Subsystems.Shooter.Shooter;
+import frc.robot.Subsystems.Shooter.Shooter.shooterState;
 
 public class RobotContainer {
     public static enum robotState {
@@ -81,21 +85,31 @@ public class RobotContainer {
         );
 
         // Note: We can only shift commands when the intake is at its most recent desired goal.
-        kOperatorController.rightTrigger(0.85d)
-            .onTrue(kTCommands.shiftToSuperstructureStateShooter())
-            .whileTrue(kTCommands.superstructureStateShooter())
-            .onFalse(kTCommands.exitSuperstructureStateShooter());
+        kOperatorController.rightBumper().and(kOperatorController.rightTrigger().negate())
+            .onTrue(kIndexer.setIndexerStateCommand(indexerState.Active_Hoppers))
+            .onFalse(kIndexer.setIndexerStateCommand(indexerState.Inactive));
 
-        kOperatorController.leftBumper()
-            .onTrue(kTCommands.shiftToSuperstructureStateIntake())
-            .whileTrue(kTCommands.superstructureStateIntake())
-            .onFalse(kTCommands.exitSuperstructureStateIntake());
+        kOperatorController.rightTrigger().and(kOperatorController.rightBumper().negate())
+            .onTrue(kShooter.setShooterStateCommand(shooterState.Active)
+                .alongWith(kIndexer.setIndexerStateCommand(indexerState.Active_Ball_Tunnel)))
+            .onFalse(kShooter.setShooterStateCommand(shooterState.Inactive)
+                .alongWith(kIndexer.setIndexerStateCommand(indexerState.Inactive)));
 
-        kOperatorController.leftTrigger()
-            .onTrue(kTCommands.shiftToSuperstructureStateOuttake())
-            .whileTrue(kTCommands.superstructureStateOuttake())
-            .onFalse(kTCommands.exitSuperstructureStateOuttake());
+        kOperatorController.rightBumper().and(kOperatorController.rightTrigger())
+            .onTrue(kShooter.setShooterStateCommand(shooterState.Active)
+                .alongWith(kIndexer.setIndexerStateCommand(indexerState.Active)))
+            .onFalse(kShooter.setShooterStateCommand(shooterState.Inactive)
+                .alongWith(kIndexer.setIndexerStateCommand(indexerState.Inactive)));
 
-        kOperatorController.y().onTrue(kTCommands.superstructureStateDefault());
+        kOperatorController.leftTrigger().and(kOperatorController.leftBumper().negate())
+            .onTrue(kIntake.setIntakeRollerStateCommand(intakeRollerState.Outtake))
+            .onFalse(kIntake.setIntakeRollerStateCommand(intakeRollerState.Idling));
+
+        kOperatorController.leftBumper().and(kOperatorController.leftTrigger().negate())
+            .onTrue(kIntake.setIntakeRollerStateCommand(intakeRollerState.Intake))
+            .onFalse(kIntake.setIntakeRollerStateCommand(intakeRollerState.Inactive));
+
+        kOperatorController.y()
+            .onTrue(kIntake.toggleIntakePivotState());
     }
 }
