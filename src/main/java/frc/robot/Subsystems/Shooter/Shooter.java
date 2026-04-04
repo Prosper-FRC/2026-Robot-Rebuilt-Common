@@ -78,7 +78,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean isShooterSpunUp() {
-        return kShooterSpeedDebouncer.calculate(Math.abs(RobotConstants.ShooterConstants().kShooterRPS - kFlywheelInputs.velocityRPS) < 5.0d);
+        return kShooterSpeedDebouncer.calculate(Math.abs(RobotConstants.ShooterConstants().kShooterRPS - kFlywheelInputs.velocityRPS) < 10.0d);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class Shooter extends SubsystemBase {
                 kFlywheel.setFlywheelRPS(RobotConstants.ShooterConstants().kShooterRPS);
                 break;
             case Inactive:
-                kFlywheel.setFlywheelRPS(0.0d);
+                kFlywheel.stopFlywheel();
                 break;
             default:
                 break;

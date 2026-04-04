@@ -23,9 +23,9 @@ public class DriveConstants9105 extends DriveConstants {
         kBRModuleOffsets = new moduleOffsets(new Translation2d(-kModuleHardLimits.trackDistanceMeters()/2, -kModuleHardLimits.trackDistanceMeters()/2), Rotation2d.fromRotations(0.080811), false);
     
         kXTranslationalConstraints = new TrapezoidProfile.Constraints(kModuleSoftLimits.absoluteMaxDriveVelocityMPS(), kModuleSoftLimits.maxLinearAccelerationMPS2());
-        kXTranslationalController = new ProfiledPIDController(0.0d, 0.0d, 0.0d, kXTranslationalConstraints);
+        kXTranslationalController = new ProfiledPIDController(1.0d, 0.0d, 0.0d, kXTranslationalConstraints);
         kYTranslationalConstraints = new TrapezoidProfile.Constraints(kModuleSoftLimits.absoluteMaxDriveVelocityMPS(), kModuleSoftLimits.maxLinearAccelerationMPS2());
-        kYTranslationalController = new ProfiledPIDController(0.0d, 0.0d, 0.0d, kYTranslationalConstraints);
+        kYTranslationalController = new ProfiledPIDController(1.0d, 0.0d, 0.0d, kYTranslationalConstraints);
         kHeadingConstraints = new TrapezoidProfile.Constraints(kModuleSoftLimits.absoluteMaxDriveVelocityMPS(), kModuleSoftLimits.maxLinearAccelerationMPS2());
         kHeadingController = new ProfiledPIDController(0.0d, 0.0d, 0.0d, kHeadingConstraints);
     }
