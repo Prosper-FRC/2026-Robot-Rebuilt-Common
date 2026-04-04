@@ -19,7 +19,7 @@ public class Intake extends SubsystemBase {
 
     public static enum intakePivotState {
         Stowed(() -> 0.0d),
-        Deployed(() -> 0.25d);
+        Deployed(() -> -1.4d);
         private DoubleSupplier rotationSetpoint;
 
         private intakePivotState(DoubleSupplier setpoint) {

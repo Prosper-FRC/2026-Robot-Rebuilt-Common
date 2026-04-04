@@ -7,7 +7,7 @@ public class ShooterConstants {
 
     public static final record currentLimits(double statorCurrent, double supplyCurrent) {}
 
-    public final double kShooterRPS = 55.0d;
+    public final double kShooterRPS = 65.0d;
 
     public shooterGains kShooterGains;
     public hoodGains kHGains;

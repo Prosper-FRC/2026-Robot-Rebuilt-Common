@@ -44,7 +44,7 @@ public class TeleopController {
         // Read the current input states supplied to us.
         double readXInput = xInput.getAsDouble();
         double readYInput = yInput.getAsDouble();
-        double readAngleInput = -angleInput.getAsDouble();
+        double readAngleInput = angleInput.getAsDouble();
 
         if(RobotConstants.Instance().kIsBlueAlliance) {
             readXInput *= -1;
