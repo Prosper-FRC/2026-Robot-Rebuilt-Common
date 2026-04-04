@@ -51,5 +51,4 @@ public class HoodRev implements HoodIO {
     public void stopHood() {
         kHoodMotor.stopMotor();
     }
-    
 }

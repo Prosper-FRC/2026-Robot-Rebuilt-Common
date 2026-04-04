@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Commands.AutonCommands;
-import frc.robot.Commands.TeleopCommands;
 import frc.robot.Factories.DriveFactory;
 import frc.robot.Factories.IndexerFactory;
 import frc.robot.Factories.IntakeFactory;
@@ -20,7 +19,6 @@ import frc.robot.Subsystems.Drive.Drive.driveState;
 import frc.robot.Subsystems.Indexer.Indexer;
 import frc.robot.Subsystems.Indexer.Indexer.indexerState;
 import frc.robot.Subsystems.Intake.Intake;
-import frc.robot.Subsystems.Intake.Intake.intakePivotState;
 import frc.robot.Subsystems.Intake.Intake.intakeRollerState;
 import frc.robot.Subsystems.Shooter.Shooter;
 import frc.robot.Subsystems.Shooter.Shooter.shooterState;
@@ -43,7 +41,6 @@ public class RobotContainer {
     public final Indexer kIndexer;
     public final Shooter kShooter;
 
-    public final TeleopCommands kTCommands;
     public final AutonCommands kACommands;
 
     public Command setRobotState(robotState state) {
@@ -59,7 +56,6 @@ public class RobotContainer {
         kShooter = ShooterFactory.create(SubsystemType.REAL);
     
         kACommands = new AutonCommands(kDrive, kShooter, kIndexer);
-        kTCommands = new TeleopCommands(kDrive, kIntake, kIndexer, kShooter);
         
         configureBindings();
     }
@@ -111,5 +107,7 @@ public class RobotContainer {
 
         kOperatorController.y()
             .onTrue(kIntake.toggleIntakePivotState());
+
+        kShooter.supplyHoodAxis(() -> kOperatorController.getLeftY());
     }
 }
