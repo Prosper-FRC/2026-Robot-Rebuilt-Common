@@ -1,8 +1,11 @@
 package frc.robot.Subsystems.Shooter;
 
+import java.util.function.DoubleSupplier;
+
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -27,10 +30,18 @@ public class Shooter extends SubsystemBase {
     private final hoodInputsAutoLogged kHoodInputs = new hoodInputsAutoLogged();
 
     private final Debouncer kShooterSpeedDebouncer = new Debouncer(0.15d);
+
+    private double hoodPosition = 0.0d;
+
+    private DoubleSupplier hoodAxis = () -> 0.0d;
     
     public Shooter(FlywheelIO flywheel, HoodIO hood) {
         kFlywheel = flywheel;
         kHood = hood;
+    }
+
+    public void supplyHoodAxis(DoubleSupplier supplier) {
+        hoodAxis = supplier;
     }
 
     public void setShooter(double rps, double position) {
@@ -76,6 +87,14 @@ public class Shooter extends SubsystemBase {
         kHood.updateInputs(kHoodInputs);
         Logger.processInputs("Shooter/Flywheel", kFlywheelInputs);
         Logger.processInputs("Shooter/Hood", kHoodInputs);
+
+        double readGoal = hoodAxis.getAsDouble();
+
+        if(Math.abs(readGoal) > 0.1d) {
+            hoodPosition += MathUtil.copyDirectionPow(readGoal, 2.0d) * RobotConstants.Instance().kTimestep * RobotConstants.ShooterConstants().kHoodMaxAngularVelocityRPS;
+        }
+
+        kHood.setHoodPosition(hoodPosition);
 
         switch (state) {
             case Active:

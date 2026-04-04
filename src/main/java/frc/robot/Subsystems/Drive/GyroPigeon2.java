@@ -10,7 +10,6 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
-import frc.robot.RobotConstants;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants.gyroOffsets;
 
 public class GyroPigeon2 implements GyroIO {
@@ -63,11 +62,7 @@ public class GyroPigeon2 implements GyroIO {
     @Override
     public void resetGyro() {
         // TODO Verify if these values need to be flipped to operate properly
-        if(RobotConstants.Instance().kIsBlueAlliance) {
-            kGyro.setYaw(180.0d);
-        } else {
-            kGyro.setYaw(0.0d); // In degrees
-        }
+        kGyro.setYaw(0.0d); // In degrees
     }
 
     @Override

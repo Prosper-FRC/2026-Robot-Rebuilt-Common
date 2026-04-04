@@ -2,6 +2,7 @@
 package frc.robot.Commands;
 
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -141,6 +142,6 @@ public class AutonCommands {
 
     // NON Choreo move command for ranking point through direct holonomic drive controller.
     public Command moveRPAuto() {
-        return new InstantCommand(() -> kDrive.followSwerveTrajectoryNoPath(kDrive.getRobotPose().plus(new Transform2d(-1.5d, 0, new Rotation2d()))));
+        return new InstantCommand(() -> kDrive.followSwerveTrajectoryNoPath(new Pose2d(0, 1.5d, new Rotation2d())));
     }
 }

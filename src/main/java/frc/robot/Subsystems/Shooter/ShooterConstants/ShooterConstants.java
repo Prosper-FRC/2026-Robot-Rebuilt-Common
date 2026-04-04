@@ -8,6 +8,7 @@ public class ShooterConstants {
     public static final record currentLimits(double statorCurrent, double supplyCurrent) {}
 
     public final double kShooterRPS = 45.0d;
+    public final double kHoodMaxAngularVelocityRPS = 0.25d;
 
     public shooterGains kShooterGains;
     public hoodGains kHGains;
