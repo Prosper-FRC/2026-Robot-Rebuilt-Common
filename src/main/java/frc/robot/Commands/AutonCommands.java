@@ -12,7 +12,9 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotConstants;
 import frc.robot.Subsystems.Drive.Drive;
 import frc.robot.Subsystems.Shooter.Shooter;
+import frc.robot.Subsystems.Shooter.Shooter.shooterState;
 import frc.robot.Subsystems.Indexer.Indexer;
+import frc.robot.Subsystems.Indexer.Indexer.indexerState;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
@@ -142,5 +144,13 @@ public class AutonCommands {
     // NON Choreo move command for ranking point through direct holonomic drive controller.
     public Command moveRPAuto() {
         return new InstantCommand(() -> kDrive.followSwerveTrajectoryNoPath(kDrive.getRobotPose().plus(new Transform2d(-1.5d, 0, new Rotation2d()))));
+    }
+
+    public Command shooterAuto() {
+        return new SequentialCommandGroup(kShooter.setShooterStateCommand(shooterState.Active),
+        kIndexer.setIndexerStateCommand(indexerState.Active),
+        new WaitCommand(5.0),
+        kShooter.setShooterStateCommand(shooterState.Inactive),
+        kIndexer.setIndexerStateCommand(indexerState.Inactive));
     }
 }

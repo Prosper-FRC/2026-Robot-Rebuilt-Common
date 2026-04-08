@@ -99,7 +99,7 @@ public class RobotContainer {
 
         kOperatorController.leftTrigger().and(kOperatorController.leftBumper().negate())
             .onTrue(kIntake.setIntakeRollerStateCommand(intakeRollerState.Outtake))
-            .onFalse(kIntake.setIntakeRollerStateCommand(intakeRollerState.Idling));
+            .onFalse(kIntake.setIntakeRollerStateCommand(intakeRollerState.Idling)); /,.td
 
         kOperatorController.leftBumper().and(kOperatorController.leftTrigger().negate())
             .onTrue(kIntake.setIntakeRollerStateCommand(intakeRollerState.Intake))

@@ -63,7 +63,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        CommandScheduler.getInstance().schedule(m_robotContainer.kACommands.moveRPAuto()
+        CommandScheduler.getInstance().schedule(m_robotContainer.kACommands.moveRPAuto()  
         .alongWith(m_robotContainer.kDrive.setDriveStateCommandContinuous(driveState.AUTON)));
     }
 

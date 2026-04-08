@@ -20,7 +20,8 @@ public class Indexer extends SubsystemBase {
         Inactive,
         Active,
         Active_Ball_Tunnel,
-        Active_Hoppers
+        Active_Hoppers,
+        Reverse
     }
 
     @AutoLogOutput(key = "Indexer/State")
@@ -123,6 +124,9 @@ public class Indexer extends SubsystemBase {
             case Active_Hoppers:
                 setHoppers(RobotConstants.IndexerConstants().kHopperVoltagesActive);
                 stopBallTunnel();
+                break;
+            case Reverse:
+                setHoppers(-RobotConstants.IndexerConstants().kHopperVoltagesActive);
                 break;
             default:
                 break;
