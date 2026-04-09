@@ -1,433 +1,249 @@
 package frc.robot.Subsystems.Drive;
 
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
-
-import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import choreo.trajectory.SwerveSample;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotConstants;
-import frc.robot.Subsystems.Drive.Controllers.HeadingController;
-import frc.robot.Subsystems.Drive.Controllers.HolonomicController;
 import frc.robot.Subsystems.Drive.Controllers.TeleopController;
+import frc.robot.Subsystems.Drive.Gyro.GyroIO;
+import frc.robot.Subsystems.Drive.Gyro.GyroInputsAutoLogged;
+import frc.robot.Subsystems.Drive.SwerveModule.SwerveModuleIO;
+import frc.robot.Subsystems.Drive.SwerveModule.SwerveModuleInputsAutoLogged;
+import frc.robot.Subsystems.Drive.SwerveSetpointGenerator.SetpointGenerator;
+import frc.robot.Subsystems.Drive.SwerveSetpointGenerator.SwerveConfiguration;
+import frc.robot.Subsystems.Drive.SwerveSetpointGenerator.SwerveConfiguration.ChassisTranslations;
+import frc.robot.Subsystems.Drive.SwerveSetpointGenerator.SwerveConfiguration.ModuleConstraints;
+import frc.robot.Subsystems.Drive.SwerveSetpointGenerator.SwerveConfiguration.SwerveHardware;
 
 public class Drive extends SubsystemBase {
-    // NO-OP implmenentation for drive.
-    public static final Drive NoOp = new Drive(new ModuleIO() {}, 
-    new ModuleIO() {}, 
-    new ModuleIO() {}, 
-    new ModuleIO() {}, 
-    new GyroIO() {}); 
-
-    public enum driveState {
-        DISABLED,
+    public enum RobotState {
         TELEOP,
-        TELEOP_SNIPER,
-        AUTON,
-        SYSID
+        AUTON
     }
+    public RobotState robotState = RobotState.TELEOP;
 
-    @AutoLogOutput(key = "Drive/DriveState")
-    private driveState state = driveState.TELEOP;
+    // Setpoint generator setup
+    private final SwerveConfiguration kConfiguration;
+    private final SetpointGenerator kSetpointGenerator;
+    private final SwerveDriveKinematics kSwerveKinematics;
+    private final SwerveDriveOdometry kSwerveOdometry;
 
-    // Create IO layers
-    private final ModuleIO[] kModules;
-    private final GyroIO kGyro;
-
-    // Create inputs
-    private final moduleInputsAutoLogged[] kModuleInputs = new moduleInputsAutoLogged[] {
-        new moduleInputsAutoLogged(),
-        new moduleInputsAutoLogged(),
-        new moduleInputsAutoLogged(),
-        new moduleInputsAutoLogged()
+    // Hardware
+    private final SwerveModuleIO[] kModules = new SwerveModuleIO[4];
+    private final SwerveModuleInputsAutoLogged[] kModuleInputs = new SwerveModuleInputsAutoLogged[] {
+        new SwerveModuleInputsAutoLogged(),
+        new SwerveModuleInputsAutoLogged(),
+        new SwerveModuleInputsAutoLogged(),
+        new SwerveModuleInputsAutoLogged()
     };
 
-    private final gyroInputsAutoLogged kGyroInputs = new gyroInputsAutoLogged();
+    private final GyroIO kGyro;
+    private final GyroInputsAutoLogged kGyroInputs = new GyroInputsAutoLogged();
 
-    // Initialize swerve related tools
-    private final SwerveDriveKinematics kKinematics;
-
-    @AutoLogOutput(key = "Drive/Swerve/Speeds")
-    private ChassisSpeeds desiredSpeeds;
-
-    @AutoLogOutput(key = "Drive/OdometryPose")
+    // Logging
+    @AutoLogOutput(key = "Drive/Odometry/OdometryPose")
     private Pose2d odometryPose = new Pose2d();
 
-    @AutoLogOutput(key = "Drive/PoseEstimator")
-    private Pose2d poseEstimator = new Pose2d();
+    @AutoLogOutput(key = "Drive/Speeds/RealSpeeds")
+    private ChassisSpeeds realSpeeds = new ChassisSpeeds();
+    @AutoLogOutput(key = "Drive/Speeds/DesiredSpeeds")
+    private ChassisSpeeds desiredSpeeds = new ChassisSpeeds();
 
-    @AutoLogOutput(key = "Drive/Swerve/States")
-    private SwerveModuleState[] states;
+    @AutoLogOutput(key = "Drive/ModuleStates/Real")
+    private SwerveModuleState[] actualStates = new SwerveModuleState[] {
+        new SwerveModuleState(),
+        new SwerveModuleState(),
+        new SwerveModuleState(),
+        new SwerveModuleState()
+    };
+    @AutoLogOutput(key = "Drive/ModuleStates/Target")
+    private SwerveModuleState[] targetStates = new SwerveModuleState[] {
+        new SwerveModuleState(),
+        new SwerveModuleState(),
+        new SwerveModuleState(),
+        new SwerveModuleState()
+    };
 
-    @AutoLogOutput(key = "Drive/Swerve/RealStates")
-    private SwerveModuleState[] realStates;
+    private final TeleopController kTeleopController;
 
-    private final SwerveDriveOdometry kOdometry;
+    public Drive(
+        SwerveModuleIO FLModule,
+        SwerveModuleIO FRModule,
+        SwerveModuleIO BLModule,
+        SwerveModuleIO BRModule,
+        GyroIO gyro
+    ) {
+        kTeleopController = new TeleopController();
 
-    private final SwerveDrivePoseEstimator kPoseEstimator;
-
-    private final Field2d field = new Field2d();
-    
-    // An override value for the heading during teleop, used for auto heading, set to empty to default to normal heading control.
-    private Optional<Rotation2d> teleopHeadingOverride = Optional.empty();
-
-    // Instantiate controllers
-    private final TeleopController kTeleopController = new TeleopController();
-    private final HeadingController kHeadingController = new HeadingController(
-        RobotConstants.DriveConstants().kHeadingController);
-    private final HolonomicController kHolonomicController = new HolonomicController(
-        RobotConstants.DriveConstants().kXTranslationalController, 
-        RobotConstants.DriveConstants().kYTranslationalController);
-
-    // Locks the azimuths in place prior to runnign the main commands
-    // The only way to further simlpify this command is to use Java streams (Which are really weird).
-    private Command lockAzimuthsSysIdCommand() {
-        return new RunCommand(() -> {
-            for(var module : kModules) {
-                module.setAzimuthRotations(0.0d);
-            }
-        }, this).andThen(new WaitCommand(0.25d));
-    }
-    
-    /******** COMMANDS ********/
-    public Command resetGyroCommand() {
-        return new InstantCommand(() -> resetGyro(), this);
-    }
-
-    public Command overrideTeleopHeadingCommand(Rotation2d angle) {
-        return new InstantCommand(() -> overrideTeleopHeading(angle), this);
-    }
-
-    public Command releaseTeleopHeadingCommand() {
-        return new InstantCommand(() -> releaseTeleopHeading(), this);
-    }
-
-    public Command resetAzimuthsCommand() {
-        return new InstantCommand(() -> resetAzimuths(), this);
-    }
-
-    public Command setDriveStateCommand(driveState driveState) { return new InstantCommand(() -> setDriveState(driveState), this); }
-
-    public Command setDriveStateCommandContinuous(driveState driveState) { return new RunCommand(() -> setDriveState(driveState), this); }
-
-    public Command stopAzimuthsCommand() {
-        return new InstantCommand(() -> stopAzimuths());
-    }
-
-    public Command stopDrivesCommand() {
-        return new InstantCommand(() -> stopDrives());
-    }
-
-    /******** COMMAND METHODS ********/
-    public void resetGyro() {
-        kGyro.resetGyro();
-    }
-
-    public void overrideTeleopHeading(Rotation2d angle) {
-        teleopHeadingOverride = Optional.ofNullable(angle);
-    }
-
-    public void releaseTeleopHeading() {
-        teleopHeadingOverride = Optional.empty();
-    }
-
-    public void resetAzimuths() {
-        for(var module : kModules) {
-            module.resetAzimuth();
-        };
-    }
-
-    public void stopAzimuths() {
-        for(var module : kModules) {
-            module.stopAzimuth();
-        }
-    }
-
-    public void stopDrives() {
-        for(var module : kModules) {
-            module.stopDrive();
-        }
-    }
-
-    // Constructor for the drive subsystem
-    public Drive(ModuleIO moduleFL, ModuleIO moduleFR, ModuleIO moduleBL, ModuleIO moduleBR, GyroIO gyro) {
-        kModules = new ModuleIO[] {
-            moduleFL,
-            moduleFR,
-            moduleBL,
-            moduleBR
-        };
+        kModules[0] = FLModule;
+        kModules[1] = FRModule;
+        kModules[2] = BLModule;
+        kModules[3] = BRModule;
         kGyro = gyro;
 
-        kKinematics = new SwerveDriveKinematics(
-            RobotConstants.DriveConstants().kFLModuleOffsets.translationalOffset(),
-            RobotConstants.DriveConstants().kFRModuleOffsets.translationalOffset(),
-            RobotConstants.DriveConstants().kBLModuleOffsets.translationalOffset(),
-            RobotConstants.DriveConstants().kBRModuleOffsets.translationalOffset()
-        );
-
-        kOdometry = new SwerveDriveOdometry(kKinematics, 
-            kGyro.getGyroAngle().orElse(Rotation2d.kZero), 
-            getModulePositions()
-        );
-
-        // Creating the pose estimator
-        kPoseEstimator = new SwerveDrivePoseEstimator(kKinematics,
-            kGyro.getGyroAngle().orElse(Rotation2d.kZero), 
-            getModulePositions(), 
-            kOdometry.getPoseMeters());
-
-        SmartDashboard.putData("Field", field); // Field widget for dashboard
-
-        kRoutine = new SysIdRoutine(
-            new SysIdRoutine.Config(Volts.per(Second).of(0.75d), Volts.of(6d), Seconds.of(8.0), // Default values
-            (sysidState) -> Logger.recordOutput("Drive/SysIdState", sysidState.toString())),
-            new SysIdRoutine.Mechanism((voltage) -> this.applySysIdVoltage(voltage.in(Volts)), 
-            null, // AK will be logging the values here.
-            this)
-        );
-
-        kHeadingController.supplyGyroAngle(() -> kGyro.getGyroAngle().orElse(Rotation2d.kZero));
-    
-        resetAzimuths();
+        double trackDistance = RobotConstants.DriveConstants().kModuleHardware.driveSideLengthsMeters() / 2.0d;
+        kConfiguration = new SwerveConfiguration()
+            .withChassisTranslations(
+                new ChassisTranslations(
+                    new Translation2d(trackDistance, trackDistance), 
+                    new Translation2d(trackDistance, -trackDistance), 
+                    new Translation2d(-trackDistance, trackDistance), 
+                    new Translation2d(-trackDistance, -trackDistance))
+            )
+            .withModuleConstraints(
+                new ModuleConstraints(
+                    4.5d, 
+                    1.0d
+                )
+            )
+            .withSwerveHardware(
+                new SwerveHardware(
+                    Units.inchesToMeters(2.0d), 
+                    Units.inchesToMeters(26.5d)
+                )
+            );
+        kSetpointGenerator = new SetpointGenerator(kConfiguration);
+        kSwerveKinematics = kSetpointGenerator.getKinematics();
+        kSwerveOdometry = new SwerveDriveOdometry(
+            kSwerveKinematics, 
+            Rotation2d.fromRotations(0.0d), 
+            getModulePositions());
     }
 
-    public void supplyControllerInputs(DoubleSupplier xInputs, DoubleSupplier yInput, DoubleSupplier angleInput) {
-        kTeleopController.supplyControllerInputs(xInputs, yInput, angleInput);
+    /********** HELPER METHODS **********/
+
+    private double rotationsToMeters(double rotations) {
+        return (rotations * kConfiguration.swerveHardware.wheelRadiusMeters()) * (2 * Math.PI);
+    }
+    private double metersToRotations(double meters) {
+        return (meters / kConfiguration.swerveHardware.wheelRadiusMeters()) / (2 * Math.PI);
+    }
+    private void setDriveState(RobotState state) {
+        robotState = state;
     }
 
-    public void setDriveState(driveState driveState) { state = driveState; }
+    /********** GETTER METHODS **********/
 
-    /******** SYSID ********/
-    private final SysIdRoutine kRoutine;
+    private Rotation2d getGyroReading() {
+        return Rotation2d.fromRotations(kGyroInputs.gyroPositionRotations);
+    }
 
-    public Command getSysIdCommand() {
-        // Create Dynamic tests
-        Command dynamicForward = kRoutine.dynamic(SysIdRoutine.Direction.kForward);
-        Command dynamicReverse = kRoutine.dynamic(SysIdRoutine.Direction.kReverse);
+    private Rotation2d getRobotAngle() {
+        return kSwerveOdometry.getPoseMeters().getRotation();     
+    }
 
-        // Create quasistatic tests
-        Command quasistaticForward = kRoutine.quasistatic(SysIdRoutine.Direction.kForward);
-        Command quasistaticReverse = kRoutine.quasistatic(SysIdRoutine.Direction.kReverse);
+    public double[] getDriveMotorPositionsRotations() {
+        return new double[] {
+            rotationsToMeters(kModuleInputs[0].driveModulePositionRotations),
+            rotationsToMeters(kModuleInputs[1].driveModulePositionRotations),
+            rotationsToMeters(kModuleInputs[2].driveModulePositionRotations),
+            rotationsToMeters(kModuleInputs[3].driveModulePositionRotations)
+        };
+    }
 
-        // Schedule the tests.
-        return new SequentialCommandGroup(
-            lockAzimuthsSysIdCommand(),
-            dynamicForward.andThen(new WaitCommand(0.2d)), dynamicReverse.andThen(stopDrivesCommand().andThen(new WaitCommand(0.2d))),
-            quasistaticForward.andThen(stopDrivesCommand().andThen(new WaitCommand(0.2d))), quasistaticReverse.andThen(stopDrivesCommand())
+    public double[] getDriveMotorSpeedsMetersPerSecond() {
+        return new double[] {
+            rotationsToMeters(kModuleInputs[0].driveModuleSpeedRotationsPerSecond),
+            rotationsToMeters(kModuleInputs[1].driveModuleSpeedRotationsPerSecond),
+            rotationsToMeters(kModuleInputs[2].driveModuleSpeedRotationsPerSecond),
+            rotationsToMeters(kModuleInputs[3].driveModuleSpeedRotationsPerSecond)
+        };
+    }
+
+    public double[] getAzimuthMotorPositionsRotations() {
+        return new double[] {
+            kModuleInputs[0].azimuthModulePositionRotations,
+            kModuleInputs[1].azimuthModulePositionRotations,
+            kModuleInputs[2].azimuthModulePositionRotations,
+            kModuleInputs[3].azimuthModulePositionRotations
+        };
+    }
+
+    private SwerveModulePosition[] getModulePositions() {
+        double[] driveSpeeds = getDriveMotorPositionsRotations();
+        double[] azimuthAngles = getAzimuthMotorPositionsRotations();
+        return new SwerveModulePosition[] {
+            new SwerveModulePosition(driveSpeeds[0], Rotation2d.fromRotations(azimuthAngles[0])),
+            new SwerveModulePosition(driveSpeeds[1], Rotation2d.fromRotations(azimuthAngles[1])),
+            new SwerveModulePosition(driveSpeeds[2], Rotation2d.fromRotations(azimuthAngles[2])),
+            new SwerveModulePosition(driveSpeeds[3], Rotation2d.fromRotations(azimuthAngles[3]))
+        };
+    }
+
+    /********** COMMAND METHODS **********/
+    public void supplyControllerInputs(DoubleSupplier inputX, DoubleSupplier inputY, DoubleSupplier inputOmega) {
+        kTeleopController.supplyControllerInputs(
+            inputX, 
+            inputY, 
+            inputOmega
         );
     }
 
-    // Used to direct set the voltages of each drive motor for PID.
-    // NOTE: Before running a SysId test it is smart to ensure all Azimuth motors are facing relatively forwards.
-    private void applySysIdVoltage(double driveVolts) {
-        for(var module : kModules) {
-            // Set drive goal to SysId given voltage.
-            module.setDriveVoltage(driveVolts);
-            // Set azimuth goal to zero degrees (To hold the azimuths in place).
-            module.setAzimuthRotations(0.0d);
-        }
+    /********** COMMAND METHODS **********/
+    public Command setDriveStateCommand(RobotState state) {
+        return new RunCommand(() -> setDriveState(state), this);
     }
 
-    /* Periodic Loop */
+    /********** PERIODIC **********/
     @Override
     public void periodic() {
-        // Update inputs for IO layers.
-        for(int i = 0; i < kModuleInputs.length; ++i) {
+        for (int i = 0; i < 4; ++i) {
             kModules[i].updateInputs(kModuleInputs[i]);
         }
         kGyro.updateInputs(kGyroInputs);
-
-        // Update AK Logging.
         Logger.processInputs("Drive/ModuleFL", kModuleInputs[0]);
         Logger.processInputs("Drive/ModuleFR", kModuleInputs[1]);
         Logger.processInputs("Drive/ModuleBL", kModuleInputs[2]);
         Logger.processInputs("Drive/ModuleBR", kModuleInputs[3]);
         Logger.processInputs("Drive/Gyro", kGyroInputs);
 
-        // Update Odometry and pose estimation.
-        odometryPose = kOdometry.update(kGyro.getGyroAngle().orElse(Rotation2d.kZero), getModulePositions());
-        updatePoseEstimation();
-        field.setRobotPose(poseEstimator);
+        double[] driveModules = getDriveMotorSpeedsMetersPerSecond();
+        double[] azimuthModules = getAzimuthMotorPositionsRotations();
+        actualStates = new SwerveModuleState[] {
+            new SwerveModuleState(driveModules[0], Rotation2d.fromRotations(azimuthModules[0])),
+            new SwerveModuleState(driveModules[1], Rotation2d.fromRotations(azimuthModules[1])),
+            new SwerveModuleState(driveModules[2], Rotation2d.fromRotations(azimuthModules[2])),
+            new SwerveModuleState(driveModules[3], Rotation2d.fromRotations(azimuthModules[3]))
+        };
+        realSpeeds = kSwerveKinematics.toChassisSpeeds(actualStates);
 
-        // Internal State Handling.
-        switch(state) {
+        odometryPose = kSwerveOdometry.update(odometryPose.getRotation().plus(Rotation2d.fromRadians(realSpeeds.omegaRadiansPerSecond).times(RobotConstants.Instance().kTimestep)), getModulePositions());
+
+        switch (robotState) {
             case TELEOP:
-                // Compute chassis speeds.
-                desiredSpeeds = kTeleopController.getDesiredSpeeds(false);
-                stateUpdateTeleop();
-                break;
-            case TELEOP_SNIPER:
-                desiredSpeeds = kTeleopController.getDesiredSpeeds(true);
+                desiredSpeeds = kTeleopController.getDesiredSpeeds();
                 stateUpdateTeleop();
                 break;
             case AUTON:
-                releaseTeleopHeading();
-                desiredSpeeds = kHolonomicController.getVelocityGoal(poseEstimator);
-                stateUpdateAutonomous();
-                break;
-            case SYSID:
                 break;
             default:
-                stateUpdateDisabled();
                 break;
         }
+    }
 
-        // Record real states constantly, even when teleop isn't running.
-        realStates = new SwerveModuleState[] {
-            new SwerveModuleState(rotationsToMeters(kModuleInputs[0].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[0].azimuthPositionRotations)),
-            new SwerveModuleState(rotationsToMeters(kModuleInputs[1].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[1].azimuthPositionRotations)),
-            new SwerveModuleState(rotationsToMeters(kModuleInputs[2].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[2].azimuthPositionRotations)),
-            new SwerveModuleState(rotationsToMeters(kModuleInputs[3].driveVelocityRPS), Rotation2d.fromRotations(kModuleInputs[3].azimuthPositionRotations))
-        };
+    /********** STATE HANDLING **********/
+    public void stateUpdateTeleop() {
+        ChassisSpeeds robotRelativeDesiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(desiredSpeeds, getRobotAngle());
 
-        // Update the gyro (usually for sim purposes)
-        if(RobotConstants.Instance().kMode.equals(RobotConstants.mode.SIM)) {
-            kGyro.updateGyro(Units.radiansToRotations(kKinematics.toChassisSpeeds(realStates).omegaRadiansPerSecond) * RobotConstants.Instance().kTimestep);
+        targetStates = kSetpointGenerator.generateSetpoint(robotRelativeDesiredSpeeds, actualStates);
+
+        for(int i = 0; i < 4; ++i) {
+            kModules[i].setDriveSpeedWithVoltage(metersToRotations(targetStates[i].speedMetersPerSecond));
+            kModules[i].setAzimuthPositionWithVoltage(targetStates[i].angle.getRotations());
         }
     }
-
-    /******** STATE UPDATES ********/
-    private void stateUpdateTeleop() {
-        // Discretized robot framed chassis speeds.
-        ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(desiredSpeeds, kGyro.getGyroAngle().orElse(Rotation2d.kZero));
-        // Offset the desired angle in the heading controller, then compute the true omega value
-
-        if(teleopHeadingOverride.isPresent()) {
-            kHeadingController.setHeading(teleopHeadingOverride.get());
-            robotRelativeSpeeds.omegaRadiansPerSecond = kHeadingController.getOmega().getRadians();
-        }
-        ChassisSpeeds discretizedSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, RobotConstants.Instance().kTimestep);
-
-        // Perform IK to get each indiviual module's goal setpoint and then desaturate to cap the speed.
-        SwerveModuleState[] moduleStates = kKinematics.toSwerveModuleStates(discretizedSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, RobotConstants.DriveConstants().kModuleSoftLimits.absoluteMaxDriveVelocityMPS());
-
-        // Optimize the modules so they never rotate more than 90 degrees.
-        states = moduleStates;
-
-        optimizeModules();
-
-        applyCosineOptimization();
-
-        // Apply the modules goals to the actual motor.
-        for(int i = 0; i < kModules.length; ++i) {
-            kModules[i].setDriveRPS(metersToRotations(moduleStates[i].speedMetersPerSecond));
-            kModules[i].setAzimuthRotations(moduleStates[i].angle.getRotations());
-        }
-    }
-
-    private void stateUpdateAutonomous() {
-        // Get the field relative speeds and convert them to robot relative speeds. Then convert them to swerve module states.
-        ChassisSpeeds autonTargetSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(desiredSpeeds, kGyro.getGyroAngle().orElse(Rotation2d.kZero));
-        SwerveModuleState[] autonModuleStates = kKinematics.toSwerveModuleStates(autonTargetSpeeds);
-
-        SwerveDriveKinematics.desaturateWheelSpeeds(autonModuleStates, RobotConstants.DriveConstants().kModuleSoftLimits.absoluteMaxDriveVelocityMPS());
-        states = autonModuleStates;
-
-        optimizeModules();
-
-        applyCosineOptimization();
-
-        // Apply the modules goals to the actual motor.
-        for(int i = 0; i < kModules.length; ++i) {
-            kModules[i].setDriveRPS(metersToRotations(autonModuleStates[i].speedMetersPerSecond));
-            kModules[i].setAzimuthRotations(autonModuleStates[i].angle.getRotations());
-        }
-    }
-
-    private void stateUpdateDisabled() {
-        for(int i = 0; i < kModules.length; ++i) {
-            kModules[i].stopDrive();
-            kModules[i].stopAzimuth();
-        }
-    }
-
-    /******** HELPER METHODS ********/
-    private void optimizeModules() {
-        for(int i = 0; i < states.length; ++i) {
-            states[i].optimize(Rotation2d.fromRotations(kModuleInputs[i].azimuthPositionRotations));
-        }
-    }
-
-    private void applyCosineOptimization() {
-        for(int i = 0; i < kModules.length; ++i) {
-            double actualRotation = Units.rotationsToRadians(kModuleInputs[i].azimuthPositionRotations);
-
-            // How aligned we are.
-            double scalar = Math.cos(states[i].angle.getRadians() - actualRotation);
-
-            // Apply scalar based on the alignment.
-            states[i].speedMetersPerSecond *= scalar;
-        }
-    }
-
-    // Updates the pose estimator based on vision and swerve odometry readings
-    private void updatePoseEstimation() {
-        // for(var visionEstimation : visionEstimations) {
-        //     kPoseEstimator.addVisionMeasurement(visionEstimation.pose, visionEstimation.timestamp);
-        // }
-        poseEstimator = kPoseEstimator.update(kGyro.getGyroAngle().orElse(Rotation2d.kZero), getModulePositions());
-    }
-
-    private double rotationsToMeters(double rotations) {
-        return Units.rotationsToRadians(rotations) * RobotConstants.DriveConstants().kModuleHardLimits.wheelRadiusMeters();
-    }
-    
-    private double metersToRotations(double meters) {
-        return meters / ((2 * Math.PI) * RobotConstants.DriveConstants().kModuleHardLimits.wheelRadiusMeters());
-    }
-
-    private SwerveModulePosition[] getModulePositions() {
-        return new SwerveModulePosition[] {
-            new SwerveModulePosition(rotationsToMeters(kModuleInputs[0].drivePositionRotations), new Rotation2d(Units.rotationsToRadians(kModuleInputs[0].azimuthPositionRotations))),
-            new SwerveModulePosition(rotationsToMeters(kModuleInputs[1].drivePositionRotations), new Rotation2d(Units.rotationsToRadians(kModuleInputs[1].azimuthPositionRotations))),
-            new SwerveModulePosition(rotationsToMeters(kModuleInputs[2].drivePositionRotations), new Rotation2d(Units.rotationsToRadians(kModuleInputs[2].azimuthPositionRotations))),
-            new SwerveModulePosition(rotationsToMeters(kModuleInputs[3].drivePositionRotations), new Rotation2d(Units.rotationsToRadians(kModuleInputs[3].azimuthPositionRotations)))
-        };
-    }
-    
-    public driveState getDriveState() { return state; }
-
-     public void followSwerveTrajectoryNoPath(Pose2d kPosition) {
-        kHolonomicController.setTargetTrajectory(new ChassisSpeeds(), kPosition);
-    }
-    public void followSwerveTrajectory(SwerveSample sample) {
-        kHolonomicController.setTargetTrajectory(sample.getChassisSpeeds(), sample.getPose());
-    }
-
-    // Getters
-    public Pose2d getRobotPose() {
-        return kPoseEstimator.getEstimatedPosition();
-    }
-
-    public void resetOdometry(Pose2d pose) {
-        kPoseEstimator.resetPose(pose);
-    }
-
-    // Dummy method for auton
-    public void folllowTrajectoryChor(SwerveSample sample) {}
 }

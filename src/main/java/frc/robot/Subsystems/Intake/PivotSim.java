@@ -18,7 +18,6 @@ public class PivotSim implements PivotIO {
     @AutoLogOutput(key = "Intake/TargetPose")
     private double targetPosition = 0.0d;
     private final PIDController kPivotController;
-    private final ArmFeedforward kPivotFeedforward;
 
     private final SingleJointedArmSim kPivotMotor = new SingleJointedArmSim(
         LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.0125d, RobotConstants.IntakeConstants().kIntakeHardLimits.rollerGearRatio()),
@@ -38,10 +37,6 @@ public class PivotSim implements PivotIO {
             gains.pidGains().kP(), 
             gains.pidGains().kI(), 
             gains.pidGains().kD());
-        kPivotFeedforward = new ArmFeedforward(
-            gains.feedForwardGains().kS(), 
-            gains.feedForwardGains().kG(), 
-            gains.feedForwardGains().kV());
     }
 
     @Override

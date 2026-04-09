@@ -19,9 +19,9 @@ public class TeleopController {
     private DoubleSupplier angleInput = () -> 0.0d;
 
     // Motion magic should limit the acceleration pretty well, but this is an extra soft limit to ease controller inputs for extra smoothing.
-    private final SlewRateLimiter kXSlewRateLimiter = new SlewRateLimiter(RobotConstants.DriveConstants().kModuleSoftLimits.controllerLimits().controllerInputRateLimiter());
-    private final SlewRateLimiter kYSlewRateLimiter = new SlewRateLimiter(RobotConstants.DriveConstants().kModuleSoftLimits.controllerLimits().controllerInputRateLimiter());
-    private final SlewRateLimiter kAngleSlewRateLimiter = new SlewRateLimiter(RobotConstants.DriveConstants().kModuleSoftLimits.controllerLimits().controllerInputRateLimiter());
+    private final SlewRateLimiter kXSlewRateLimiter = new SlewRateLimiter(RobotConstants.DriveConstants().kDriveSoftLimits.controllerLimits().inputRateLimiter());
+    private final SlewRateLimiter kYSlewRateLimiter = new SlewRateLimiter(RobotConstants.DriveConstants().kDriveSoftLimits.controllerLimits().inputRateLimiter());
+    private final SlewRateLimiter kAngleSlewRateLimiter = new SlewRateLimiter(RobotConstants.DriveConstants().kDriveSoftLimits.controllerLimits().inputRateLimiter());
 
     public TeleopController() {}
 
@@ -33,23 +33,17 @@ public class TeleopController {
     }
 
     // Unlike previous years, we arent processing the chassis speeds here since the purpose of the teleop controller is only to process
-    public ChassisSpeeds getDesiredSpeeds(boolean isSniperMode) {
+    public ChassisSpeeds getDesiredSpeeds() {
         // Store constants in temporary variables.
-        double deadband = RobotConstants.DriveConstants().kModuleSoftLimits.controllerLimits().controllerDeadband();
-        double exponent = (double)RobotConstants.DriveConstants().kModuleSoftLimits.controllerLimits().controllerInputExponent();
-        double maxMPS = RobotConstants.DriveConstants().kModuleSoftLimits.maxLinearVelocityMPS();
-        double maxRPS = RobotConstants.DriveConstants().kModuleSoftLimits.maxAngularVelocityRPS();
-        double sniperScalar = RobotConstants.DriveConstants().sniperModeScalar;
+        double deadband = RobotConstants.DriveConstants().kDriveSoftLimits.controllerLimits().deadband();
+        double exponent = (double)RobotConstants.DriveConstants().kDriveSoftLimits.controllerLimits().inputExponent();
+        double maxMPS = RobotConstants.DriveConstants().kDriveSoftLimits.maxLinearVelocityMPS();
+        double maxRPS = RobotConstants.DriveConstants().kDriveSoftLimits.maxAngularVelocityRPS();
 
         // Read the current input states supplied to us.
-        double readXInput = xInput.getAsDouble();
-        double readYInput = yInput.getAsDouble();
+        double readXInput = -xInput.getAsDouble();
+        double readYInput = -yInput.getAsDouble();
         double readAngleInput = angleInput.getAsDouble();
-
-        if(RobotConstants.Instance().kIsBlueAlliance) {
-            readXInput *= -1;
-            readYInput *= -1;            
-        }
 
         // Apply a deadband to the controller inputs.
         double dbXInput = MathUtil.applyDeadband(readXInput, deadband);
@@ -70,13 +64,6 @@ public class TeleopController {
         double speedX = exponentiatedXInput * maxMPS;
         double speedY = exponentiatedYInput * maxMPS;
         double speedOmega = -Units.rotationsToRadians(exponentiatedAngleInput * maxRPS);
-
-        // Apply an extra sniper mode scalar.
-        if(isSniperMode) {
-            speedX *= sniperScalar;
-            speedY *= sniperScalar;
-            speedOmega *= sniperScalar;
-        }
 
         // Create initial chassis speeds so we can return the 3 inputs in a clean way.
         ChassisSpeeds speeds = new ChassisSpeeds(speedX, speedY, speedOmega);

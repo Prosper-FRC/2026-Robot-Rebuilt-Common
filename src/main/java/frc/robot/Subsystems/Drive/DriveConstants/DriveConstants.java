@@ -3,67 +3,76 @@ package frc.robot.Subsystems.Drive.DriveConstants;
 import com.ctre.phoenix6.CANBus;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.util.Units;
 
 public class DriveConstants {
-    public final record moduleIDs(int driveID, int azimuthID, int CANcoderID) {}
-    public final record moduleOffsets(Translation2d translationalOffset, Rotation2d rotationalOffset, boolean isInverted) {}
-    public final record moduleHardLimits(double wheelRadiusMeters, double driveGearRatio, double azimuthGearRatio, double trackDistanceMeters) {}
-    public final record moduleControllerLimits(double controllerDeadband, int controllerInputExponent, double controllerInputRateLimiter) {}
-    public final record moduleSoftlimits(moduleControllerLimits controllerLimits, double maxLinearVelocityMPS, double maxLinearAccelerationMPS2, double maxAngularVelocityRPS, double absoluteMaxDriveVelocityMPS, boolean isDriveBraked, boolean isAzimuthBraked) {}
-    public final record moduleCurrentLimits(double driveStatorCurrentLimit, double driveSupplyCurrentLimit, double azimuthStatorCurrentLimit, double azimuthSupplyCurrentLimit) {}
-    public final record moduleVoltageLimits(double driveVoltagePeakRange, double azimuthVoltagePeakRange) {}
-    public final record motorGains(double kP, double kI, double kD, double kS, double kV, double kA) {}
-    public final record motionMagicGains(double maxCruiseVelocity, double maxAcceleration) {}
-    public final record moduleGains(motorGains driveGains, motorGains azimuthGains, motionMagicGains driveMMGains) {}
+    public static final record SwerveModuleIds(int driveId, int azimuthId, int cancoderId) {}
+    public static final record SwerveModuleGains(double kP, double kI, double kD, double kV, double kS, double kA) {}
+    public static final record SwerveModuleMotionMagicGains(double drive_cruise_velocity, double drive_acceleration) {}
+    public static final record SwerveModuleCurrentLimits(double driveStatorLimit, double driveSupplyLimit, double azimuthStatorLimit, double azimuthSupplyLimit) {}
+    public static final record SwerveModuleOutputConfigs(boolean isCCWPositive, boolean isBrakedNeutral) {}
+    public static final record SwerveModuleHardware(double driveSideLengthsMeters, double driveGearReduction, double azimuthGearReduction) {}
+    public static final record DriveSoftLimits(DriveControllerLimits controllerLimits, double maxLinearVelocityMPS, double maxAngularVelocityRPS ) {}
+    public static final record DriveControllerLimits(double deadband, double inputExponent, double inputRateLimiter) {}
 
-    public final record gyroOffsets(double roll, double pitch, double yaw) {}
+    public final SwerveModuleIds kFLModuleIds = new SwerveModuleIds(11, 21, 31);
+    public final SwerveModuleIds kFRModuleIds = new SwerveModuleIds(12, 22, 32);
+    public final SwerveModuleIds kBLModuleIds = new SwerveModuleIds(13, 23, 33);
+    public final SwerveModuleIds kBRModuleIds = new SwerveModuleIds(14, 24, 34);
+    public final int kGyroId = 40;
 
-    public moduleIDs kFLModuleIDs;
-    public moduleIDs kFRModuleIDs;
-    public moduleIDs kBLModuleIDs;
-    public moduleIDs kBRModuleIDs;
-    public int kGyroID = 40;
+    public final double kFLModuleOffset = 0.0d;
+    public final double kFRModuleOffset = 0.0d;
+    public final double kBLModuleOffset = 0.0d;
+    public final double kBRModuleOffset = 0.0d;
+    public final Rotation3d kGyroOffsets = new Rotation3d();
 
-    public moduleHardLimits kModuleHardLimits;
-    public moduleSoftlimits kModuleSoftLimits;
-
-    public double sniperModeScalar = 0.2d;
+    public final SwerveModuleGains kDriveGains = new SwerveModuleGains(
+        0.75d, 0.0d, 0.0d, 
+        0.7d, 0.0d, 0.0d
+    );
+    public final SwerveModuleGains kAzimuthGains = new SwerveModuleGains(
+        22.5d, 0.0d, 0.0d, 
+        0.0d, 0.0d, 0.0d
+    );
     
-    public moduleOffsets kFLModuleOffsets;
-    public moduleOffsets kFRModuleOffsets;    
-    public moduleOffsets kBLModuleOffsets;
-    public moduleOffsets kBRModuleOffsets;
-
-    public gyroOffsets kGyroOffsets = new gyroOffsets(0.0d, 0.0d, 0.0d);
-
-    
-    public CANBus kCANBusInstance = new CANBus("drivebase");
-
-    // Recommended as default values for swerve by CTRE.
-    public moduleGains kModuleGains = new moduleGains(
-        new motorGains(0.75d, 0, 0, 0, 0.6, 0),
-        new motorGains(30.0d, 0, 0.5d, 0.1d, 3.1d, 0.0d),
-        new motionMagicGains(14.1d, 9.0d)
+    public final SwerveModuleCurrentLimits kModuleCurrentLimits = new SwerveModuleCurrentLimits(
+        65.0d, 55.0d, 
+        45.0d, 35.0d
     );
 
-    public moduleCurrentLimits kModuleCurrentLimits = new moduleCurrentLimits(60, 80, 30, 45);
-    public moduleVoltageLimits kModuleVoltageLimits = new moduleVoltageLimits(12.0d, 12.0d);
+    public final SwerveModuleMotionMagicGains kMotionMagicGains = new SwerveModuleMotionMagicGains(
+        4.5d,
+        18.0d
+    );
 
-    public PIDController kSimDrivePID = new PIDController(0.5d, 0.0d, 0.0d);
-    public SimpleMotorFeedforward kSimDriveFeedforward = new SimpleMotorFeedforward(0.0d, 0.75d);
-    public PIDController kSimAzimuthPID = new PIDController(37.5d, 0.0d, 0.5d);
+    public final SwerveModuleOutputConfigs kDriveOutputConfigs = new SwerveModuleOutputConfigs(
+        false, 
+        true
+    );
+    public final SwerveModuleOutputConfigs kAzimuthOutputConfigs = new SwerveModuleOutputConfigs(
+        false, 
+        true
+    );
 
-    public TrapezoidProfile.Constraints kXTranslationalConstraints;
-    public ProfiledPIDController kXTranslationalController;
-    public TrapezoidProfile.Constraints kYTranslationalConstraints;
-    public ProfiledPIDController kYTranslationalController;
-    public TrapezoidProfile.Constraints kHeadingConstraints;
-    public ProfiledPIDController kHeadingController;
+    public final SwerveModuleHardware kModuleHardware = new SwerveModuleHardware(
+        Units.inchesToMeters(26.5d), 
+        6.12d/1.0d, 
+        150.0d/7.0d
+    );
 
-    public DriveConstants() {}
+    public final CANBus kCanbus = new CANBus("drivebase");
+
+    public final DriveSoftLimits kDriveSoftLimits = new DriveSoftLimits(
+        new DriveControllerLimits(0.1d, 2.0d, 6.0d),
+        4.5d,
+        1.0d
+    );
+
+    public final PIDController kDriveControllerSim = new PIDController(0.55d, 0.0d, 0.0d);
+    public final SimpleMotorFeedforward kDriveFeedForwardSim = new SimpleMotorFeedforward(0.0d, 0.65d);
+
+    public final PIDController kAzimuthControllerSim = new PIDController(37.5d, 0.0d, 0.5d);
 }

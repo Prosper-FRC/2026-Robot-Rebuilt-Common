@@ -12,11 +12,9 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Subsystems.Drive.Drive.driveState;
 
 public class Robot extends LoggedRobot {
     private final RobotContainer m_robotContainer;
-    
 
     public Robot() {
         // Sets up AK logging.
@@ -55,7 +53,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledPeriodic() {
         // Constantly resample the gyro while disabled
-        m_robotContainer.kDrive.resetGyro();
     }
 
     @Override
@@ -63,8 +60,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        CommandScheduler.getInstance().schedule(m_robotContainer.kACommands.moveRPAuto()
-        .alongWith(m_robotContainer.kDrive.setDriveStateCommandContinuous(driveState.AUTON)));
     }
 
     @Override
@@ -75,7 +70,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
-        CommandScheduler.getInstance().schedule(m_robotContainer.kDrive.setDriveStateCommandContinuous(driveState.TELEOP));
     }
 
     @Override
