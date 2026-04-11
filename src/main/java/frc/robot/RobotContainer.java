@@ -65,7 +65,7 @@ public class RobotContainer {
 
         kDrive.setDefaultCommand(kDrive.setDriveStateCommand(driveState.TELEOP));
 
-        kDrive.supplyControllerInputs(() -> kDriveController.getLeftX(), () -> kDriveController.getLeftY(), () -> kDriveController.getRightX());
+        kDrive.supplyControllerInputs(() -> kDriveController.getLeftX(), () -> kDriveController.getLeftY(), () -> -kDriveController.getRightX());
 
         kDriveController.y()
             .onTrue(kDrive.resetGyroCommand()
@@ -99,7 +99,7 @@ public class RobotContainer {
 
         kOperatorController.leftTrigger().and(kOperatorController.leftBumper().negate())
             .onTrue(kIntake.setIntakeRollerStateCommand(intakeRollerState.Outtake))
-            .onFalse(kIntake.setIntakeRollerStateCommand(intakeRollerState.Idling)); /,.td
+            .onFalse(kIntake.setIntakeRollerStateCommand(intakeRollerState.Idling));
 
         kOperatorController.leftBumper().and(kOperatorController.leftTrigger().negate())
             .onTrue(kIntake.setIntakeRollerStateCommand(intakeRollerState.Intake))
