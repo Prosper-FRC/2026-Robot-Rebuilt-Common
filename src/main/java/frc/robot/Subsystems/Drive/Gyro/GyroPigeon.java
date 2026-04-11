@@ -64,4 +64,7 @@ public class GyroPigeon implements GyroIO {
     public void resetGyro(double rotation) {
         kGyro.setYaw(rotation * 360.0d);
     }
+
+    @Override
+    public void updateGyro(double rotations) {}
 }

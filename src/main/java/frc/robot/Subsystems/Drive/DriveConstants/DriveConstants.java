@@ -13,7 +13,7 @@ public class DriveConstants {
     public static final record SwerveModuleMotionMagicGains(double drive_cruise_velocity, double drive_acceleration) {}
     public static final record SwerveModuleCurrentLimits(double driveStatorLimit, double driveSupplyLimit, double azimuthStatorLimit, double azimuthSupplyLimit) {}
     public static final record SwerveModuleOutputConfigs(boolean isCCWPositive, boolean isBrakedNeutral) {}
-    public static final record SwerveModuleHardware(double driveSideLengthsMeters, double driveGearReduction, double azimuthGearReduction) {}
+    public static final record SwerveModuleHardware(double driveSideLengthsMeters,  double wheelRadiusMeters, double driveGearReduction, double azimuthGearReduction) {}
     public static final record DriveSoftLimits(DriveControllerLimits controllerLimits, double maxLinearVelocityMPS, double maxAngularVelocityRPS ) {}
     public static final record DriveControllerLimits(double deadband, double inputExponent, double inputRateLimiter) {}
 
@@ -37,6 +37,11 @@ public class DriveConstants {
         22.5d, 0.0d, 0.0d, 
         0.0d, 0.0d, 0.0d
     );
+
+    public final PIDController kHeadingController = new PIDController(1.5d, 0.0d, 0.0d);
+
+    public final PIDController kXTranslationalController = new PIDController(1.5d, 0.0d, 0.0d);
+    public final PIDController kYTranslationalController = new PIDController(1.5d, 0.0d, 0.0d);
     
     public final SwerveModuleCurrentLimits kModuleCurrentLimits = new SwerveModuleCurrentLimits(
         65.0d, 55.0d, 
@@ -58,7 +63,8 @@ public class DriveConstants {
     );
 
     public final SwerveModuleHardware kModuleHardware = new SwerveModuleHardware(
-        Units.inchesToMeters(26.5d), 
+        Units.inchesToMeters(26.5d),
+        Units.inchesToMeters(2.0d),
         6.12d/1.0d, 
         150.0d/7.0d
     );

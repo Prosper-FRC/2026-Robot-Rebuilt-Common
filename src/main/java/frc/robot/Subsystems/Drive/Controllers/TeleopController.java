@@ -32,7 +32,6 @@ public class TeleopController {
         angleInput = angle;
     }
 
-    // Unlike previous years, we arent processing the chassis speeds here since the purpose of the teleop controller is only to process
     public ChassisSpeeds getDesiredSpeeds() {
         // Store constants in temporary variables.
         double deadband = RobotConstants.DriveConstants().kDriveSoftLimits.controllerLimits().deadband();

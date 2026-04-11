@@ -4,56 +4,46 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Factories.DriveFactory;
 import frc.robot.Subsystems.Drive.Drive;
-import frc.robot.Subsystems.Drive.Gyro.GyroSim;
-import frc.robot.Subsystems.Drive.SwerveModule.SwerveModuleSim;
-import frc.robot.Subsystems.Drive.SwerveModule.SwerveModuleTalonFX;
-import frc.robot.Subsystems.Drive.SwerveSetpointGenerator.SetpointGenerator;
-import frc.robot.Subsystems.Drive.SwerveSetpointGenerator.SwerveConfiguration;
+import frc.robot.Subsystems.Drive.Drive.DriveState;
 
 public class RobotContainer {
     public final CommandXboxController kDriveController = new CommandXboxController(RobotConstants.Instance().kDriveControllerPort);
     public final CommandXboxController kOperatorController = new CommandXboxController(RobotConstants.Instance().kOperatorControllerPort);
+
+    public final boolean kUseCompetitionBindings = false;
     
     public final Drive kDrive;
 
     public RobotContainer() {
-        kDrive = new Drive(
-            new SwerveModuleTalonFX(
-                RobotConstants.DriveConstants().kFLModuleIds,
-                RobotConstants.DriveConstants().kFLModuleOffset,
-                RobotConstants.DriveConstants().kCanbus
-            ), 
-            new SwerveModuleTalonFX(
-                RobotConstants.DriveConstants().kFRModuleIds,
-                RobotConstants.DriveConstants().kFRModuleOffset,
-                RobotConstants.DriveConstants().kCanbus
-            ), 
-            new SwerveModuleTalonFX(
-                RobotConstants.DriveConstants().kBLModuleIds,
-                RobotConstants.DriveConstants().kBLModuleOffset,
-                RobotConstants.DriveConstants().kCanbus
-            ), 
-            new SwerveModuleTalonFX(
-                RobotConstants.DriveConstants().kBRModuleIds,
-                RobotConstants.DriveConstants().kBRModuleOffset,
-                RobotConstants.DriveConstants().kCanbus
-            ), 
-            new GyroSim()
-        );
-        SetpointGenerator generator = new SetpointGenerator(new SwerveConfiguration());
-
+        kDrive = DriveFactory.createSim();
         configureButtonBindings();
     }
 
     private void configureButtonBindings() {
-        kDrive.supplyControllerInputs(
-            () -> kDriveController.getLeftX(), 
-            () -> kDriveController.getLeftY(), 
-            () -> kDriveController.getRightX()
-        );
+        if(kUseCompetitionBindings) {
+            // TODO: add these.
+        } else {
+            kDrive.supplyControllerInputs(
+                () -> kDriveController.getLeftX(), 
+                () -> kDriveController.getLeftY(), 
+                () -> kDriveController.getRightX()
+            );
+
+            kDriveController.y()
+                .onTrue(kDrive.resetGyroCommand());
+
+            kDriveController.a()
+                .onTrue(kDrive.setDriveStateCommand(DriveState.AUTON)
+                    .andThen(kDrive.followTrajectoryCommand(new Pose2d())))
+                .onFalse(kDrive.setDriveStateCommand(DriveState.TELEOP));
+
+            kDriveController.b()
+                .onTrue(kDrive.setDriveStateCommand(DriveState.SYSID).andThen(kDrive.getSysIdCommand()))
+                .onFalse(kDrive.setDriveStateCommand(DriveState.TELEOP));
+        }
     }
 }

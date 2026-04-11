@@ -14,4 +14,6 @@ public interface GyroIO {
 
     default public void resetGyro() {}
     default public void resetGyro(double rotation) {}
+
+    default public void updateGyro(double rotations) {}
 }
