@@ -14,10 +14,13 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotConstants;
+import frc.robot.Subsystems.Drive.Controllers.HeadingController;
+import frc.robot.Subsystems.Drive.Controllers.HolonomicController;
 import frc.robot.Subsystems.Drive.Controllers.TeleopController;
 import frc.robot.Subsystems.Drive.Gyro.GyroIO;
 import frc.robot.Subsystems.Drive.Gyro.GyroInputsAutoLogged;
@@ -28,11 +31,13 @@ import frc.robot.Subsystems.Drive.SwerveSetpointGenerator.SwerveConfiguration;
 import frc.robot.Subsystems.Drive.SwerveSetpointGenerator.SwerveConfiguration.ChassisTranslations;
 import frc.robot.Subsystems.Drive.SwerveSetpointGenerator.SwerveConfiguration.ModuleConstraints;
 import frc.robot.Subsystems.Drive.SwerveSetpointGenerator.SwerveConfiguration.SwerveHardware;
+import frc.robot.Subsystems.Vision.Vision;
 
 public class Drive extends SubsystemBase {
     public enum RobotState {
         TELEOP,
-        AUTON
+        AUTON,
+        HUB_HEADING_ALIGN
     }
     public RobotState robotState = RobotState.TELEOP;
 
@@ -53,6 +58,8 @@ public class Drive extends SubsystemBase {
 
     private final GyroIO kGyro;
     private final GyroInputsAutoLogged kGyroInputs = new GyroInputsAutoLogged();
+    
+    private final Vision kVision;
 
     // Logging
     @AutoLogOutput(key = "Drive/Odometry/OdometryPose")
@@ -78,6 +85,7 @@ public class Drive extends SubsystemBase {
         new SwerveModuleState()
     };
 
+    private final HeadingController kHeadingController;
     private final TeleopController kTeleopController;
 
     public Drive(
@@ -85,15 +93,18 @@ public class Drive extends SubsystemBase {
         SwerveModuleIO FRModule,
         SwerveModuleIO BLModule,
         SwerveModuleIO BRModule,
-        GyroIO gyro
+        GyroIO gyro,
+        Vision vision
     ) {
         kTeleopController = new TeleopController();
+        kHeadingController = new HeadingController();
 
         kModules[0] = FLModule;
         kModules[1] = FRModule;
         kModules[2] = BLModule;
         kModules[3] = BRModule;
         kGyro = gyro;
+        kVision = vision;
 
         double trackDistance = RobotConstants.DriveConstants().kModuleHardware.driveSideLengthsMeters() / 2.0d;
         kConfiguration = new SwerveConfiguration()
@@ -137,6 +148,19 @@ public class Drive extends SubsystemBase {
     }
 
     /********** GETTER METHODS **********/
+
+    // Get vision pose if it is valid, and return odometry pose if not. 
+    private Pose2d getPoseEstimate(Pose2d odomPose) {
+        if (RobotBase.isReal()) {
+            if (kVision.getValidPose().getX() != Double.MAX_VALUE) {
+                return kVision.getValidPose();
+            } else {
+                return odomPose;
+            }
+        } else {
+            return odomPose;
+        }
+    }
 
     private Rotation2d getGyroReading() {
         return Rotation2d.fromRotations(kGyroInputs.gyroPositionRotations);
@@ -223,6 +247,11 @@ public class Drive extends SubsystemBase {
 
         odometryPose = kSwerveOdometry.update(odometryPose.getRotation().plus(Rotation2d.fromRadians(realSpeeds.omegaRadiansPerSecond).times(RobotConstants.Instance().kTimestep)), getModulePositions());
 
+        // Supply yaw to Vision to use MegaTag2 Localization
+        double yaw = (odometryPose.getRotation().getDegrees());
+        kVision.setYaw(yaw);
+
+        // ChassisSpeeds teleopSpeeds = kTeleopController.
         switch (robotState) {
             case TELEOP:
                 desiredSpeeds = kTeleopController.getDesiredSpeeds();
@@ -230,11 +259,25 @@ public class Drive extends SubsystemBase {
                 break;
             case AUTON:
                 break;
+            case HUB_HEADING_ALIGN:
+                // Get current rotation/yaw from vision or get it from odometry 
+                Rotation2d currentRotation;
+                if (kVision.getValidPose().getRotation() == Rotation2d.fromDegrees(Double.MAX_VALUE)) {
+                    currentRotation = odometryPose.getRotation();
+                } else {
+                    currentRotation = kVision.getValidPose().getRotation();
+                }
+                // Find angular velocity needed to rotate to hub by using current yaw as a starting point
+                // and kVision.getAlignment as the end point
+                double angularVelocity = kHeadingController.AimDownSights(currentRotation, kVision.getAlignment());
+                desiredSpeeds = new ChassisSpeeds(realSpeeds.vxMetersPerSecond, realSpeeds.vyMetersPerSecond, angularVelocity);
+                stateUpdateTeleop();
+                break;
             default:
                 break;
         }
     }
-
+    
     /********** STATE HANDLING **********/
     public void stateUpdateTeleop() {
         ChassisSpeeds robotRelativeDesiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(desiredSpeeds, getRobotAngle());

@@ -8,11 +8,14 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Subsystems.Drive.Drive;
+import frc.robot.Subsystems.Drive.Drive.RobotState;
 import frc.robot.Subsystems.Drive.Gyro.GyroSim;
 import frc.robot.Subsystems.Drive.SwerveModule.SwerveModuleSim;
 import frc.robot.Subsystems.Drive.SwerveModule.SwerveModuleTalonFX;
 import frc.robot.Subsystems.Drive.SwerveSetpointGenerator.SetpointGenerator;
 import frc.robot.Subsystems.Drive.SwerveSetpointGenerator.SwerveConfiguration;
+import frc.robot.Subsystems.Vision.CameraIOLimelight;
+import frc.robot.Subsystems.Vision.Vision;
 
 public class RobotContainer {
     public final CommandXboxController kDriveController = new CommandXboxController(RobotConstants.Instance().kDriveControllerPort);
@@ -42,7 +45,8 @@ public class RobotContainer {
                 RobotConstants.DriveConstants().kBRModuleOffset,
                 RobotConstants.DriveConstants().kCanbus
             ), 
-            new GyroSim()
+            new GyroSim(),
+            new Vision(new CameraIOLimelight(RobotConstants.VisionConstants().kCamName,  RobotConstants.VisionConstants().kCamTransform))
         );
         SetpointGenerator generator = new SetpointGenerator(new SwerveConfiguration());
 
@@ -55,5 +59,9 @@ public class RobotContainer {
             () -> kDriveController.getLeftY(), 
             () -> kDriveController.getRightX()
         );
+
+        kDriveController.y()
+        .onTrue(kDrive.setDriveStateCommand(RobotState.HUB_HEADING_ALIGN))
+        .onFalse(kDrive.setDriveStateCommand(RobotState.TELEOP));
     }
 }

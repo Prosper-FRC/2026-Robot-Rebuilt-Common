@@ -11,6 +11,10 @@ import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants5411;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants9105;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants9492;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstantsSim;
+import frc.robot.Subsystems.Vision.VisionConstants.VisionConstants;
+import frc.robot.Subsystems.Vision.VisionConstants.VisionConstants5411;
+import frc.robot.Subsystems.Vision.VisionConstants.VisionConstants9105;
+import frc.robot.Subsystems.Vision.VisionConstants.VisionConstants9492;
 
 public class RobotConstants {
     private static RobotConstants instance = null;
@@ -32,6 +36,7 @@ public class RobotConstants {
     
     private final DriveConstants kDriveConstants;
     private final IntakeConstants kIntakeConstants;
+    private final VisionConstants kVisionConstants;
 
     private RobotConstants() {
 
@@ -48,22 +53,27 @@ public class RobotConstants {
         switch (kTeamNumber) {
             case 5411:
                 kIntakeConstants = new IntakeConstants5411();
+                kVisionConstants = new VisionConstants5411();
                 kDriveConstants = new DriveConstants();
                 break;
             case 9105:
                 kIntakeConstants = new IntakeConstants9105();
+                kVisionConstants = new VisionConstants9105();
                 kDriveConstants = new DriveConstants();
                 break;
             case 9492:
                 kIntakeConstants = new IntakeConstants9492();
+                kVisionConstants = new VisionConstants9492();
                 kDriveConstants = new DriveConstants();
                 break;
             case 0:
                 kIntakeConstants = new IntakeConstantsSim();
+                kVisionConstants = new VisionConstants();
                 kDriveConstants = new DriveConstants();
                 break;
             default:
                 kIntakeConstants = new IntakeConstants();
+                kVisionConstants = new VisionConstants();
                 kDriveConstants = new DriveConstants();
                 break;
         }
@@ -75,6 +85,9 @@ public class RobotConstants {
 
     public static IntakeConstants IntakeConstants() {
         return instance.kIntakeConstants;
+    }
+    public static VisionConstants VisionConstants() {
+        return instance.kVisionConstants;
     }
 
     public static RobotConstants Instance() {

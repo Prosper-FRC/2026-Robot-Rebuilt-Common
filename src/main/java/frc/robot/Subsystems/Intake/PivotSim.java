@@ -13,6 +13,7 @@ import frc.robot.RobotConstants;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants.IntakeGains;
 
 public class PivotSim implements PivotIO {
+
     private double appliedVoltage = 0.0d;
     private boolean usePID = false;
     @AutoLogOutput(key = "Intake/TargetPose")
