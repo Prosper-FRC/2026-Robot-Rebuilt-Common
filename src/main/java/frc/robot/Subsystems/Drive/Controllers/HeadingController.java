@@ -15,7 +15,7 @@ public class HeadingController {
 
     // Return angular velocity needed to get to goal yaw/rotation
     public double AimDownSights(Rotation2d currentRotation, Rotation2d goalRotation) {
-        double pidOutput = aimController.calculate(currentRotation.getDegrees(), goalRotation.getDegrees());
+        double pidOutput = aimController.calculate(currentRotation.getRadians(), goalRotation.getRadians());
         return pidOutput;
     }
 }
