@@ -132,11 +132,21 @@ private CameraIO camera;
             double xDiff = RobotConstants.VisionConstants().kBlueHubTop.getX() - cameraData.latestEstimatedRobotPose.getX();
             double yDiff = RobotConstants.VisionConstants().kBlueHubTop.getY() - cameraData.latestEstimatedRobotPose.getY();
             desiredYaw = -(Math.PI/2 - (Math.atan2(yDiff, xDiff))); // In radians
+
+            // Check if yaw is +/- 180 or 0 degrees (before offset) to remove the Math.PI/2 component; it is not necessary for these angles
+            if (Math.abs(desiredYaw) == 90) {
+                desiredYaw = 0;
+            }
         } else {
             double xDiff = RobotConstants.VisionConstants().kRedHubTop.getX() - cameraData.latestEstimatedRobotPose.getX();
             double yDiff = RobotConstants.VisionConstants().kRedHubTop.getY() - cameraData.latestEstimatedRobotPose.getY();
             desiredYaw = -(Math.PI/2 - (Math.atan2(yDiff, xDiff))); // In radians
+            if (Math.abs(desiredYaw) == 90) {
+                desiredYaw = Math.PI;
+            }
         }
+
+        
         
 
         Rotation2d desiredYawRotations = Rotation2d.fromRadians(desiredYaw);
