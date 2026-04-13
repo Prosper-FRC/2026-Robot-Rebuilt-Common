@@ -60,6 +60,7 @@ public class RobotContainer {
             () -> kDriveController.getRightX()
         );
 
+        // ADS of doom; use when necessary
         kDriveController.y()
         .onTrue(kDrive.setDriveStateCommand(RobotState.HUB_HEADING_ALIGN))
         .onFalse(kDrive.setDriveStateCommand(RobotState.TELEOP));
