@@ -248,7 +248,7 @@ public class Drive extends SubsystemBase {
         odometryPose = kSwerveOdometry.update(odometryPose.getRotation().plus(Rotation2d.fromRadians(realSpeeds.omegaRadiansPerSecond).times(RobotConstants.Instance().kTimestep)), getModulePositions());
 
         // Supply yaw to Vision to use MegaTag2 Localization
-        double yaw = (odometryPose.getRotation().getDegrees());
+        double yaw = (getRobotAngle().getDegrees());
         kVision.setYaw(yaw);
 
         // ChassisSpeeds teleopSpeeds = kTeleopController.
@@ -263,7 +263,7 @@ public class Drive extends SubsystemBase {
                 // Get current rotation/yaw from vision or get it from odometry 
                 Rotation2d currentRotation;
                 if (kVision.getValidPose().getRotation() == Rotation2d.fromDegrees(Double.MAX_VALUE)) {
-                    currentRotation = odometryPose.getRotation();
+                    currentRotation = getRobotAngle();
                 } else {
                     currentRotation = kVision.getValidPose().getRotation();
                 }
