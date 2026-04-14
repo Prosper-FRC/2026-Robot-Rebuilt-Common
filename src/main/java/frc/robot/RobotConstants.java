@@ -6,11 +6,9 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants;
+import frc.robot.Subsystems.Indexer.IndexerConstants.IndexerConstants;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants;
-import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants5411;
-import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants9105;
-import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants9492;
-import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstantsSim;
+import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants;
 
 public class RobotConstants {
     private static RobotConstants instance = null;
@@ -31,7 +29,9 @@ public class RobotConstants {
     public final double kTimestep = 0.02d;
     
     private final DriveConstants kDriveConstants;
+    private final IndexerConstants kIndexerConstants;
     private final IntakeConstants kIntakeConstants;
+    private final ShooterConstants kShooterConstants;
 
     private RobotConstants() {
 
@@ -45,36 +45,26 @@ public class RobotConstants {
         }
         kIsBlueAlliance = DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue;
 
-        switch (kTeamNumber) {
-            case 5411:
-                kIntakeConstants = new IntakeConstants5411();
-                kDriveConstants = new DriveConstants();
-                break;
-            case 9105:
-                kIntakeConstants = new IntakeConstants9105();
-                kDriveConstants = new DriveConstants();
-                break;
-            case 9492:
-                kIntakeConstants = new IntakeConstants9492();
-                kDriveConstants = new DriveConstants();
-                break;
-            case 0:
-                kIntakeConstants = new IntakeConstantsSim();
-                kDriveConstants = new DriveConstants();
-                break;
-            default:
-                kIntakeConstants = new IntakeConstants();
-                kDriveConstants = new DriveConstants();
-                break;
-        }
+        kDriveConstants = new DriveConstants();
+        kIndexerConstants = new IndexerConstants();
+        kIntakeConstants = new IntakeConstants();
+        kShooterConstants = new ShooterConstants();
     }
 
     public static DriveConstants DriveConstants() {
         return instance.kDriveConstants;
     }
 
+    public static IndexerConstants IndexerConstants() {
+        return instance.kIndexerConstants;
+    }
+
     public static IntakeConstants IntakeConstants() {
         return instance.kIntakeConstants;
+    }
+
+    public static ShooterConstants ShooterConstants() {
+        return instance.kShooterConstants;
     }
 
     public static RobotConstants Instance() {

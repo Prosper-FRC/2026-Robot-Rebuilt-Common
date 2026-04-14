@@ -24,8 +24,6 @@ public class SwerveConfiguration {
         double chassisSideLengthMeters
     ) {}
 
-    // TODO: implment physical constraints for the swerve drive to respect.
-
     public SwerveConfiguration() {}
 
     public ChassisTranslations chassisTranslations = new ChassisTranslations(

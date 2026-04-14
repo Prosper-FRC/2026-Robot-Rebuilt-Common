@@ -9,7 +9,6 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.RobotConstants;
-import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants.SwerveModuleGains;
 
 public class SwerveModuleSim implements SwerveModuleIO {
     private final DCMotorSim kDriveMotor = new DCMotorSim(
@@ -49,7 +48,6 @@ public class SwerveModuleSim implements SwerveModuleIO {
     public double azimuthVoltage = 0.0d;
 
     public SwerveModuleSim() {
-        SwerveModuleGains driveGains = RobotConstants.DriveConstants().kDriveGains;
         kDriveController = RobotConstants.DriveConstants().kDriveControllerSim;
         kDriveFeedforward = RobotConstants.DriveConstants().kDriveFeedForwardSim;
 

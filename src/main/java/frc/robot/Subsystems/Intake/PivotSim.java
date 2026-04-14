@@ -2,7 +2,6 @@ package frc.robot.Subsystems.Intake;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -10,7 +9,6 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.RobotConstants;
-import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants.IntakeGains;
 
 public class PivotSim implements PivotIO {
     private double appliedVoltage = 0.0d;
@@ -32,11 +30,7 @@ public class PivotSim implements PivotIO {
         0.0d);
 
     public PivotSim() {
-        IntakeGains gains = RobotConstants.IntakeConstants().kIntakePivotGains;
-        kPivotController = new PIDController(
-            gains.pidGains().kP(), 
-            gains.pidGains().kI(), 
-            gains.pidGains().kD());
+        kPivotController = RobotConstants.IntakeConstants().kSimIntakePID;
     }
 
     @Override
