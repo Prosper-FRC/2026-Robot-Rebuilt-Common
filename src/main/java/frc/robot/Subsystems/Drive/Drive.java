@@ -226,6 +226,12 @@ public class Drive extends SubsystemBase {
         }
     }
 
+    public void reseedAzimuthMotors() {
+        for(var module : kModules) {
+            module.seedAbsoluteEncoder();
+        }
+    }
+
     /********** COMMAND METHODS **********/
     public void supplyControllerInputs(DoubleSupplier inputX, DoubleSupplier inputY, DoubleSupplier inputOmega) {
         kTeleopController.supplyControllerInputs(

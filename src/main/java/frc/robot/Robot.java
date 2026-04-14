@@ -52,7 +52,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
-        // Constantly resample the gyro while disabled
+        m_robotContainer.kDrive.reseedAzimuthMotors();
     }
 
     @Override
