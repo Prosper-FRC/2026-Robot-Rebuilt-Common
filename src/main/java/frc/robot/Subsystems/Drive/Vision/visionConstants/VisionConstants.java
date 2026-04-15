@@ -1,5 +1,5 @@
 
-package frc.robot.Subsystems.Drive.Vision.VisionConstants;
+package frc.robot.Subsystems.Drive.Vision.visionConstants;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;

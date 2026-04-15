@@ -10,13 +10,14 @@ import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants5411;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants9105;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstants9492;
 import frc.robot.Subsystems.Drive.DriveConstants.DriveConstantsSim;
-import frc.robot.Subsystems.Drive.Vision.VisionConstants.VisionConstants;
-import frc.robot.Subsystems.Drive.Vision.VisionConstants.VisionConstants5411;
-import frc.robot.Subsystems.Drive.Vision.VisionConstants.VisionConstants9105;
-import frc.robot.Subsystems.Drive.Vision.VisionConstants.VisionConstants9492;
+import frc.robot.Subsystems.Drive.Vision.visionConstants.VisionConstants;
+import frc.robot.Subsystems.Drive.Vision.visionConstants.VisionConstants5411;
+import frc.robot.Subsystems.Drive.Vision.visionConstants.VisionConstants9105;
+import frc.robot.Subsystems.Drive.Vision.visionConstants.VisionConstants9492;
 import frc.robot.Subsystems.Indexer.IndexerConstants.IndexerConstants;
 import frc.robot.Subsystems.Indexer.IndexerConstants.IndexerConstants5411;
 import frc.robot.Subsystems.Indexer.IndexerConstants.IndexerConstants9105;
+import frc.robot.Subsystems.Indexer.IndexerConstants.IndexerConstants9492;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants5411;
 import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstants9105;
@@ -25,6 +26,7 @@ import frc.robot.Subsystems.Intake.IntakeConstants.IntakeConstantsSim;
 import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants;
 import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants5411;
 import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants9105;
+import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstants9492;
 import frc.robot.Subsystems.Shooter.ShooterConstants.ShooterConstantsSim;
 
 public class RobotConstants {
@@ -82,8 +84,8 @@ public class RobotConstants {
                 kDriveConstants = new DriveConstants9492();
                 kVisionConstants = new VisionConstants9492();
                 kIntakeConstants = new IntakeConstants9492();
-                kIndexerConstants = new IndexerConstants();
-                kShooterConstants = new ShooterConstants();
+                kIndexerConstants = new IndexerConstants9492();
+                kShooterConstants = new ShooterConstants9492();
                 break;
             case 0:
                 kDriveConstants = new DriveConstantsSim();
