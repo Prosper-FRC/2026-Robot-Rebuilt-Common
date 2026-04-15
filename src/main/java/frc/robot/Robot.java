@@ -4,23 +4,20 @@
 
 package frc.robot;
 
-import java.io.Console;
-
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.revrobotics.PersistMode;
-import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkBaseConfig;
-import com.revrobotics.spark.config.SparkFlexConfig;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,52 +28,112 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * this project, you must also update the Main.java file in the project.
  */
 public class Robot extends TimedRobot {
-  private final TalonFX kShooterMotor = new TalonFX(1);
-  private final TalonFX kIndexerMotor = new TalonFX(0);
-  private final SparkMax kHood = new SparkMax(2, MotorType.kBrushless);
-
-  private final double kVoltage = 12.0d;
-  private double kShooterRPS = 45.0d;
-  private double kDesiredAngle = 0.0d;
-  private final boolean kUseDesiredAngle = true;
-
   private final XboxController kController = new XboxController(0);
+  private final TalonFX kShooterMotor1 = new TalonFX(61);
+  private final TalonFX kShooterMotor2 = new TalonFX(62);
+  private final TalonFX kBallTunnelMotor = new TalonFX(63);
 
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
+  private final TalonFXConfiguration kShooter1Configuration;
+  private final TalonFXConfiguration kShooter2Configuration;
+  private final TalonFXConfiguration kBallTunnelConfiguration;
+
+  private final double kShooterGoalRPS = 50.0d;
+  private final double kBallTunnelVoltage = 4.0d;
+
+  private final StatusSignal<AngularVelocity> kShooter1Velocity;
+  private final StatusSignal<Voltage> kShooter1Voltage;
+
+  private final StatusSignal<AngularVelocity> kShooter2Velocity;
+  private final StatusSignal<Voltage> kShooter2Voltage;
+
+  private final StatusSignal<Voltage> kBallTunnelVoltageSignal;
+
   public Robot() {
-    SparkBaseConfig config = new SparkFlexConfig();
-    TalonFXConfiguration shooterConfig = new TalonFXConfiguration();
-    config.closedLoop.p(0.5);
-    shooterConfig.Slot0.kP = 0.1d;
-    shooterConfig.Slot0.kV = 0.12d;
-    shooterConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    kHood.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    kShooterMotor.getConfigurator().apply(shooterConfig);
+    kShooter1Configuration = new TalonFXConfiguration()
+      .withSlot0(
+        new Slot0Configs()
+          .withKP(0.1)
+          .withKV(0.3)
+      )
+      .withMotorOutput(
+        new MotorOutputConfigs()
+          .withNeutralMode(NeutralModeValue.Coast)
+          .withInverted(InvertedValue.Clockwise_Positive)
+      )
+      .withCurrentLimits(
+        new CurrentLimitsConfigs()
+          .withStatorCurrentLimitEnable(true)
+          .withSupplyCurrentLimitEnable(true)
+          .withStatorCurrentLimit(120.0d)
+          .withSupplyCurrentLimit(100.0d) 
+      );
+      kShooter2Configuration = new TalonFXConfiguration()
+      .withSlot0(
+        new Slot0Configs()
+          .withKP(0.1)
+          .withKV(0.3)
+      )
+      .withMotorOutput(
+        new MotorOutputConfigs()
+          .withNeutralMode(NeutralModeValue.Coast)
+          .withInverted(InvertedValue.CounterClockwise_Positive)
+      )
+      .withCurrentLimits(
+        new CurrentLimitsConfigs()
+          .withStatorCurrentLimitEnable(true)
+          .withSupplyCurrentLimitEnable(true)
+          .withStatorCurrentLimit(120.0d)
+          .withSupplyCurrentLimit(100.0d) 
+      );
+      kBallTunnelConfiguration = new TalonFXConfiguration()
+      .withMotorOutput(
+        new MotorOutputConfigs()
+          .withNeutralMode(NeutralModeValue.Coast)
+          .withInverted(InvertedValue.Clockwise_Positive)
+      )
+      .withCurrentLimits(
+        new CurrentLimitsConfigs()
+          .withStatorCurrentLimitEnable(true)
+          .withSupplyCurrentLimitEnable(true)
+          .withStatorCurrentLimit(60.0d)
+          .withSupplyCurrentLimit(45.0d) 
+      );
+
+      kShooterMotor1.getConfigurator().apply(kShooter1Configuration);
+      kShooterMotor2.getConfigurator().apply(kShooter2Configuration);
+      kBallTunnelMotor.getConfigurator().apply(kBallTunnelConfiguration);
+
+      kShooter1Velocity = kShooterMotor1.getVelocity();
+      kShooter1Voltage = kShooterMotor1.getMotorVoltage();
+          
+      kShooter2Velocity = kShooterMotor2.getVelocity();
+      kShooter2Voltage = kShooterMotor2.getMotorVoltage();
+
+      kBallTunnelVoltageSignal = kBallTunnelMotor.getMotorVoltage();
   }
 
   @Override
   public void robotPeriodic() {
-    // Logging to smart dashboard
-    SmartDashboard.putNumber("HoodPose", kHood.getEncoder().getPosition());
-    SmartDashboard.putNumber("ShooterOutputVoltage", kShooterMotor.getMotorVoltage(true).getValueAsDouble());
-    SmartDashboard.putNumber("ShooterVelocityRPM", kShooterMotor.getVelocity().getValueAsDouble());
-    if(kUseDesiredAngle) {
-      kHood.getClosedLoopController().setSetpoint(kDesiredAngle, ControlType.kPosition);
-    
-      if(kController.getAButton()){
-        kDesiredAngle -= 0.01d;
-      } else if(kController.getYButton()) {
-        kDesiredAngle += 0.01d;
-      }
+    SmartDashboard.putNumber("Shooter 1 Velocity", kShooter1Velocity.getValueAsDouble());
+    SmartDashboard.putNumber("Shooter 1 Voltage", kShooter1Voltage.getValueAsDouble());
+    SmartDashboard.putNumber("Shooter 2 Velocity", kShooter2Velocity.getValueAsDouble());
+    SmartDashboard.putNumber("Shooter 2 Voltage", kShooter2Voltage.getValueAsDouble());
+    SmartDashboard.putNumber("Ball Tunnel Voltage", kBallTunnelVoltageSignal.getValueAsDouble());
 
-      if(kController.getXButton()) {
-        kShooterRPS += 0.05d;
-      } else if (kController.getBButton()) {
-        kShooterRPS -= 0.05d;
-      }
+    if(kController.getLeftBumperButton()) {
+      kShooterMotor1.setControl(new VelocityVoltage(kShooterGoalRPS));
+    } else {
+      kShooterMotor1.setControl(new NeutralOut());
+    }
+    if(kController.getRightBumperButton()) {
+      kShooterMotor2.setControl(new VelocityVoltage(kShooterGoalRPS));
+    } else {
+      kShooterMotor2.setControl(new NeutralOut());
+    }
+    if(kController.getXButton()) {
+      kBallTunnelMotor.setControl(new VoltageOut(kBallTunnelVoltage));
+    } else {
+      kBallTunnelMotor.setControl(new NeutralOut());
     }
   }
 
@@ -88,8 +145,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    kShooterMotor.setControl(new VelocityVoltage(kShooterRPS).withSlot(0));
-    kIndexerMotor.setControl(new VoltageOut(-kVoltage));
   }
 
   @Override
@@ -97,8 +152,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    kShooterMotor.setControl(new NeutralOut());
-    kIndexerMotor.setControl(new NeutralOut());
   }
 
   @Override
