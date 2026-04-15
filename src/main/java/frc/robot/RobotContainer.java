@@ -55,7 +55,7 @@ public class RobotContainer {
         kIndexer = IndexerFactory.create(SubsystemType.REAL);
         kShooter = ShooterFactory.create(SubsystemType.REAL);
     
-        kACommands = new AutonCommands(kDrive, kShooter, kIndexer);
+        kACommands = new AutonCommands(kDrive, kShooter, kIntake, kIndexer);
         
         configureBindings();
     }

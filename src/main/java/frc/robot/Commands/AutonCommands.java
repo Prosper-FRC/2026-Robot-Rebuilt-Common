@@ -15,6 +15,9 @@ import frc.robot.Subsystems.Shooter.Shooter;
 import frc.robot.Subsystems.Shooter.Shooter.shooterState;
 import frc.robot.Subsystems.Indexer.Indexer;
 import frc.robot.Subsystems.Indexer.Indexer.indexerState;
+import frc.robot.Subsystems.Intake.Intake;
+import frc.robot.Subsystems.Intake.Intake.intakePivotState;
+import frc.robot.Subsystems.Intake.Intake.intakeRollerState;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
@@ -28,10 +31,11 @@ public class AutonCommands {
     //private final Superstructure kSuperstructure;
 
     private final Shooter kShooter;
+    private final Intake kIntake;
     private final Indexer kIndexer;
     private final Drive kDrive;
 
-    public AutonCommands(Drive drive, Shooter shooter, Indexer indexer) {
+    public AutonCommands(Drive drive, Shooter shooter, Intake intake, Indexer indexer) {
         kDrive = drive;
 
         kAutoFactory = new AutoFactory(
@@ -42,6 +46,7 @@ public class AutonCommands {
             drive);
 
         kShooter = shooter;
+        kIntake = intake;
         kIndexer = indexer;
     }
     
@@ -148,9 +153,12 @@ public class AutonCommands {
 
     public Command shooterAuto() {
         return new SequentialCommandGroup(kShooter.setShooterStateCommand(shooterState.Active),
+        kIntake.setIntakeStateCommand(intakePivotState.Deployed, intakeRollerState.Idling),
+        new WaitCommand(1.0d),
         kIndexer.setIndexerStateCommand(indexerState.Active),
         new WaitCommand(5.0),
         kShooter.setShooterStateCommand(shooterState.Inactive),
-        kIndexer.setIndexerStateCommand(indexerState.Inactive));
+        kIndexer.setIndexerStateCommand(indexerState.Inactive),
+        kIntake.setIntakeRollerStateCommand(intakeRollerState.Inactive));
     }
 }

@@ -71,14 +71,14 @@ public class RobotConstants {
                 kIndexerConstants = new IndexerConstants5411();
                 kShooterConstants = new ShooterConstants5411();
                 break;
-            case 9105:
+            case 9492:
                 kDriveConstants = new DriveConstants9105();
                 kVisionConstants = new VisionConstants9105();
                 kIntakeConstants = new IntakeConstants9105();
                 kIndexerConstants = new IndexerConstants9105();
                 kShooterConstants = new ShooterConstants9105();
                 break;
-            case 9492:
+            case 9105:
                 kDriveConstants = new DriveConstants9492();
                 kVisionConstants = new VisionConstants9492();
                 kIntakeConstants = new IntakeConstants9492();
