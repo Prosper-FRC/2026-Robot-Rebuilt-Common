@@ -11,19 +11,21 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.RobotConstants;
 
 public class PivotSim implements PivotIO {
+    @AutoLogOutput(key = "Intake/Pivot/Voltage")
     private double appliedVoltage = 0.0d;
+    @AutoLogOutput(key = "Intake/Pivot/UsePID")
     private boolean usePID = false;
-    @AutoLogOutput(key = "Intake/TargetPose")
+    @AutoLogOutput(key = "Intake/Pivot/TargetPose")
     private double targetPosition = 0.0d;
     private final PIDController kPivotController;
 
     private final SingleJointedArmSim kPivotMotor = new SingleJointedArmSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.0125d, RobotConstants.IntakeConstants().kIntakeHardLimits.rollerGearRatio()),
+        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.0125d, RobotConstants.IntakeConstants().kIntakeHardLimits.pivotGearRatio()),
         DCMotor.getKrakenX60(1),
-        RobotConstants.IntakeConstants().kIntakeHardLimits.rollerGearRatio(),
+        RobotConstants.IntakeConstants().kIntakeHardLimits.pivotGearRatio(),
         0.65d, 
-        0.0d, 
-        RobotConstants.IntakeConstants().kIntakeSoftLimits.rangeOfMotion().getRadians(), 
+        Units.rotationsToRadians(-2.0d), 
+        Units.rotationsToRadians(2.0d),
         true, 
         0.0d,
         appliedVoltage, 
@@ -34,11 +36,11 @@ public class PivotSim implements PivotIO {
     }
 
     @Override
-    public void updateInputs(PivotInputs toUpdate) {
-        toUpdate.isOk = true;
-        toUpdate.positionRotations = Units.radiansToRotations(kPivotMotor.getAngleRads());
-        toUpdate.velocityRPS = Units.radiansToRotations(kPivotMotor.getVelocityRadPerSec());
-        toUpdate.supplyVoltage = appliedVoltage;
+    public void updateInputs(PivotInputs inputs) {
+        inputs.isOk = true;
+        inputs.positionRotations = Units.radiansToRotations(kPivotMotor.getAngleRads());
+        inputs.velocityRPS = Units.radiansToRotations(kPivotMotor.getVelocityRadPerSec());
+        inputs.supplyVoltage = appliedVoltage;
 
         if(usePID) {
             appliedVoltage = kPivotController.calculate(Units.radiansToRotations(kPivotMotor.getAngleRads()), targetPosition); // + kPivotFeedforward.calculate(Units.radiansToRotations(kPivotMotor.getAngleRads()), Units.radiansToRotations(kPivotMotor.getVelocityRadPerSec()));

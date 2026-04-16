@@ -19,11 +19,11 @@ public class RollerSim implements RollerIO {
     public RollerSim() {}
 
     @Override
-    public void updateInputs(RollerInputs toUpdate) {
-        toUpdate.isOk = true;
-        toUpdate.positionRotations = kRollerMotor.getAngularPositionRotations();
-        toUpdate.velocityRPS = kRollerMotor.getAngularVelocityRPM() / 60;
-        toUpdate.supplyVoltage = appliedVoltage;
+    public void updateInputs(RollerInputs inputs) {
+        inputs.isOk = true;
+        inputs.positionRotations = kRollerMotor.getAngularPositionRotations();
+        inputs.velocityRPS = kRollerMotor.getAngularVelocityRPM() / 60;
+        inputs.supplyVoltage = appliedVoltage;
 
         kRollerMotor.setInputVoltage(appliedVoltage);
 

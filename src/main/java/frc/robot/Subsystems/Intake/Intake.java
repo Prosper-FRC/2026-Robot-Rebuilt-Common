@@ -19,7 +19,7 @@ public class Intake extends SubsystemBase {
 
     public static enum intakePivotState {
         Stowed(() -> 0.0d),
-        Deployed(() -> -1.4d);
+        Deployed(() -> 1.75d);
         private DoubleSupplier rotationSetpoint;
 
         private intakePivotState(DoubleSupplier setpoint) {
@@ -68,10 +68,6 @@ public class Intake extends SubsystemBase {
 
     public Command setPivotPositionCommand(Rotation2d position) {
         return new InstantCommand(() -> kPivot.setTargetPosition(position), this);
-    }
-
-    public Command setRollerVelocityCommand(Rotation2d velocityPerSecond) {
-        return new InstantCommand(() -> kRoller.setTargetVelocity(velocityPerSecond), this);
     }
 
     public Command stopPivotCommand() {

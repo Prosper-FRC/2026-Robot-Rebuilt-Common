@@ -15,6 +15,6 @@ public class ShooterConstants {
 
     public final int flywheelID = 61;
 
-    public final PIDController kSimFlywheelController = new PIDController(0.1d, 0.0d, 0.0d);
-    public final SimpleMotorFeedforward kSimFlywheelFeedforward = new SimpleMotorFeedforward(0.0d, 0.15d);
+    public final PIDController kSimFlywheelController = new PIDController(1.0d, 0.0d, 0.0d);
+    public final SimpleMotorFeedforward kSimFlywheelFeedforward = new SimpleMotorFeedforward(0.0d, 0.11d);
 }

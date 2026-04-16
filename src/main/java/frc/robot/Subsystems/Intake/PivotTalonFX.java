@@ -76,8 +76,8 @@ public class PivotTalonFX implements PivotIO {
     }
 
     @Override
-    public void updateInputs(PivotInputs toUpdate) {
-        toUpdate.isOk = BaseStatusSignal.refreshAll(
+    public void updateInputs(PivotInputs inputs) {
+        inputs.isOk = BaseStatusSignal.refreshAll(
             kPosition,
             kVelocity,
             kTemperature,
@@ -85,12 +85,12 @@ public class PivotTalonFX implements PivotIO {
             kStatorCurrent,
             kSupplyCurrent).isOK();
 
-        toUpdate.positionRotations = kPosition.getValueAsDouble();
-        toUpdate.velocityRPS = kVelocity.getValueAsDouble();
-        toUpdate.temperatureCelcius = kTemperature.getValueAsDouble();
-        toUpdate.supplyVoltage = kSupplyVoltage.getValueAsDouble();
-        toUpdate.statorCurrent = kStatorCurrent.getValueAsDouble();
-        toUpdate.supplyCurrent = kSupplyCurrent.getValueAsDouble();
+        inputs.positionRotations = kPosition.getValueAsDouble();
+        inputs.velocityRPS = kVelocity.getValueAsDouble();
+        inputs.temperatureCelcius = kTemperature.getValueAsDouble();
+        inputs.supplyVoltage = kSupplyVoltage.getValueAsDouble();
+        inputs.statorCurrent = kStatorCurrent.getValueAsDouble();
+        inputs.supplyCurrent = kSupplyCurrent.getValueAsDouble();
     }
 
     @Override

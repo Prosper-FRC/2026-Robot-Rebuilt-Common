@@ -16,12 +16,12 @@ public class HopperSim implements HopperIO {
     public HopperSim() {}
 
     @Override
-    public void updateInputs(hopperInputs toUpdate) {
-        toUpdate.isOk = true;
-        toUpdate.hopperRPS = kHopperMotor.getAngularVelocityRPM() / 60.0d;
-        toUpdate.hopperVoltage = kHopperMotor.getInputVoltage();
-        toUpdate.hopperStatorCurrent = -1.0d;
-        toUpdate.hopperSupplyCurrent = kHopperMotor.getCurrentDrawAmps();
+    public void updateInputs(hopperInputs inputs) {
+        inputs.isOk = true;
+        inputs.hopperRPS = kHopperMotor.getAngularVelocityRPM() / 60.0d;
+        inputs.hopperVoltage = kHopperMotor.getInputVoltage();
+        inputs.hopperStatorCurrent = -1.0d;
+        inputs.hopperSupplyCurrent = kHopperMotor.getCurrentDrawAmps();
 
         kHopperMotor.setInputVoltage(appliedVoltage);
 

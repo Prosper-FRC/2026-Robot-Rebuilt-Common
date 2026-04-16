@@ -7,7 +7,7 @@ public class IndexerConstants {
 
     public final int kBallTunnelId = 44;
 
-    public final boolean kHopper1Inverted = false;
+    public final boolean kHopper1Inverted = true;
     public final boolean kHopper2Inverted = true;
     public final boolean kHopper3Inverted = true;
     
@@ -17,6 +17,6 @@ public class IndexerConstants {
     public final double kSupplyCurrentLimit = 30.0d;
     public final double kIndexerGearing = 3.0d;
 
-    public final double kHopperVoltagesActive = 6.5d; // 6.0
+    public final double kHopperVoltagesActive = 9.5d; // 6.0
     public final double kBallTunnelVoltagesActive = 12.0d; // 6.0
 }

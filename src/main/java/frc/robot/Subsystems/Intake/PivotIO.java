@@ -16,13 +16,31 @@ public interface PivotIO {
         public double supplyCurrent = 0.0d;
     }
 
-    default public void updateInputs(PivotInputs toUpdate) {}
+    /**
+     * Updates NT logging data from given inputs.
+     * @param inputs The inputs to update
+     */
+    default public void updateInputs(PivotInputs inputs) {}
 
+    /**
+     * Sets an output voltage to the pivot in volts (Range of -12 - 12 volts).
+     * @param voltage The voltage to apply to the pivot motor.
+     */
     default public void setOutputVoltage(double voltage) {}
 
+    /**
+     * Sets the target goal in rotations to the pivot using PID control.
+     * @param targetPosition The target position to set the pivot in rotations.
+     */
     default public void setTargetPosition(Rotation2d targetPosition) {}
 
+    /**
+     * Stops the pivot motor setting it to it's neutral mode output.
+     */
     default public void stopPivotMotor() {}
 
+    /**
+     * Resets the encoder in the Pivot to zero rotations.
+     */
     default public void resetPivotMotor() {}
 }

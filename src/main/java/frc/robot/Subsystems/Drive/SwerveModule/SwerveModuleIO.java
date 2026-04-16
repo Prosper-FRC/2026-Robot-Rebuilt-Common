@@ -29,6 +29,10 @@ public interface SwerveModuleIO {
         public double cancoderSpeedRotationsPerSecond = 0.0d;
     }
 
+    /**
+     * Updates NT logging data from given inputs.
+     * @param inputs The inputs to update
+     */
     default public void updateInputs(SwerveModuleInputs inputs) {}
 
     // Drive methods //

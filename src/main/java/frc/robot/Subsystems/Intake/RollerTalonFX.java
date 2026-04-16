@@ -44,14 +44,6 @@ public class RollerTalonFX implements RollerIO {
         kRollerConfiguration = new TalonFXConfiguration();
     
         // Configure motor
-        kRollerConfiguration.Slot0.kP = intakeConstants.kIntakeRollerGains.pidGains().kP();
-        kRollerConfiguration.Slot0.kI = intakeConstants.kIntakeRollerGains.pidGains().kI();
-        kRollerConfiguration.Slot0.kD = intakeConstants.kIntakeRollerGains.pidGains().kD();
-        kRollerConfiguration.Slot0.kV = intakeConstants.kIntakeRollerGains.feedForwardGains().kV();
-        kRollerConfiguration.Slot0.kS = intakeConstants.kIntakeRollerGains.feedForwardGains().kS();
-        kRollerConfiguration.Slot0.kA = intakeConstants.kIntakeRollerGains.feedForwardGains().kA();
-        kRollerConfiguration.Slot0.kG = intakeConstants.kIntakeRollerGains.feedForwardGains().kG();
-
         kRollerConfiguration.Feedback.SensorToMechanismRatio = intakeConstants.kIntakeHardLimits.rollerGearRatio();
         kRollerConfiguration.MotorOutput.Inverted = intakeConstants.kIntakeSoftLimits.isInverted() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
         kRollerConfiguration.MotorOutput.NeutralMode = intakeConstants.kIntakeSoftLimits.isBraked() ? NeutralModeValue.Brake : NeutralModeValue.Coast;
@@ -74,8 +66,8 @@ public class RollerTalonFX implements RollerIO {
     }
 
     @Override
-    public void updateInputs(RollerInputs toUpdate) {
-        toUpdate.isOk = BaseStatusSignal.refreshAll(
+    public void updateInputs(RollerInputs inputs) {
+        inputs.isOk = BaseStatusSignal.refreshAll(
             kPosition,
             kVelocity,
             kTemperature,
@@ -83,22 +75,17 @@ public class RollerTalonFX implements RollerIO {
             kStatorCurrent,
             kSupplyCurrent).isOK();
 
-        toUpdate.positionRotations = kPosition.getValueAsDouble();
-        toUpdate.velocityRPS = kVelocity.getValueAsDouble();
-        toUpdate.temperatureCelcius = kTemperature.getValueAsDouble();
-        toUpdate.supplyVoltage = kSupplyVoltage.getValueAsDouble();
-        toUpdate.statorCurrent = kStatorCurrent.getValueAsDouble();
-        toUpdate.supplyCurrent = kSupplyCurrent.getValueAsDouble();
+        inputs.positionRotations = kPosition.getValueAsDouble();
+        inputs.velocityRPS = kVelocity.getValueAsDouble();
+        inputs.temperatureCelcius = kTemperature.getValueAsDouble();
+        inputs.supplyVoltage = kSupplyVoltage.getValueAsDouble();
+        inputs.statorCurrent = kStatorCurrent.getValueAsDouble();
+        inputs.supplyCurrent = kSupplyCurrent.getValueAsDouble();
     }
 
     @Override
     public void setOutputVoltage(double voltage) {
         kRollerMotor.setControl(kVoltageOut.withOutput(voltage));
-    }
-
-    @Override
-    public void setTargetVelocity(Rotation2d targetVelocityPerSecond) {
-        kRollerMotor.setControl(kVelocityControl.withVelocity(targetVelocityPerSecond.getRotations()).withSlot(0));
     }
 
     @Override

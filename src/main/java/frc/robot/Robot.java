@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -15,6 +16,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends LoggedRobot {
     private final RobotContainer m_robotContainer;
+
+    @AutoLogOutput(key = "Is Blue Alliance")
+    public boolean isBlueAllianceLogged;
 
     public Robot() {
         // Sets up AK logging.
@@ -45,18 +49,20 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
+        isBlueAllianceLogged = RobotConstants.Instance().kIsBlueAlliance;   
     }
 
     @Override
     public void disabledInit() {}
 
     @Override
-    public void disabledPeriodic() {
-        m_robotContainer.kDrive.reseedAzimuthMotors();
-    }
+    public void disabledPeriodic() {}
 
     @Override
-    public void disabledExit() {}
+    public void disabledExit() {
+        m_robotContainer.kDrive.reseedAzimuthMotors();
+        m_robotContainer.kDrive.resetGyroCommand();
+    }
 
     @Override
     public void autonomousInit() {

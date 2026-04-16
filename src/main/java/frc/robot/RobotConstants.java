@@ -1,5 +1,8 @@
 package frc.robot;
 
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
@@ -18,8 +21,6 @@ public class RobotConstants {
         REPLAY,
         SIM
     };
-
-    public SendableChooser<Boolean> kChooser = new SendableChooser<Boolean>();
 
     public final int kTeamNumber;
     public final mode kMode;

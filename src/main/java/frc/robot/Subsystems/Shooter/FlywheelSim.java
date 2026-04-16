@@ -11,7 +11,7 @@ import frc.robot.RobotConstants;
 
 public class FlywheelSim implements FlywheelIO {    
     private final DCMotorSim kFlywheelMotor = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.015, 1.0d), 
+        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.025, 1.0d), 
         DCMotor.getKrakenX60(1), 
         0.0d, 0.0d
     );
@@ -31,15 +31,15 @@ public class FlywheelSim implements FlywheelIO {
     public FlywheelSim() {}
 
     @Override
-    public void updateInputs(flywheelInputs toUpdate) {
-        toUpdate.isOk = true;
-        toUpdate.appliedVoltage = kFlywheelMotor.getInputVoltage();
-        toUpdate.velocityRPS = kFlywheelMotor.getAngularVelocityRPM() / 60;
-        toUpdate.statorCurrent = -1.0d;
-        toUpdate.supplyCurrent = kFlywheelMotor.getCurrentDrawAmps();
+    public void updateInputs(flywheelInputs inputs) {
+        inputs.isOk = true;
+        inputs.appliedVoltage = kFlywheelMotor.getInputVoltage();
+        inputs.velocityRPS = kFlywheelMotor.getAngularVelocityRPM() / 60;
+        inputs.statorCurrent = -1.0d;
+        inputs.supplyCurrent = kFlywheelMotor.getCurrentDrawAmps();
 
         if(useSetpoint) {
-            appliedVoltage = kFlywheelController.calculate(toUpdate.velocityRPS, setpoint) + kFlywheelFeedforward.calculate(setpoint);
+            appliedVoltage = kFlywheelController.calculate(inputs.velocityRPS, setpoint) + kFlywheelFeedforward.calculate(setpoint);
         }
         kFlywheelMotor.setInputVoltage(appliedVoltage);
 
@@ -61,6 +61,6 @@ public class FlywheelSim implements FlywheelIO {
     @Override
     public void stopFlywheel() {
         useSetpoint = false;
-        kFlywheelMotor.setInputVoltage(0.0d);
+        appliedVoltage = 0.0d;        
     }
 }

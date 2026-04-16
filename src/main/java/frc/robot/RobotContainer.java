@@ -19,52 +19,79 @@ import frc.robot.Subsystems.Shooter.Shooter;
 import frc.robot.Subsystems.Shooter.Shooter.shooterState;
 
 public class RobotContainer {
+    // Instantiate command controllers
     public final CommandXboxController kDriveController = new CommandXboxController(RobotConstants.Instance().kDriveControllerPort);
     public final CommandXboxController kOperatorController = new CommandXboxController(RobotConstants.Instance().kOperatorControllerPort);
-
-    public final boolean kUseCompetitionBindings = false;
     
+    // Declare subsystems
     public final Drive kDrive;
     public final Indexer kIndexer;
     public final Intake kIntake;
     public final Shooter kShooter;
 
     public RobotContainer() {
-        kDrive = DriveFactory.createSim();
-        kIndexer = IndexerFactory.createSim();
-        kIntake = IntakeFactory.createSim();
-        kShooter = ShooterFactory.createSim();
+        // Assign subsystems based on the robot's current mode.
+        switch(RobotConstants.Instance().kMode) {
+            case REAL:
+                kDrive = DriveFactory.createReal();
+                kIndexer = IndexerFactory.createReal();
+                kIntake = IntakeFactory.createReal();
+                kShooter = ShooterFactory.createReal();
+                break;
+            case SIM:
+                kDrive = DriveFactory.createSim();
+                kIndexer = IndexerFactory.createSim();
+                kIntake = IntakeFactory.createSim();
+                kShooter = ShooterFactory.createSim();
+                break;
+            default:
+                kDrive = DriveFactory.createNoOp();
+                kIndexer = IndexerFactory.createNoOp();
+                kIntake = IntakeFactory.createNoOp();
+                kShooter = ShooterFactory.createNoOp();
+                break;
+
+        }
 
         configureButtonBindings();
     }
 
     private void configureButtonBindings() {
-
+        // Bind drive controller bindings
         kDrive.setDefaultCommand(kDrive.setDriveStateCommand(DriveState.TELEOP));
 
-        kDrive.supplyControllerInputs(() -> kDriveController.getLeftX(), () -> kDriveController.getLeftY(), () -> -kDriveController.getRightX());
+        kDrive.supplyControllerInputs(
+            () -> kDriveController.getLeftX(), 
+            () -> kDriveController.getLeftY(), 
+            () -> -kDriveController.getRightX()
+        );
 
         kDriveController.y()
             .onTrue(kDrive.resetGyroCommand()
         );
 
-        // Note: We can only shift commands when the intake is at its most recent desired goal.
+        // Bind operator controller binding
+
+        // Indexer bindings
         kOperatorController.rightBumper().and(kOperatorController.rightTrigger().negate())
             .onTrue(kIndexer.setIndexerStateCommand(indexerState.Active_Hoppers))
             .onFalse(kIndexer.setIndexerStateCommand(indexerState.Inactive));
 
+        // Shooter/Ball tunnel bindings
         kOperatorController.rightTrigger().and(kOperatorController.rightBumper().negate())
             .onTrue(kShooter.setShooterStateCommand(shooterState.Active)
                 .alongWith(kIndexer.setIndexerStateCommand(indexerState.Active_Ball_Tunnel)))
             .onFalse(kShooter.setShooterStateCommand(shooterState.Inactive)
                 .alongWith(kIndexer.setIndexerStateCommand(indexerState.Inactive)));
 
+        // Shooter and Indexer bindings
         kOperatorController.rightBumper().and(kOperatorController.rightTrigger())
             .onTrue(kShooter.setShooterStateCommand(shooterState.Active)
                 .alongWith(kIndexer.setIndexerStateCommand(indexerState.Active)))
             .onFalse(kShooter.setShooterStateCommand(shooterState.Inactive)
                 .alongWith(kIndexer.setIndexerStateCommand(indexerState.Inactive)));
 
+        // Intake bindings
         kOperatorController.leftTrigger().and(kOperatorController.leftBumper().negate())
             .onTrue(kIntake.setIntakeRollerStateCommand(intakeRollerState.Outtake)
                 .alongWith(kIndexer.setIndexerStateCommand(indexerState.Reverse)))
@@ -75,7 +102,11 @@ public class RobotContainer {
             .onTrue(kIntake.setIntakeRollerStateCommand(intakeRollerState.Intake))
             .onFalse(kIntake.setIntakeRollerStateCommand(intakeRollerState.Idling));
 
+        // Pivot bindings
         kOperatorController.y()
             .onTrue(kIntake.toggleIntakePivotState());
+
+        kOperatorController.x()
+            .onTrue(kIntake.resetPivotCommand());
     }
 }

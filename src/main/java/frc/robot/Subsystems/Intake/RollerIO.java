@@ -16,11 +16,20 @@ public interface RollerIO {
         public double supplyCurrent = 0.0d;
     }
 
-    default public void updateInputs(RollerInputs toUpdate) {}
+    /**
+     * Updates NT logging data from given inputs.
+     * @param inputs The inputs to update
+     */
+    default public void updateInputs(RollerInputs inputs) {}
 
+    /**
+     * Sets the output voltage to the roller motor in volts (Range of -12 - 12 volts).
+     * @param voltage The voltage to apply to the roller.
+     */
     default public void setOutputVoltage(double voltage) {}
 
-    default public void setTargetVelocity(Rotation2d velocityPerSecond) {}
-
+    /**
+     * Stops the roller motor using its neutral mode value.
+     */
     default public void stopRollerMotor() {}
 }

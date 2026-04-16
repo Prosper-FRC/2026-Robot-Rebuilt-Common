@@ -50,18 +50,18 @@ public class FlywheelTalonFX implements FlywheelIO{
     }
 
     @Override
-    public void updateInputs(flywheelInputs toUpdate) {
-        toUpdate.isOk = BaseStatusSignal.refreshAll(
+    public void updateInputs(flywheelInputs inputs) {
+        inputs.isOk = BaseStatusSignal.refreshAll(
             kVelocity,
             kVoltage,
             kStatorCurrent,
             kSupplyCurrent
         ).isOK();
 
-        toUpdate.velocityRPS = kVelocity.getValueAsDouble();
-        toUpdate.appliedVoltage = kVoltage.getValueAsDouble();
-        toUpdate.statorCurrent = kStatorCurrent.getValueAsDouble();
-        toUpdate.supplyCurrent = kSupplyCurrent.getValueAsDouble();
+        inputs.velocityRPS = kVelocity.getValueAsDouble();
+        inputs.appliedVoltage = kVoltage.getValueAsDouble();
+        inputs.statorCurrent = kStatorCurrent.getValueAsDouble();
+        inputs.supplyCurrent = kSupplyCurrent.getValueAsDouble();
     }
 
     @Override

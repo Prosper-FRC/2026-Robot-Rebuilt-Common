@@ -23,10 +23,10 @@ public class DriveConstants {
     public final SwerveModuleIds kBRModuleIds = new SwerveModuleIds(14, 24, 34);
     public final int kGyroId = 40;
 
-    public final double kFLModuleOffset = 0.0d;
-    public final double kFRModuleOffset = 0.0d;
-    public final double kBLModuleOffset = 0.0d;
-    public final double kBRModuleOffset = 0.0d;
+    public final double kFLModuleOffset = -0.244d;
+    public final double kFRModuleOffset = -0.406d;
+    public final double kBLModuleOffset = -0.223d;
+    public final double kBRModuleOffset = -0.495d;
     public final Rotation3d kGyroOffsets = new Rotation3d();
 
     public final SwerveModuleGains kDriveGains = new SwerveModuleGains(
@@ -50,7 +50,7 @@ public class DriveConstants {
 
     public final SwerveModuleMotionMagicGains kMotionMagicGains = new SwerveModuleMotionMagicGains(
         4.5d,
-        18.0d
+        28.0d
     );
 
     public final SwerveModuleOutputConfigs kDriveOutputConfigs = new SwerveModuleOutputConfigs(

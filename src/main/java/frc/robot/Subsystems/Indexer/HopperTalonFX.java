@@ -42,18 +42,18 @@ public class HopperTalonFX implements HopperIO {
     }
 
     @Override
-    public void updateInputs(hopperInputs toUpdate) {
-        toUpdate.isOk = BaseStatusSignal.refreshAll(
+    public void updateInputs(hopperInputs inputs) {
+        inputs.isOk = BaseStatusSignal.refreshAll(
             kHopperVelocity,
             kHopperAppliedVoltage,
             kHopperStatorCurrent,
             kHopperSupplyCurrent
         ).isOK();
 
-        toUpdate.hopperRPS = kHopperVelocity.getValueAsDouble();
-        toUpdate.hopperVoltage = kHopperAppliedVoltage.getValueAsDouble();
-        toUpdate.hopperStatorCurrent = kHopperStatorCurrent.getValueAsDouble();
-        toUpdate.hopperSupplyCurrent = kHopperSupplyCurrent.getValueAsDouble();
+        inputs.hopperRPS = kHopperVelocity.getValueAsDouble();
+        inputs.hopperVoltage = kHopperAppliedVoltage.getValueAsDouble();
+        inputs.hopperStatorCurrent = kHopperStatorCurrent.getValueAsDouble();
+        inputs.hopperSupplyCurrent = kHopperSupplyCurrent.getValueAsDouble();
     }
 
     @Override

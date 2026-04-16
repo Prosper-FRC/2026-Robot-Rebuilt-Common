@@ -1,5 +1,8 @@
 package frc.robot.Subsystems.Shooter;
 
+import java.util.function.BooleanSupplier;
+
+import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -8,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotConstants;
 
 public class Shooter extends SubsystemBase {
@@ -20,6 +24,9 @@ public class Shooter extends SubsystemBase {
     @AutoLogOutput(key = "Shooter/State")
     public shooterState state = shooterState.Inactive;
 
+    @AutoLogOutput(key = "Shooter/IsAtFullSpeed")
+    public boolean isAtFullSpeed = false;
+
     private final FlywheelIO kFlywheel;
 
     private final flywheelInputsAutoLogged kFlywheelInputs = new flywheelInputsAutoLogged();
@@ -30,6 +37,7 @@ public class Shooter extends SubsystemBase {
         kFlywheel = flywheel;
     }
 
+    /********** Util Methods **********/
     public void setShooter(double rps, double position) {
         kFlywheel.setFlywheelRPS(rps);
     }
@@ -44,7 +52,11 @@ public class Shooter extends SubsystemBase {
     public void setShooterState(shooterState state) {
         this.state = state;
     }
+    public boolean isShooterFullSpeed() {
+        return kShooterSpeedDebouncer.calculate(Math.abs(RobotConstants.ShooterConstants().kShooterRPS - kFlywheelInputs.velocityRPS) < 5.0d);
+    }
 
+    /********** COMMANDS **********/
     public Command setShooterCommand(double rps, double position) {
         return new RunCommand(() -> setShooter(rps, position));
     }
@@ -60,15 +72,17 @@ public class Shooter extends SubsystemBase {
     public Command setShooterStateCommand(shooterState state) {
         return new InstantCommand(() -> setShooterState(state));
     }
-
-    public boolean isShooterSpunUp() {
-        return kShooterSpeedDebouncer.calculate(Math.abs(RobotConstants.ShooterConstants().kShooterRPS - kFlywheelInputs.velocityRPS) < 10.0d);
+    public Trigger isShooterFullSpeedTrigger() {
+        return new Trigger(() -> isShooterFullSpeed());
     }
 
+    /********** State Machine Periodic **********/
     @Override
     public void periodic() {
         kFlywheel.updateInputs(kFlywheelInputs);
         Logger.processInputs("Shooter/Flywheel", kFlywheelInputs);
+        
+        isAtFullSpeed = isShooterFullSpeed();
 
         switch (state) {
             case Active:
