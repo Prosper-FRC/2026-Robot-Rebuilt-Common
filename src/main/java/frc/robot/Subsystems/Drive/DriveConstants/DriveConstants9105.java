@@ -27,6 +27,7 @@ public class DriveConstants9105 extends DriveConstants {
         kYTranslationalConstraints = new TrapezoidProfile.Constraints(kModuleSoftLimits.absoluteMaxDriveVelocityMPS(), kModuleSoftLimits.maxLinearAccelerationMPS2());
         kYTranslationalController = new ProfiledPIDController(1.0d, 0.0d, 0.0d, kYTranslationalConstraints);
         kHeadingConstraints = new TrapezoidProfile.Constraints(kModuleSoftLimits.absoluteMaxDriveVelocityMPS(), kModuleSoftLimits.maxLinearAccelerationMPS2());
-        kHeadingController = new ProfiledPIDController(-0.5d, 0.0d, 0.0d, kHeadingConstraints);
+        kHeadingController = new ProfiledPIDController(
+        0.5d, 0.0d, 0.0d, kHeadingConstraints);
     }
 }

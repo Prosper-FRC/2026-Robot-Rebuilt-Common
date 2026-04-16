@@ -154,6 +154,7 @@ public class AutonCommands {
     public Command shooterAuto() {
         return new SequentialCommandGroup(kShooter.setShooterStateCommand(shooterState.Active),
         kIntake.setIntakeStateCommand(intakePivotState.Deployed, intakeRollerState.Idling),
+        kShooter.overrideHoodPositionCommand(0.0d),
         new WaitCommand(1.0d),
         kIndexer.setIndexerStateCommand(indexerState.Active),
         new WaitCommand(5.0),

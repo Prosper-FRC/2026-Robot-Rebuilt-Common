@@ -76,6 +76,9 @@ public class Shooter extends SubsystemBase {
     public Command setShooterStateCommand(shooterState state) {
         return new InstantCommand(() -> setShooterState(state));
     }
+    public Command overrideHoodPositionCommand(double position) {
+        return new InstantCommand(() -> hoodPosition = position);
+    }
 
     public boolean isShooterSpunUp() {
         return kShooterSpeedDebouncer.calculate(Math.abs(RobotConstants.ShooterConstants().kShooterRPS - kFlywheelInputs.velocityRPS) < 10.0d);
