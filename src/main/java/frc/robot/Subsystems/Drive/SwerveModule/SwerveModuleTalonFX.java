@@ -16,6 +16,9 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -63,8 +66,8 @@ public class SwerveModuleTalonFX implements SwerveModuleIO {
 
     // Declare control signals
     public final VoltageOut kDriveVoltageOutControl = new VoltageOut(0.0d);
-    public final MotionMagicVelocityVoltage kDriveVelocityVoltageControl = new MotionMagicVelocityVoltage(0.0d);
-    public final MotionMagicVelocityTorqueCurrentFOC kDriveVelocityTorqueCurrentControl = new MotionMagicVelocityTorqueCurrentFOC(0.0d);
+    public final VelocityVoltage kDriveVelocityVoltageControl = new VelocityVoltage(0.0d);
+    public final VelocityTorqueCurrentFOC kDriveVelocityTorqueCurrentControl = new VelocityTorqueCurrentFOC(0.0d);
     public final NeutralOut kDriveNeutralOut = new NeutralOut();
 
     public final VoltageOut kAzimuthVoltageOutControl = new VoltageOut(0.0d);
@@ -103,11 +106,11 @@ public class SwerveModuleTalonFX implements SwerveModuleIO {
                     .withStatorCurrentLimit(RobotConstants.DriveConstants().kModuleCurrentLimits.driveStatorLimit())
                     .withSupplyCurrentLimit(RobotConstants.DriveConstants().kModuleCurrentLimits.driveSupplyLimit())
             )
-            .withMotionMagic(
-                new MotionMagicConfigs()
-                    .withMotionMagicCruiseVelocity(RobotConstants.DriveConstants().kMotionMagicGains.drive_cruise_velocity())
-                    .withMotionMagicAcceleration(RobotConstants.DriveConstants().kMotionMagicGains.drive_acceleration())
-            )
+            // .withMotionMagic(
+            //     new MotionMagicConfigs()
+            //         .withMotionMagicCruiseVelocity(RobotConstants.DriveConstants().kMotionMagicGains.drive_cruise_velocity())
+            //         .withMotionMagicAcceleration(RobotConstants.DriveConstants().kMotionMagicGains.drive_acceleration())
+            // )
             .withMotorOutput(
                 new MotorOutputConfigs()
                     .withInverted(RobotConstants.DriveConstants().kDriveOutputConfigs.isCCWPositive() ? InvertedValue.CounterClockwise_Positive : InvertedValue.Clockwise_Positive)

@@ -44,14 +44,14 @@ public class DriveConstants {
     public final PIDController kYTranslationalController = new PIDController(1.5d, 0.0d, 0.0d);
     
     public final SwerveModuleCurrentLimits kModuleCurrentLimits = new SwerveModuleCurrentLimits(
-        65.0d, 55.0d, 
+        80.0d, 60.0d, 
         45.0d, 35.0d
     );
 
-    public final SwerveModuleMotionMagicGains kMotionMagicGains = new SwerveModuleMotionMagicGains(
-        4.5d,
-        28.0d
-    );
+    // public final SwerveModuleMotionMagicGains kMotionMagicGains = new SwerveModuleMotionMagicGains(
+    //     4.5d,
+    //     28.0d
+    // );
 
     public final SwerveModuleOutputConfigs kDriveOutputConfigs = new SwerveModuleOutputConfigs(
         false, 
