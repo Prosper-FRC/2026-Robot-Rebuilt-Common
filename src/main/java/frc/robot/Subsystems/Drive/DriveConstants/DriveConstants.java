@@ -24,7 +24,7 @@ public class DriveConstants {
     public final int kGyroId = 40;
 
     public final double kFLModuleOffset = -0.244d;
-    public final double kFRModuleOffset = -0.406d;
+    public final double kFRModuleOffset = 0.382d;
     public final double kBLModuleOffset = -0.223d;
     public final double kBRModuleOffset = -0.495d;
     public final Rotation3d kGyroOffsets = new Rotation3d();

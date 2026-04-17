@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Factories.DriveFactory;
 import frc.robot.Factories.IndexerFactory;
@@ -35,7 +36,7 @@ public class RobotContainer {
             case REAL:
                 kDrive = DriveFactory.createReal();
                 kIndexer = IndexerFactory.createReal();
-                kIntake = IntakeFactory.createReal();
+                kIntake = IntakeFactory.createNoOp();
                 kShooter = ShooterFactory.createReal();
                 break;
             case SIM:
@@ -69,6 +70,8 @@ public class RobotContainer {
         kDriveController.y()
             .onTrue(kDrive.resetGyroCommand()
         );
+        kDriveController.x()
+            .onTrue(new InstantCommand(() -> kDrive.reseedAzimuthMotors()));
 
         // Bind operator controller binding
 
