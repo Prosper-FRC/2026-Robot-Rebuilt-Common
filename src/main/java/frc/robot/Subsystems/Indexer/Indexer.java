@@ -19,6 +19,7 @@ public class Indexer extends SubsystemBase {
     public static enum indexerState {
         Inactive,
         Active,
+        Active_Intake,
         Active_Ball_Tunnel,
         Active_Hoppers,
         Reverse
@@ -47,8 +48,21 @@ public class Indexer extends SubsystemBase {
         kHopperMotors[1].setHopperVoltage(voltage);
         kHopperMotors[2].setHopperVoltage(voltage);
     }
+
+    public void setHopper1(double voltage) {
+        kHopperMotors[0].setHopperVoltage(voltage);
+    }
+
     public Command setHoppersCommand(double voltage) {
         return new InstantCommand(() -> setHoppers(voltage), this);
+    }
+
+    public Command setHopper1Command(double voltage) {
+        return new InstantCommand(() -> setHopper1(voltage), this);
+    }
+
+    public void stopHopper(int hopperID) {
+        kHopperMotors[hopperID].stopHopper();
     }
 
     public void stopHoppers() {
@@ -117,8 +131,13 @@ public class Indexer extends SubsystemBase {
                 setHoppers(RobotConstants.IndexerConstants().kHopperVoltagesActive);
                 setBallTunnel(RobotConstants.IndexerConstants().kBallTunnelVoltagesActive);
                 break;
+            case Active_Intake:
+                setHopper1(6.5);
+                stopHopper(1);
+                stopHopper(2);
+                stopBallTunnel();
             case Active_Ball_Tunnel:
-                stopHoppers();;
+                stopHoppers();
                 setBallTunnel(RobotConstants.IndexerConstants().kBallTunnelVoltagesActive);
                 break;
             case Active_Hoppers:

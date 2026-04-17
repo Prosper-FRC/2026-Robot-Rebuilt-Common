@@ -52,7 +52,6 @@ public class RobotConstants {
     private final ShooterConstants kShooterConstants;
 
     private RobotConstants() {
-
         kTeamNumber = RobotController.getTeamNumber();
         if(RobotBase.isReal()) {
             kMode = mode.REAL;
