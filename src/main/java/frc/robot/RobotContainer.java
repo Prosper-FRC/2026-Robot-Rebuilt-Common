@@ -35,9 +35,9 @@ public class RobotContainer {
         switch(RobotConstants.Instance().kMode) {
             case REAL:
                 kDrive = DriveFactory.createReal();
-                kIndexer = IndexerFactory.createReal();
+                kIndexer = IndexerFactory.createNoOp();
                 kIntake = IntakeFactory.createNoOp();
-                kShooter = ShooterFactory.createReal();
+                kShooter = ShooterFactory.createNoOp();
                 break;
             case SIM:
                 kDrive = DriveFactory.createSim();
